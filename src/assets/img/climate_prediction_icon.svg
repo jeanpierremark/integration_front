@@ -1,0 +1,180 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Gradient definitions -->
+  <defs>
+    <linearGradient id="aiGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#166534;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#22C55E;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="weatherGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#15803D;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#16A34A;stop-opacity:0.6" />
+    </linearGradient>
+    <radialGradient id="glowGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#22C55E;stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:#166534;stop-opacity:0.1" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="45" fill="#F8FAFC" stroke="#166534" stroke-width="2"/>
+  
+  <!-- AI Brain/Processor at center -->
+  <g transform="translate(50, 50)">
+    <!-- Main AI core -->
+    <circle cx="0" cy="0" r="16" fill="url(#aiGradient)" opacity="0.9"/>
+    <circle cx="0" cy="0" r="12" fill="#FFFFFF" opacity="0.95"/>
+    
+    <!-- Neural network pattern inside -->
+    <g stroke="#166534" stroke-width="1" fill="#16A34A">
+      <!-- Layer 1 (input) -->
+      <circle cx="-8" cy="-6" r="1.5"/>
+      <circle cx="-8" cy="0" r="1.5"/>
+      <circle cx="-8" cy="6" r="1.5"/>
+      
+      <!-- Layer 2 (hidden) -->
+      <circle cx="0" cy="-8" r="1.5"/>
+      <circle cx="0" cy="-3" r="1.5"/>
+      <circle cx="0" cy="3" r="1.5"/>
+      <circle cx="0" cy="8" r="1.5"/>
+      
+      <!-- Layer 3 (output) -->
+      <circle cx="8" cy="-4" r="1.5"/>
+      <circle cx="8" cy="4" r="1.5"/>
+      
+      <!-- Connections -->
+      <g stroke="#166534" stroke-width="0.8" opacity="0.6">
+        <line x1="-8" y1="-6" x2="0" y2="-8"/>
+        <line x1="-8" y1="-6" x2="0" y2="-3"/>
+        <line x1="-8" y1="0" x2="0" y2="-3"/>
+        <line x1="-8" y1="0" x2="0" y2="3"/>
+        <line x1="-8" y1="6" x2="0" y2="3"/>
+        <line x1="-8" y1="6" x2="0" y2="8"/>
+        <line x1="0" y1="-8" x2="8" y2="-4"/>
+        <line x1="0" y1="-3" x2="8" y2="-4"/>
+        <line x1="0" y1="3" x2="8" y2="4"/>
+        <line x1="0" y1="8" x2="8" y2="4"/>
+      </g>
+    </g>
+    
+    <!-- AI label -->
+    <text x="0" y="22" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="#166534">AI</text>
+  </g>
+  
+  <!-- Weather data inputs (top section) -->
+  <g transform="translate(50, 20)">
+    <!-- Temperature sensor -->
+    <g transform="translate(-20, 0)">
+      <rect x="-2" y="-8" width="4" height="12" rx="2" fill="#DC2626"/>
+      <circle cx="0" cy="6" r="3" fill="#DC2626"/>
+      <text x="0" y="-12" text-anchor="middle" font-family="Arial, sans-serif" font-size="6" fill="#166534">T°</text>
+      <!-- Data flow line -->
+      <path d="M0 10 Q10 20 20 30" stroke="#22C55E" stroke-width="2" fill="none" stroke-dasharray="3,2"/>
+    </g>
+    
+    <!-- Humidity sensor -->
+    <g transform="translate(0, 0)">
+      <path d="M0 -8 Q-3 -2 0 4 Q3 -2 0 -8" fill="#06B6D4"/>
+      <text x="0" y="-12" text-anchor="middle" font-family="Arial, sans-serif" font-size="6" fill="#166534">H%</text>
+      <!-- Data flow line -->
+      <path d="M0 8 Q0 20 0 30" stroke="#22C55E" stroke-width="2" fill="none" stroke-dasharray="3,2"/>
+    </g>
+    
+    <!-- Wind sensor -->
+    <g transform="translate(20, 0)">
+      <path d="M-6 0 L6 0 M2 -3 L6 0 L2 3" stroke="#16A34A" stroke-width="2" fill="none"/>
+      <circle cx="0" cy="0" r="2" fill="none" stroke="#16A34A" stroke-width="1"/>
+      <text x="0" y="-12" text-anchor="middle" font-family="Arial, sans-serif" font-size="6" fill="#166534">W</text>
+      <!-- Data flow line -->
+      <path d="M0 5 Q-10 20 -20 30" stroke="#22C55E" stroke-width="2" fill="none" stroke-dasharray="3,2"/>
+    </g>
+  </g>
+  
+  <!-- Prediction outputs (bottom section) -->
+  <g transform="translate(20, 75)">
+    <!-- Weather forecast display -->
+    <rect x="0" y="0" width="60" height="20" rx="4" fill="#FFFFFF" stroke="#166534" stroke-width="1"/>
+    
+    <!-- Tomorrow -->
+    <g transform="translate(8, 10)">
+      <!-- Sun -->
+      <circle cx="0" cy="0" r="3" fill="#F59E0B"/>
+      <g stroke="#F59E0B" stroke-width="0.5">
+        <line x1="0" y1="-5" x2="0" y2="-6"/>
+        <line x1="3.5" y1="-3.5" x2="4.2" y2="-4.2"/>
+        <line x1="5" y1="0" x2="6" y2="0"/>
+        <line x1="3.5" y1="3.5" x2="4.2" y2="4.2"/>
+      </g>
+      <text x="0" y="8" text-anchor="middle" font-family="Arial, sans-serif" font-size="4" fill="#166534">25°</text>
+    </g>
+    
+    <!-- Day after -->
+    <g transform="translate(22, 10)">
+      <!-- Partial cloud -->
+      <circle cx="-1" cy="-1" r="2" fill="#F59E0B"/>
+      <ellipse cx="1" cy="0" rx="3" ry="2" fill="#9CA3AF"/>
+      <text x="0" y="8" text-anchor="middle" font-family="Arial, sans-serif" font-size="4" fill="#166534">22°</text>
+    </g>
+    
+    <!-- Later -->
+    <g transform="translate(36, 10)">
+      <!-- Cloud with rain -->
+      <ellipse cx="0" cy="-1" rx="3" ry="2" fill="#6B7280"/>
+      <path d="M-1 2 Q-0.5 4 -1 5" stroke="#06B6D4" stroke-width="1" fill="none"/>
+      <path d="M1 2 Q1.5 4 1 5" stroke="#06B6D4" stroke-width="1" fill="none"/>
+      <text x="0" y="8" text-anchor="middle" font-family="Arial, sans-serif" font-size="4" fill="#166534">18°</text>
+    </g>
+    
+    <!-- Future trend -->
+    <g transform="translate(50, 10)">
+      <!-- Trend arrow -->
+      <path d="M-3 2 L3 -2 M1 -3 L3 -2 L2 0" stroke="#DC2626" stroke-width="1.5" fill="none"/>
+      <text x="0" y="8" text-anchor="middle" font-family="Arial, sans-serif" font-size="4" fill="#166534">↗</text>
+    </g>
+  </g>
+  
+  <!-- Satellite data input -->
+  <g transform="translate(15, 35)">
+    <!-- Satellite -->
+    <rect x="-1" y="-1" width="2" height="2" fill="#166534"/>
+    <rect x="-4" y="-0.5" width="2" height="1" fill="#22C55E"/>
+    <rect x="2" y="-0.5" width="2" height="1" fill="#22C55E"/>
+    <circle cx="0" cy="0" r="3" fill="none" stroke="#22C55E" stroke-width="0.5" stroke-dasharray="1,1"/>
+    <!-- Data transmission -->
+    <path d="M3 3 Q20 20 35 35" stroke="#22C55E" stroke-width="1.5" fill="none" stroke-dasharray="2,1"/>
+  </g>
+  
+  <!-- Ground sensors -->
+  <g transform="translate(85, 40)">
+    <rect x="-2" y="-2" width="4" height="4" rx="1" fill="#16A34A"/>
+    <circle cx="0" cy="0" r="1" fill="#FFFFFF"/>
+    <circle cx="0" cy="0" r="4" fill="none" stroke="#22C55E" stroke-width="0.5" stroke-dasharray="1,1"/>
+    <!-- Data transmission -->
+    <path d="M-4 -4 Q-20 20 -35 35" stroke="#22C55E" stroke-width="1.5" fill="none" stroke-dasharray="2,1"/>
+  </g>
+  
+  <!-- Machine learning indicator -->
+  <g transform="translate(75, 75)">
+    <rect x="0" y="0" width="20" height="12" rx="2" fill="#FFFFFF" stroke="#166534" stroke-width="1"/>
+    <text x="10" y="7" text-anchor="middle" font-family="Arial, sans-serif" font-size="5" fill="#166534">ML</text>
+    <!-- Processing bars -->
+    <rect x="2" y="9" width="3" height="1" fill="#22C55E"/>
+    <rect x="6" y="9" width="5" height="1" fill="#16A34A"/>
+    <rect x="12" y="9" width="2" height="1" fill="#15803D"/>
+    <rect x="15" y="9" width="4" height="1" fill="#166534"/>
+  </g>
+  
+  <!-- Data cloud -->
+  <g transform="translate(25, 60)">
+    <ellipse cx="0" cy="0" rx="8" ry="4" fill="#FFFFFF" stroke="#166534" stroke-width="1"/>
+    <ellipse cx="-3" cy="-2" rx="4" ry="2" fill="#FFFFFF" stroke="#166534" stroke-width="1"/>
+    <ellipse cx="4" cy="-1" rx="3" ry="2" fill="#FFFFFF" stroke="#166534" stroke-width="1"/>
+    <text x="0" y="1" text-anchor="middle" font-family="Arial, sans-serif" font-size="4" fill="#166534">DATA</text>
+  </g>
+  
+  <!-- Accuracy indicator -->
+  <g transform="translate(8, 75)">
+    <circle cx="0" cy="0" r="6" fill="#FFFFFF" stroke="#166534" stroke-width="1"/>
+    <text x="0" y="-2" text-anchor="middle" font-family="Arial, sans-serif" font-size="4" font-weight="bold" fill="#16A34A">95%</text>
+    <text x="0" y="2" text-anchor="middle" font-family="Arial, sans-serif" font-size="3" fill="#166534">ACC</text>
+  </g>
+</svg>

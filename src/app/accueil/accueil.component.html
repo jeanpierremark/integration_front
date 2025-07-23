@@ -1,0 +1,334 @@
+
+<div class="cs_preloader">
+    <div class="cs_preloader_in">
+        <span></span>
+        <span></span>
+    </div>
+      
+</div>
+<!-- End Preloader -->
+<div class="row">
+    <app-header></app-header>
+</div>
+  
+<div class="row " >
+<!-- Start Hero Section -->
+    <section class="cs_hero cs_style_1 cs_heading_bg cs_center cs_bg_filed" data-src="assets/img/nature/hero_bg.jpg">
+      <div class="container">
+        <div class="cs_hero_thumb wow fadeIn" data-wow-duration="1s" data-wow-delay="0.25s">
+          <div class="cs_hero_thumb_left"><img src="assets/img/cap2.png" alt="Thumb"></div>
+          <div class="cs_hero_thumb_right"><img src="assets/img/climat2.jpg" alt="Thumb"></div>
+          
+          
+        </div>
+        <div class="cs_slider cs_style_1 cs_slider_gap_24 wow fadeInRight" data-wow-duration="0.8s" data-wow-delay="0.25s">
+          <div class="cs_slider_container" data-autoplay="1"  data-autoplay-timeout="10000" data-loop="1" data-speed="800" data-center="0" data-variable-width="0" data-slides-per-view="1">
+            <div class="cs_slider_wrapper">
+              <div class="cs_slide">
+                <div class="cs_hero_text">
+                  <h1 class="cs_hero_title cs_fs_70 cs_white_color cs_mb_30">De petites analyses pour de grands impacts climatiques</h1>
+                  <p class="cs_hero_subtitle cs_white_color cs_mb_37" style="text-align: justify;">Notre plateforme centralise et analyse des données climatiques telles que la température, l’humidité, la pression et les précipitations. Elle offre des outils pour explorer les tendances, générer des indicateurs fiables et appuyer la prise de décision dans divers domaines liés au climat</p>
+                </div>
+              </div>
+              <div class="cs_slide">
+                <div class="cs_hero_text">
+                    <h1 class="cs_hero_title cs_fs_70 cs_white_color cs_mb_30">Comprendre le climat, agir pour l’avenir</h1>
+                  <p class="cs_hero_subtitle cs_white_color cs_mb_37 " style="text-align: justify;">Notre plateforme centralise et analyse des données climatiques telles que la température, l’humidité, la pression et les précipitations. Elle offre des outils pour explorer les tendances, générer des indicateurs fiables et appuyer la prise de décision dans divers domaines liés au climat</p>
+                 
+                </div>
+              </div>
+              <div class="cs_slide">
+                <div class="cs_hero_text">
+                    <h1 class="cs_hero_title cs_fs_70 cs_white_color cs_mb_30">Chaque donnée compte pour protéger notre planète</h1>
+                  <p class="cs_hero_subtitle cs_white_color cs_mb_37" style="text-align: justify;">Notre plateforme centralise et analyse des données climatiques telles que la température, l’humidité, la pression et les précipitations. Elle offre des outils pour explorer les tendances, générer des indicateurs fiables et appuyer la prise de décision dans divers domaines liés au climat</p>
+                 
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="cs_pagination cs_style_1"></div>
+        </div>
+      </div>
+    </section>
+    <!-- End Hero Section -->
+    <!-- Start Feature Section -->
+    <section style="width: 100%;">
+      <div class="cs_height_150 cs_height_lg_80"></div>
+      <div class="container">
+        <div class="row cs_row_gap_50 cs_gap_y_50">
+          <div class="col-lg-4">
+            <div class="cs_iconbox cs_style_1">
+              <div class="cs_iconbox_icon cs_mb_26 cs_mb_lg_20" style="display: flex; justify-content: center; align-items: center;"><img src="assets/img/climate_warming_icon.svg" alt=""></div>
+                <h3 class="cs_fs_38 cs_semibold cs_mb_22 cs_mb_lg_15" style="text-align: center;">Réchauffement Global</h3>
+                    <p class="mb-0 text-justify" style="text-align: justify;">La température moyenne mondiale a augmenté de plus de 1°C depuis l’ère préindustrielle, entraînant des vagues de chaleur plus fréquentes et des phénomènes météorologiques extrêmes.</p>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="cs_iconbox cs_style_1">
+               <div class="cs_iconbox_icon cs_mb_26 cs_mb_lg_20" style="display: flex; justify-content: center; align-items: center;"><img src="assets/img/sea_level_rise_icon.svg" alt=""></div>
+                <h3 class="cs_fs_38 cs_semibold cs_mb_22 cs_mb_lg_15" style="text-align: center;">Hausse des Mers</h3>
+                    <p class="mb-0 text-justify" style="text-align: justify;">Le niveau des océans a augmenté d’environ 23 cm depuis 1880, menaçant les zones côtières et les écosystèmes marins à cause de la fonte des glaciers et de la dilatation thermique.</p>
+             </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="cs_iconbox cs_style_1">
+              <div class="cs_iconbox_icon cs_mb_26 cs_mb_lg_20" style="display: flex; justify-content: center; align-items: center;"><img src="assets/img/climate_migration_icon.svg" alt=""></div>
+                <h3 class="cs_fs_38 cs_semibold cs_mb_22 cs_mb_lg_15"style="text-align: center;">Migrations Climatiques</h3>
+                    <p class="mb-0 " style="text-align: justify;">Des millions de personnes sont contraintes de se déplacer chaque année à cause de la sécheresse, des inondations ou de la dégradation des sols liée au changement climatique.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- End Feature Section -->
+     <div class="d-flex justify-content-center align-items-center vh-100 bg-white" *ngIf="loading">
+    <div class="spinner-border" role="status" style="width: 4rem; height: 4rem; color:#08ac26;">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+  </div>
+    <main style="margin-left:70px; margin-right:60px;">
+    <header class="main-header" style="background-color: white; margin-top:30px;margin-bottom:0px;">
+    
+    <div  class="search-container">
+        <div class="search-bar">
+            <input type="text" class="form-control" placeholder="Recherche..." [(ngModel)]="searchText" />
+            <i  style="color: #042c64; font-size:30px;" class="bi bi-search search-icon" (click)="getMeteo()"></i>
+        </div>
+    </div>
+    </header>
+     <section class="current-weather" style="margin-right:60px;">
+     <div class="weather-card">
+        <div class="weather-header">
+            <div class="location" style="color:#068946;"><i class="bi bi-geo-alt"></i> {{data_weather.ville}}</div>
+            <div class="time" style="color:rgb(3, 8, 14);">Aujourd'hui, {{heureActuelle}}</div>
+        </div>
+
+        <div class="temperature" style="color:#068946; font-family: calibri;">{{data_weather.temperature}}°</div>
+        <div class="status" style="color:rgb(3, 8, 14); font-family: calibri;"><img src="{{data_weather.icon}}" alt="" srcset="">{{condition}}</div>
+        <button>Temperature</button>
+      </div>
+      <div class="weather-overview">
+            <div class="metric">
+            <div class="metric-icon"><i style="color:#08ac26" class="bi bi-wind"></i></div>&nbsp;&nbsp;
+            <div class="metric-text">
+                <small style="color: #9d9e9f; margin-bottom: 10px;">vitese vent</small>
+                <div style="color: rgb(3, 8, 14); font-size: 25px; font-family:calibri;" class="value fw-bold">{{data_weather.vitesse_vent}} km/h</div>
+            </div>
+            </div>  
+
+            <div class="metric">
+            <div class="metric-icon"><i style="color: #068946;;" class="bi bi-cloud-drizzle"></i></div>&nbsp;&nbsp;
+            <div class="metric-text">
+                <small style="color: #9d9e9f; margin-bottom: 10px;">Chance de pluie</small>
+                <div style="color: rgb(3, 8, 14); font-size: 25px; font-family:calibri;" class="value fw-bold">{{data_weather.chance_pluie}}%</div>
+            </div>
+            </div>    
+            <div class="metric">
+            <div class="metric-icon"><i style="color: #068946;" class="bi bi-water"></i></div>&nbsp;&nbsp;
+            <div class="metric-text">
+                <small style="color: #9d9e9f; margin-bottom: 10px;">Pression</small>
+                <div style="color: rgb(3, 8, 14); font-size: 25px; font-family:calibri;" class="value fw-bold">{{data_weather.pression}} hpa</div>
+            </div>
+            </div>
+             <div class="metric" style="text-align: right;">
+            <div class="metric-icon"><i style="color: #068946;" class="bi bi-sun"></i></div>&nbsp;&nbsp;
+            <div class="metric-text">
+                <small style="color: #9d9e9f; margin-bottom: 10px;">Indice UV</small>
+                <div style="color: rgb(3, 8, 14); font-size: 25px; font-family:calibri;" class="value fw-bold">{{data_weather.uv_index}}</div>
+            </div>
+            </div>
+          </div>
+    </section>
+  </main>
+  <div class="weather-overview2" style="text-align: center;">
+  <div class="metric">
+    <div class="metric-icon"><i style="color: #068946;" class="bi bi-thermometer-sun"></i></div>&nbsp;&nbsp;
+    <div class="metric-text">
+      <small style="color: #9d9e9f; margin-bottom: 10px;">Température maximale</small>
+      <div style="color: rgb(3, 8, 14); font-size: 25px; font-family: calibri;" class="value fw-bold">{{data_weather.temperature_max}}°</div>
+    </div>
+  </div>
+
+  <div class="metric">
+    <div class="metric-icon"><i style="color: #068946;" class="bi bi-thermometer-sun"></i></div>&nbsp;&nbsp;
+    <div class="metric-text">
+      <small style="color: #9d9e9f; margin-bottom: 10px;">Température minimale</small>
+      <div style="color: rgb(3, 8, 14); font-size: 25px; font-family: calibri;" class="value fw-bold">{{data_weather.temperature_min}}°</div>
+    </div>
+  </div> 
+
+  <div class="metric">
+    <div class="metric-icon"><i style="color: #068946;" class="bi bi-moisture"></i></div>&nbsp;&nbsp;
+    <div class="metric-text">
+      <small style="color: #9d9e9f; margin-bottom: 10px;">Humidité</small>
+      <div style="color: rgb(3, 8, 14); font-size: 25px; font-family: calibri;" class="value fw-bold">{{data_weather.humidite}}%</div>
+    </div>
+  </div> 
+
+  <div class="metric">
+    <div class="metric-icon"><i style="color: #068946;" class="bi bi-cloud"></i></div>&nbsp;&nbsp;
+    <div class="metric-text">
+      <small style="color: #9d9e9f; margin-bottom: 10px;">Nébulosité</small>
+      <div style="color: rgb(3, 8, 14); font-size: 25px; font-family: calibri;" class="value fw-bold">{{data_weather.nebulosite}}%</div>
+    </div>
+  </div> 
+</div>
+
+    <!-- Start About Section -->
+    <section class="cs_shape_wrap" style="width: 100%; padding-top:0px;">
+      <div class="cs_height_140 cs_height_lg_70"></div>
+      <div class="cs_shape cs_shape_position_1"><img src="assets/img/nature/about_shape_1.svg" alt=""></div>
+      <div class="container">
+        <div class="row align-items-center cs_gap_y_50">
+          <div class="col-lg-6 wow fadeIn" data-wow-duration="0.8s" data-wow-delay="0.25s">
+            <div href="#" class="cs_video_block cs_style_1 cs_bg_filed cs_video_open cs_center" data-src="assets/img/cap2.png">
+              <span class="cs_player_btn cs_white_color">
+                <svg width="70" height="70" viewBox="0 0 70 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M35 0C15.7004 0 0 15.7004 0 35C0 54.2996 15.7004 70 35 70C54.2996 70 70 54.2996 70 35C70 15.7004 54.2996 0 35 0ZM35 64.1667C18.9175 64.1667 5.83333 51.0825 5.83333 35C5.83333 18.9175 18.9175 5.83333 35 5.83333C51.0825 5.83333 64.1667 18.9175 64.1667 35C64.1667 51.0825 51.0825 64.1667 35 64.1667ZM23.3333 51.4704L52.6167 35L23.3333 18.5296V51.4733V51.4704ZM29.1667 28.5017L40.7167 35L29.1667 41.4983V28.5017Z" fill="currentColor"/>
+                </svg>                  
+              </span>
+            </div>
+          </div>
+          <div class="col-lg-6 wow fadeInRight" data-wow-duration="0.8s" data-wow-delay="0.25s">
+            <div class="cs_pl_75">
+              <h3 class="cs_accent_color cs_fs_21 cs_semibold cs_mb_13">À propos</h3>
+              <h2 class="cs_fs_51 cs_mb_29">Une Plateforme au Service des Données Climatiques</h2>
+              <p class="cs_mb_37 " style="text-align: justify;">Conçue pour relever les défis liés au changement climatique, notre plateforme permet d’intégrer, analyser et interpréter des données environnementales clés : température, humidité, précipitations, pression atmosphérique, et plus encore. Elle offre aux chercheurs, décideurs et citoyens un accès simplifié à des visualisations claires et des outils d’exploration avancés. En transformant des volumes de données brutes en indicateurs exploitables, nous facilitons la compréhension des tendances climatiques et soutenons des actions éclairées en faveur de la planète.</p>
+              <ul class="cs_list cs_style_1 cs_mp_0">
+                <li>
+                  <i class="cs_list_icon cs_accent_color">
+                    <svg width="18" height="17" viewBox="0 0 18 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M0 9.62275C0.0320847 8.83012 0.390363 8.2499 1.11227 7.93388C1.84487 7.61269 2.54004 7.73702 3.1443 8.25508C4.06406 9.0477 4.96777 9.85587 5.87684 10.6589C6.04796 10.8091 6.21908 10.9645 6.39554 11.1148C6.65757 11.3427 6.88751 11.3323 7.12279 11.0733C9.096 8.91819 11.0639 6.75789 13.0371 4.5976C14.3686 3.13668 15.7054 1.68094 17.037 0.220014C17.2027 0.0386945 17.3952 -0.0493752 17.6412 0.0283334C17.8498 0.0956808 18.0102 0.277001 17.9995 0.494585C17.9941 0.608557 17.946 0.732891 17.8819 0.831322C16.3685 3.19884 14.8552 5.56118 13.3419 7.92352C11.5986 10.6433 9.85534 13.3631 8.11207 16.0881C7.80727 16.5647 7.39551 16.8859 6.81264 16.974C6.15491 17.0776 5.60947 16.8704 5.19237 16.3782C3.69508 14.6116 2.20849 12.8399 0.716557 11.0681C0.433143 10.7469 0.133686 10.4257 0.0534744 9.98539C0.0267372 9.85587 0.0160423 9.73154 0 9.62275Z" fill="currentColor"/>
+                    </svg>                        
+                  </i>
+                  <h3 class="cs_fs_28 cs_semibold cs_mb_15">Notre Mission</h3>
+                    <p class="mb-0 text-justify">Valoriser les données climatiques pour informer, sensibiliser et guider les décisions en faveur d’un avenir durable.</p>
+                </li>
+                <li>
+                  <i class="cs_list_icon cs_accent_color">
+                    <svg width="18" height="17" viewBox="0 0 18 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M0 9.62275C0.0320847 8.83012 0.390363 8.2499 1.11227 7.93388C1.84487 7.61269 2.54004 7.73702 3.1443 8.25508C4.06406 9.0477 4.96777 9.85587 5.87684 10.6589C6.04796 10.8091 6.21908 10.9645 6.39554 11.1148C6.65757 11.3427 6.88751 11.3323 7.12279 11.0733C9.096 8.91819 11.0639 6.75789 13.0371 4.5976C14.3686 3.13668 15.7054 1.68094 17.037 0.220014C17.2027 0.0386945 17.3952 -0.0493752 17.6412 0.0283334C17.8498 0.0956808 18.0102 0.277001 17.9995 0.494585C17.9941 0.608557 17.946 0.732891 17.8819 0.831322C16.3685 3.19884 14.8552 5.56118 13.3419 7.92352C11.5986 10.6433 9.85534 13.3631 8.11207 16.0881C7.80727 16.5647 7.39551 16.8859 6.81264 16.974C6.15491 17.0776 5.60947 16.8704 5.19237 16.3782C3.69508 14.6116 2.20849 12.8399 0.716557 11.0681C0.433143 10.7469 0.133686 10.4257 0.0534744 9.98539C0.0267372 9.85587 0.0160423 9.73154 0 9.62275Z" fill="currentColor"/>
+                    </svg>                        
+                  </i>
+                  <h3 class="cs_fs_28 cs_semibold cs_mb_15">Nos Valeurs</h3>
+                    <p class="mb-0" style="text-align: justify;">
+                        Transparence, rigueur scientifique, accessibilité des données et engagement pour un monde résilient face aux changements climatiques.
+                    </p>                
+                  </li>
+              </ul>
+              <div class="cs_height_45 cs_height_lg_30"></div>
+            
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="cs_height_150 cs_height_lg_80"></div>
+    </section>
+    <!-- End About Section -->
+    <!-- Start Services Section -->
+    <section class="cs_half_bg_wrap" style="width: 100%;">
+      <div class="cs_height_145 cs_height_lg_75"></div>
+      <div class="cs_half_bg_top cs_accent_bg cs_bg_filed" data-src="assets/img/cap11.png"></div>
+      <div class="container-fluid">
+        <div class="cs_section_heading cs_style_1 text-center">
+          <h3 class="cs_fs_21 cs_semibold cs_white_color cs_mb_13 wow fadeInUp" data-wow-duration="0.8s" data-wow-delay="0.25s" style="font-weight: bold;">La collecte, l’intégration, l’analyse et la visualisation des données climatiques</h3>
+        </div>
+        <div class="cs_height_90 cs_height_lg_50"></div>
+        <div class="cs_slider cs_style_1 cs_slider_gap_24 cs_ptb_12">
+          <div class="cs_slider_container" data-autoplay="1"  data-autoplay-timeout="10000" data-loop="1" data-speed="800" data-center="0" data-variable-width="0" data-slides-per-view="responsive" data-xs-slides="1" data-sm-slides="2" data-md-slides="2" data-lg-slides="3" data-add-slides="4">
+            <div class="cs_slider_wrapper">
+              <div class="cs_slide">
+                <div class="cs_iconbox cs_style_3 cs_shadow_1 cs_white_bg text-center">
+                  <div class="cs_iconbox_icon cs_mb_28"><img src="assets/img/data_integration_icon.svg" alt=""></div>
+                  <h2 class="cs_fs_28 cs_semibold cs_mb_25">Intégration de Données </h2>
+                  <p class="cs_mb_20"> Centralisez des données issues de sources variées (température, humidité, précipitations, etc.) pour une exploitation unifiée.</p>
+                  
+                </div>
+              </div>
+              <div class="cs_slide">
+                <div class="cs_iconbox cs_style_3 cs_shadow_1 cs_white_bg text-center">
+                  <div class="cs_iconbox_icon cs_mb_28"><img src="assets/img/analysis_visualization_icon.svg" alt=""></div>
+                  <h2 class="cs_fs_28 cs_semibold cs_mb_25">Analyse et Visualisation Intelligente</h2>
+                  <p class="cs_mb_20">Transformez les données en tableaux de bord interactifs pour détecter les tendances.</p>
+                  
+                </div>
+              </div>
+              <div class="cs_slide">
+                <div class="cs_iconbox cs_style_3 cs_shadow_1 cs_white_bg text-center">
+                  <div class="cs_iconbox_icon cs_mb_28"><img src="assets/img/climate_prediction_icon.svg" alt=""></div>
+                  <h2 class="cs_fs_28 cs_semibold cs_mb_25">Prédiction Climatique</h2>
+                  <p class="cs_mb_20">Appliquez des techniques d’analyse prédictive basées sur le machine learning  pour prévoir les dynamiques climatiques et météorologiques.</p>
+                  
+                </div>
+              </div>
+              
+             
+            </div>
+          </div>
+          <div class="cs_height_50 cs_height_lg_40"></div>
+          <div class="cs_pagination cs_style_2"></div>
+        </div>
+      </div>
+    </section>
+    <!-- End Services Section -->
+    <!-- Start Funfact  -->
+    <div class="cs_height_132 cs_height_lg_70"></div>
+    <div class="container">
+      <div class="cs_funfact_1_list">
+        <div class="cs_funfact cs_style_1">
+          <h4 class="cs_funfact_number cs_fs_70 mb-0">
+            +<span class="odometer" data-count-to="3000"></span>H
+          </h4>
+          <p class="cs_funfact_title mb-0">Ensoleillement par an <br>au Sénégal</p>
+        </div>
+        <div class="cs_funfact cs_style_1">
+          <h4 class="cs_funfact_number cs_fs_70 mb-0">
+            <span class="odometer" data-count-to="250"></span>mm/an
+          </h4>
+          <p class="cs_funfact_title mb-0"> au nord  <br> du Sénégal</p>
+        </div>
+        
+        <div class="cs_funfact cs_style_1">
+          <h2 class="cs_funfact_number cs_fs_70 mb-0">
+            <span class="odometer" data-count-to="26"></span>°C
+          </h2>
+          <p class="cs_funfact_title mb-0">Max Saison<br> Sèche Fraiche </p>
+        </div>
+      </div>
+    </div>
+    <div class="cs_height_125 cs_height_lg_60"></div>
+    <!-- End Funfact  -->
+    
+    
+    
+    <!-- Start CTA Section -->
+    <section class="cs_bg_filed text-center" data-src="assets/img/climate-change/newsletter_bg.jpg">
+      <div class="cs_height_140 cs_height_lg_75"></div>
+      <div class="container">
+        <div class="row">
+          <div class="col-xl-10 offset-xl-1">
+            <h2 class="cs_white_color cs_fs_51 cs_mb_50 cs_mb_lg_40">Les données détiennent les clés de l'action - Explorez-les maintenant</h2>
+            <a href="/connexion" class="cs_btn cs_style_1 wow fadeInDown" data-wow-duration="0.8s" data-wow-delay="0.25s">
+              Analyser
+              <i>
+                <svg width="9" height="10" viewBox="0 0 9 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M0.5 9L8.5 1M8.5 1L0.5 1M8.5 1L8.5 9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                <svg width="9" height="10" viewBox="0 0 9 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M0.5 9L8.5 1M8.5 1L0.5 1M8.5 1L8.5 9" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </i>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="cs_height_150 cs_height_lg_80"></div>
+    </section>
+    <!-- End CTA Section -->
+     </div>
+
+<div class="row" >
+      
+    <app-footer></app-footer>
+      
+</div> 

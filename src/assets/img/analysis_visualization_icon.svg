@@ -1,0 +1,110 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Gradient definitions -->
+  <defs>
+    <linearGradient id="chartGradient" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#166534;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#16A34A;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="pieGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#15803D;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#22C55E;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="glowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#14532D;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#166534;stop-opacity:0.4" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="45" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="2"/>
+  
+  <!-- Bar chart section (left side) -->
+  <g transform="translate(15, 25)">
+    <!-- Chart background -->
+    <rect x="0" y="0" width="30" height="40" rx="3" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+    
+    <!-- Chart bars -->
+    <rect x="4" y="25" width="4" height="12" fill="url(#chartGradient)" rx="1"/>
+    <rect x="10" y="18" width="4" height="19" fill="url(#chartGradient)" rx="1"/>
+    <rect x="16" y="22" width="4" height="15" fill="url(#chartGradient)" rx="1"/>
+    <rect x="22" y="12" width="4" height="25" fill="url(#chartGradient)" rx="1"/>
+    
+    <!-- Chart axis lines -->
+    <line x1="3" y1="37" x2="27" y2="37" stroke="#166534" stroke-width="1" opacity="0.5"/>
+    <line x1="3" y1="37" x2="3" y2="10" stroke="#166534" stroke-width="1" opacity="0.5"/>
+  </g>
+  
+  <!-- Pie chart section (right side) -->
+  <g transform="translate(60, 25)">
+    <!-- Chart background -->
+    <rect x="-5" y="0" width="30" height="40" rx="3" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+    
+    <!-- Pie chart -->
+    <circle cx="10" cy="20" r="12" fill="none" stroke="#E5E7EB" stroke-width="2"/>
+    
+    <!-- Pie segments -->
+    <path d="M 10,8 A 12,12 0 0,1 18.4,14.6 L 10,20 Z" fill="#166534"/>
+    <path d="M 18.4,14.6 A 12,12 0 0,1 18.4,25.4 L 10,20 Z" fill="#15803D"/>
+    <path d="M 18.4,25.4 A 12,12 0 0,1 1.6,25.4 L 10,20 Z" fill="#22C55E"/>
+    <path d="M 1.6,25.4 A 12,12 0 0,1 10,8 L 10,20 Z" fill="#16A34A"/>
+  </g>
+  
+  <!-- Line graph section (bottom) -->
+  <g transform="translate(20, 70)">
+    <!-- Graph background -->
+    <rect x="0" y="-5" width="60" height="25" rx="3" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+    
+    <!-- Graph line -->
+    <polyline points="5,12 15,8 25,14 35,6 45,10 55,4" 
+              fill="none" 
+              stroke="url(#chartGradient)" 
+              stroke-width="2.5" 
+              stroke-linecap="round"/>
+    
+    <!-- Data points -->
+    <circle cx="5" cy="12" r="2" fill="#166534"/>
+    <circle cx="15" cy="8" r="2" fill="#166534"/>
+    <circle cx="25" cy="14" r="2" fill="#166534"/>
+    <circle cx="35" cy="6" r="2" fill="#166534"/>
+    <circle cx="45" cy="10" r="2" fill="#166534"/>
+    <circle cx="55" cy="4" r="2" fill="#166534"/>
+    
+    <!-- Grid lines -->
+    <line x1="5" y1="15" x2="55" y2="15" stroke="#E5E7EB" stroke-width="0.5"/>
+    <line x1="5" y1="15" x2="5" y2="3" stroke="#E5E7EB" stroke-width="0.5"/>
+  </g>
+  
+  <!-- Central analysis symbol -->
+  <g transform="translate(45, 45)">
+    <circle cx="5" cy="5" r="8" fill="url(#pieGradient)" opacity="0.9"/>
+    <circle cx="5" cy="5" r="5" fill="#FFFFFF" opacity="0.95"/>
+    
+    <!-- Magnifying glass icon -->
+    <circle cx="5" cy="5" r="3" fill="none" stroke="#166534" stroke-width="1.5"/>
+    <line x1="7.5" y1="7.5" x2="10" y2="10" stroke="#166534" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Data flow indicators -->
+  <g opacity="0.6">
+    <!-- From bar chart to center -->
+    <path d="M35 35 Q42 40 45 45" stroke="#15803D" stroke-width="1.5" fill="none" stroke-dasharray="2,2"/>
+    
+    <!-- From pie chart to center -->
+    <path d="M60 35 Q58 40 55 45" stroke="#15803D" stroke-width="1.5" fill="none" stroke-dasharray="2,2"/>
+    
+    <!-- From line graph to center -->
+    <path d="M50 70 Q50 60 50 55" stroke="#15803D" stroke-width="1.5" fill="none" stroke-dasharray="2,2"/>
+  </g>
+  
+  <!-- Decorative data points -->
+  <circle cx="12" cy="18" r="1" fill="#16A34A" opacity="0.5"/>
+  <circle cx="88" cy="22" r="1" fill="#16A34A" opacity="0.5"/>
+  <circle cx="85" cy="75" r="1" fill="#16A34A" opacity="0.5"/>
+  <circle cx="15" cy="85" r="1" fill="#16A34A" opacity="0.5"/>
+  
+  <!-- Sparkle effects for insights -->
+  <g opacity="0.7">
+    <path d="M25 15 L26 17 L28 16 L26 17 L25 19 L24 17 L22 16 L24 17 Z" fill="#22C55E"/>
+    <path d="M75 80 L76 82 L78 81 L76 82 L75 84 L74 82 L72 81 L74 82 Z" fill="#22C55E"/>
+  </g>
+</svg>

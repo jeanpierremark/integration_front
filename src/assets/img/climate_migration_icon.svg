@@ -1,0 +1,98 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Arrière-plan circulaire -->
+  <circle cx="100" cy="100" r="90" fill="#1B5E20" opacity="0.1"/>
+  
+  <!-- Groupe de personnes en migration -->
+  <g fill="#1B5E20">
+    <!-- Première personne (adulte) -->
+    <circle cx="60" cy="70" r="12"/>
+    <rect x="52" y="82" width="16" height="30" rx="8"/>
+    <rect x="44" y="90" width="10" height="20" rx="5"/>
+    <rect x="66" y="90" width="10" height="20" rx="5"/>
+    <rect x="46" y="112" width="6" height="18" rx="3"/>
+    <rect x="68" y="112" width="6" height="18" rx="3"/>
+    
+    <!-- Deuxième personne (adulte) -->
+    <circle cx="90" cy="80" r="11"/>
+    <rect x="83" y="91" width="14" height="28" rx="7"/>
+    <rect x="76" y="98" width="9" height="18" rx="4"/>
+    <rect x="95" y="98" width="9" height="18" rx="4"/>
+    <rect x="78" y="119" width="5" height="16" rx="2"/>
+    <rect x="97" y="119" width="5" height="16" rx="2"/>
+    
+    <!-- Troisième personne (enfant) -->
+    <circle cx="115" cy="90" r="8"/>
+    <rect x="110" y="98" width="10" height="20" rx="5"/>
+    <rect x="106" y="103" width="6" height="12" rx="3"/>
+    <rect x="118" y="103" width="6" height="12" rx="3"/>
+    <rect x="107" y="118" width="4" height="12" rx="2"/>
+    <rect x="119" y="118" width="4" height="12" rx="2"/>
+  </g>
+  
+  <!-- Bagages et effets personnels -->
+  <g fill="#2E7D32">
+    <rect x="48" y="85" width="12" height="8" rx="2"/>
+    <rect x="107" y="100" width="8" height="6" rx="1"/>
+    <circle cx="125" cy="105" r="3"/>
+  </g>
+  
+  <!-- Flèche de déplacement -->
+  <g fill="#1B5E20">
+    <line x1="130" y1="100" x2="170" y2="100" stroke="#1B5E20" stroke-width="6"/>
+    <polygon points="168,90 180,100 168,110"/>
+  </g>
+  
+  <!-- Environnement dégradé (origine) -->
+  <g stroke="#2E7D32" stroke-width="2" fill="none">
+    <!-- Arbres morts/secs -->
+    <line x1="30" y1="130" x2="30" y2="110"/>
+    <line x1="25" y1="115" x2="35" y2="115"/>
+    <line x1="27" y1="120" x2="33" y2="120"/>
+    
+    <line x1="45" y1="135" x2="45" y2="118"/>
+    <line x1="41" y1="122" x2="49" y2="122"/>
+    
+    <!-- Fissures dans le sol -->
+    <path d="M20 140 L25 145 L30 140 L35 145 L40 140"/>
+    <path d="M25 150 L30 155 L35 150 L40 155"/>
+  </g>
+  
+  <!-- Nuages de poussière/sécheresse -->
+  <g fill="#2E7D32" opacity="0.4">
+    <ellipse cx="35" cy="105" rx="8" ry="4"/>
+    <ellipse cx="50" cy="100" rx="6" ry="3"/>
+    <ellipse cx="25" cy="95" rx="5" ry="2"/>
+  </g>
+  
+  <!-- Destination (espoir) -->
+  <g fill="#2E7D32">
+    <!-- Ville/refuge à l'horizon -->
+    <rect x="160" y="120" width="8" height="15"/>
+    <polygon points="160,120 164,110 168,120"/>
+    <rect x="170" y="115" width="6" height="20"/>
+    <polygon points="170,115 173,108 176,115"/>
+    
+    <!-- Soleil/espoir -->
+    <circle cx="175" cy="70" r="8" fill="#2E7D32" opacity="0.6"/>
+    <g stroke="#2E7D32" stroke-width="1" opacity="0.6">
+      <line x1="175" y1="55" x2="175" y2="60"/>
+      <line x1="175" y1="80" x2="175" y2="85"/>
+      <line x1="160" y1="70" x2="165" y2="70"/>
+      <line x1="185" y1="70" x2="190" y2="70"/>
+    </g>
+  </g>
+  
+  <!-- Traces de pas -->
+  <g fill="#1B5E20" opacity="0.3">
+    <ellipse cx="80" cy="140" rx="3" ry="6" transform="rotate(15 80 140)"/>
+    <ellipse cx="85" cy="145" rx="3" ry="6" transform="rotate(15 85 145)"/>
+    <ellipse cx="90" cy="150" rx="3" ry="6" transform="rotate(15 90 150)"/>
+    <ellipse cx="95" cy="155" rx="3" ry="6" transform="rotate(15 95 155)"/>
+  </g>
+  
+  <!-- Statistiques symboliques -->
+  <g fill="#1B5E20" font-family="Arial" font-size="10" opacity="0.7">
+    <text x="40" y="180">Millions</text>
+    <text x="40" y="190">déplacés</text>
+  </g>
+</svg>

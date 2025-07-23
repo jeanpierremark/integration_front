@@ -1,0 +1,125 @@
+    
+<div class="d-flex justify-content-center align-items-center vh-100 bg-white" *ngIf="loading">
+  <div class="spinner-border" role="status" style="width: 4rem; height: 4rem; color: #7bb37b;">
+    <span class="visually-hidden">Chargement...</span>
+  </div>
+</div>
+<!-- End Preloader -->
+<div class="row">
+    <app-header></app-header>
+</div>
+  
+<div class="row " >
+    <div class="body">
+        <header class="header">
+            
+        </header>
+        <div class="sup">
+        <section class="hero" style="margin-top: 80px;" >
+            <h2 class="text-light">S'Inscrire </h2>
+            <div class="breadcrumb">
+                <a href="/accueil">Accueil</a>
+                <span>•</span>
+                <span>Inscription</span>
+            </div>
+        
+        </section>
+
+        <section class="wave-section">
+            <div class="wave-shape"></div>
+            
+            <div class="form-container">
+                <div class="signin-form">
+                    <div class="form-title">
+                        <h2>S'Inscrire </h2>
+                        <p>Créez votre compte pour accéder à la plateforme. Remplissez les informations ci-dessous pour vous inscrire.</p>
+                    </div>
+                    
+                    <form  #userForm="ngForm"  (ngSubmit)="registerUser()"   id="signinForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="prenom">Prénom</label>
+                                <input type="text" name="prenom" required [class.is-invalid]="prenom.invalid && prenom.touched " [class.is-valid]="prenom.valid" #prenom="ngModel" [(ngModel)]="user.prenom"  placeholder="Prénom">
+                                <small class="text-danger" style="font-weight: bold;" [class.d-none]=" prenom.untouched || prenom.valid"> Veuillez saisir votre prenom </small>
+                            
+                            </div>
+                            <div class="form-group">
+                                <label for="nom">Nom</label>
+                            <input type="text" name="nom" id="nom" required [class.is-invalid]="nom.invalid && nom.touched " [class.is-valid]="nom.valid" #nom="ngModel" [(ngModel)]="user.nom"  placeholder="Nom">
+                                <small class="text-danger" style="font-weight: bold;" [class.d-none]=" nom.untouched || nom.valid"> Veuillez saisir votre nom </small>
+                            </div>
+                        </div>
+
+                
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" name="email" id="email" (keyup)="emailVerif(email.value)" required [class.is-invalid]="emailError || (email.invalid && email.touched ) " [class.is-valid]="email.valid" #email="ngModel" [(ngModel)]="user.email" placeholder="Email">
+                                <div *ngIf="emailError || (email.touched && email.invalid)">
+                                <small class="text-danger"  style="font-weight: bold;" [class.d-none]=" email.untouched || email.valid"> Veuillez saisir votre email </small>
+                                <small class="text-danger"  style="font-weight: bold;" [class.d-none]="!emailError || email.value == ''"> Veuillez saisir l'email au bon format</small>
+                            </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="age">Age </label>
+                                <input placeholder="18" type="number"  min="18" max="70" id="age" name="age" required [class.is-invalid]="age.invalid && age.touched " [class.is-valid]="age.valid" #age="ngModel" [(ngModel)]="user.age">
+                                <small class="text-danger" style="font-weight: bold;" [class.d-none]=" age.untouched || age.valid"> Veuillez saisir un age correcte </small>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="role">Statut</label>
+                                <select id="role" name="role" [(ngModel)]="user.role">
+                                    <option value="Chercheur">Chercheur</option>
+                                    <option value="Etudiant">Etudiant</option>
+                                    
+
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Genre</label>
+                                <div class="radio-group">
+                                    <label><input type="radio" [(ngModel)]="user.genre" name="genre" value="M"  style="width:20px;height:20px"> Homme</label>
+                                    <label><input type="radio" [(ngModel)]="user.genre" name="genre" value="F"  style="width:20px;height:20px"> Femme</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="prenom">Mot de Passe</label>
+                                <input type="password" name="password" id="password" (keyup)="passwordLengthVerif(password.value)" required [class.is-invalid]="passError || (password.invalid && password.touched )" [class.is-valid]="password.valid" #password="ngModel" [(ngModel)]="user.password" tabindex="2" class="form-control" placeholder="****">
+                                <div *ngIf="passError || (password.touched && password.invalid)">
+                                <small class="text-danger" style="font-weight: bold;" [class.d-none]="password.untouched || password.valid"> Veuillez saisir un mot de passe </small>
+                                <small class="text-danger" style="font-weight: bold;" [class.d-none]="!passError || password.value == ''"> Minimun 6 caractéres</small>
+                            </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="nom">Confirme Mot de Passe </label>
+                            <input type="password" (keyup)="passwordConfirmVerif(password.value, passwordC.value)" required [class.is-invalid]="passConfError || (passwordC.invalid && passwordC.touched )" [class.is-valid]="passwordC.valid"  id="passwordC" #passwordC="ngModel" [(ngModel)]="passConf" placeholder="****" name="passwordC">
+                            <div *ngIf="passConfError || (passwordC.touched && passwordC.invalid)">
+                                <small class="text-danger" style="font-weight: bold;" [class.d-none]=" passwordC.untouched || passwordC.valid"> Veuillez confirmer votre password </small>
+                                <small class="text-danger" style="font-weight: bold;" [class.d-none]="!passConfError || passwordC.value == ''">Veuillez saisir le même mot de passe  </small>
+                            </div>
+                            </div>
+                        </div>
+            
+                    
+                        <input  class="signin-btn" [disabled]="userForm.form.invalid || passConfError || emailError" type="submit"    value="Inscription"/>
+
+                        </form>
+
+                    <div class="signup-link">
+                        Vous avez déjà un compte  <a href="/connexion">connectez-vous</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<div class="row" >
+      
+    <app-footer></app-footer>
+      
+</div>

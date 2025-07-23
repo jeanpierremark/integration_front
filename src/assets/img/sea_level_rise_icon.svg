@@ -1,0 +1,65 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Arrière-plan circulaire -->
+  <circle cx="100" cy="100" r="90" fill="#1B5E20" opacity="0.1"/>
+  
+  <!-- Niveau de mer de base -->
+  <rect x="20" y="140" width="160" height="40" fill="#2E7D32" opacity="0.3"/>
+  
+  <!-- Vagues multiples pour montrer la montée -->
+  <g fill="none" stroke="#1B5E20" stroke-width="4">
+    <!-- Vagues du bas -->
+    <path d="M20 160 Q35 150 50 160 T80 160 T110 160 T140 160 T170 160 T200 160"/>
+    <path d="M20 150 Q35 140 50 150 T80 150 T110 150 T140 150 T170 150 T200 150"/>
+    <path d="M20 140 Q35 130 50 140 T80 140 T110 140 T140 140 T170 140 T200 140"/>
+    
+    <!-- Vagues qui montent -->
+    <path d="M20 130 Q35 120 50 130 T80 130 T110 130 T140 130 T170 130"/>
+    <path d="M30 120 Q45 110 60 120 T90 120 T120 120 T150 120"/>
+  </g>
+  
+  <!-- Remplissage des vagues -->
+  <g fill="#2E7D32" opacity="0.6">
+    <path d="M20 160 Q35 150 50 160 T80 160 T110 160 T140 160 T170 160 L180 180 L20 180 Z"/>
+    <path d="M20 150 Q35 140 50 150 T80 150 T110 150 T140 150 T170 150 L180 160 L20 160 Z"/>
+  </g>
+  
+  <!-- Flèches montantes multiples -->
+  <g fill="#1B5E20">
+    <!-- Flèche principale -->
+    <line x1="100" y1="120" x2="100" y2="80" stroke="#1B5E20" stroke-width="5"/>
+    <polygon points="100,75 88,88 112,88"/>
+    
+    <!-- Flèches secondaires -->
+    <line x1="70" y1="130" x2="70" y2="95" stroke="#1B5E20" stroke-width="3"/>
+    <polygon points="70,92 64,100 76,100"/>
+    
+    <line x1="130" y1="125" x2="130" y2="90" stroke="#1B5E20" stroke-width="3"/>
+    <polygon points="130,87 124,95 136,95"/>
+  </g>
+  
+  <!-- Côte menacée -->
+  <g fill="#1B5E20">
+    <!-- Terre/côte -->
+    <path d="M20 140 Q30 135 40 140 L45 120 L55 115 L65 120 L70 140 Z"/>
+    
+    <!-- Petites maisons sur la côte -->
+    <rect x="42" y="110" width="8" height="10" fill="#2E7D32"/>
+    <polygon points="42,110 46,100 50,110"/>
+    
+    <rect x="55" y="112" width="6" height="8" fill="#2E7D32"/>
+    <polygon points="55,112 58,105 61,112"/>
+  </g>
+  
+  <!-- Indicateur de niveau "+2m" -->
+  <g fill="#1B5E20" font-family="Arial" font-size="12" font-weight="bold">
+    <text x="150" y="105" text-anchor="middle">+2m</text>
+    <line x1="140" y1="110" x2="160" y2="110" stroke="#1B5E20" stroke-width="2"/>
+  </g>
+  
+  <!-- Gouttes d'eau pour accentuer -->
+  <g fill="#2E7D32">
+    <ellipse cx="160" cy="70" rx="3" ry="5"/>
+    <ellipse cx="45" cy="85" rx="2" ry="4"/>
+    <ellipse cx="175" cy="95" rx="2" ry="4"/>
+  </g>
+</svg>

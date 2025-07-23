@@ -1,0 +1,211 @@
+<div class="dashboard-container">
+<aside class="sidebar" [class.collapsed]="isSidebarCollapsed">
+  <div>
+    <span class="logo" (click)="toggleSidebar()">
+      <i class="fa fa-cloud"></i>&nbsp; <span class="text">Climate</span>
+    </span> <br>
+    <ul class="menu">
+        <br>
+        <li> <a href="/chercheur"><i class="bi bi-house-fill" ></i> Accueil</a></li>
+        <hr>
+        <li><i class="bi bi-geo-alt-fill"></i> Analyse Approfondie</li>
+         <hr>
+        <li><i class="bi bi-bar-chart-fill"></i> Statistiques</li>
+         <hr>
+        <li><i class="bi bi-cloud-sun-fill"></i> Prévisions</li>
+    </ul>
+  </div>
+</aside>
+
+  <main class="main-content" [style.marginLeft.px]="isSidebarCollapsed ? 80 : 240">
+    <div class="d-flex justify-content-center align-items-center vh-100 bg-white" *ngIf="loading">
+    <div class="spinner-border" role="status" style="width: 4rem; height: 4rem; color: #0a3893;">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+  </div>
+    <header class="main-header" style="background-color: white;">
+      <div>
+        <h3 style="margin-bottom: 3px; font-family: calibri;">{{moisEtAnnee}} <span></span></h3>
+        <p style="color: #9d9e9f; margin-top: 0px; font-size: 16px;">{{ today | date:'fullDate' }}</p>
+    </div>
+    <div  class="search-container">
+        <div class="search-bar">
+            <input type="text" class="form-control" placeholder="Recherche..." [(ngModel)]="searchText" />
+            <i  style="color: #042c64; font-size:30px;" class="bi bi-search search-icon" (click)="getMeteo()"></i>
+        </div>
+    </div>
+   <div class="profile-container">
+  <span style="color: #042c64;">{{user}}</span><span class="profile-icon fa-regular fa-user" (click)="toggleDropdown()"></span>
+
+  <ul *ngIf="dropdownOpen" class="profile-dropdown">
+    <li class="dropdown-header">
+      <span>{{stat}}</span> 
+    <li>
+      <button class="dropdown-item-custom" (click)="logOut()">
+        <span style="font-weight:bold ;" class="text-danger"> <i class="bi bi-box-arrow-right text-danger"></i>Déconnexion</span>
+      </button>
+    </li>
+  </ul>
+</div>
+     
+    </header>
+
+    <section class="current-weather">
+     <div class="weather-card">
+        <div style="color: #3b82f6; font-weight: bold;"> Weather API</div>
+        <div class="weather-header">
+            <div class="location" style="color: #3b82f6;"><i class="bi bi-geo-alt"></i> {{data_weather.ville}}</div>
+            <div class="time" style="color: #042c64;">Aujourd'hui, {{heureActuelle}}</div>
+        </div>
+
+        <div class="temperature" style="color: #042c64; font-family: calibri;">{{data_weather.temperature}}°</div>
+        <div class="status" style="color: #042c64; font-family: calibri;"><img src="{{data_weather.icon}}" alt="" srcset="">{{condition}}</div>
+        <button>Temperature</button>
+        </div>
+      <div class="weather-overview">
+            <div class="metric">
+            <div class="metric-icon"><i style="color: #3b82f6;" class="bi bi-wind"></i></div>&nbsp;&nbsp;
+            <div class="metric-text">
+                <small style="color: #9d9e9f; margin-bottom: 10px;">vitese vent</small>
+                <div style="color: #042c64; font-size: 25px; font-family:calibri;" class="value fw-bold">{{data_weather.vitesse_vent}} km/h</div>
+            </div>
+            </div>  
+
+            <div class="metric">
+            <div class="metric-icon"><i style="color: #3b82f6;" class="bi bi-cloud-drizzle"></i></div>&nbsp;&nbsp;
+            <div class="metric-text">
+                <small style="color: #9d9e9f; margin-bottom: 10px;">Chance de pluie</small>
+                <div style="color: #042c64; font-size: 25px; font-family:calibri;" class="value fw-bold">{{data_weather.chance_pluie}}%</div>
+            </div>
+            </div>    
+            <div class="metric">
+            <div class="metric-icon"><i style="color: #3b82f6;" class="bi bi-water"></i></div>&nbsp;&nbsp;
+            <div class="metric-text">
+                <small style="color: #9d9e9f; margin-bottom: 10px;">Pression</small>
+                <div style="color: #042c64; font-size: 25px; font-family:calibri;" class="value fw-bold">{{data_weather.pression}} hpa</div>
+            </div>
+            </div>
+             <div class="metric">
+            <div class="metric-icon"><i style="color: #3b82f6;" class="bi bi-sun"></i></div>&nbsp;&nbsp;
+            <div class="metric-text">
+                <small style="color: #9d9e9f; margin-bottom: 10px;">Indice UV</small>
+                <div style="color: #042c64; font-size: 25px; font-family:calibri;" class="value fw-bold">{{data_weather.uv_index}}</div>
+            </div>
+            </div>
+      </div>
+    </section>
+
+    <section class="current-weather">
+        <div class="weather-card">
+        <div style="color: #3b82f6;font-weight: bold;"> Open Meteo</div>
+        <div class="weather-header">
+            <div class="location" style="color: #3b82f6;"><i class="bi bi-geo-alt"></i> {{open_data.ville}}</div>
+            <div class="time" style="color: #042c64;">Aujourd'hui, {{heureActuelle}}</div>
+        </div>
+
+        <div class="temperature" style="color: #042c64; font-family: calibri;">{{open_data.temperature}}°</div>
+        <div class="status" style="color: #042c64; font-family: calibri;"><img src="{{data_weather.icon}}" alt="" srcset="">{{condition}}</div>
+        <button>Temperature</button>
+        </div>
+      <div class="weather-overview">
+            <div class="metric">
+            <div class="metric-icon"><i style="color: #3b82f6;" class="bi bi-wind"></i></div>&nbsp;&nbsp;
+            <div class="metric-text">
+                <small style="color: #9d9e9f; margin-bottom: 10px;">vitese vent</small>
+                <div style="color: #042c64; font-size: 25px; font-family:calibri;" class="value fw-bold">{{open_data.vitesse_vent}} km/h</div>
+            </div>
+            </div>  
+
+            <div class="metric">
+            <div class="metric-icon"><i style="color: #3b82f6;" class="bi bi-cloud"></i></div>&nbsp;&nbsp;
+            <div class="metric-text">
+                <small style="color: #9d9e9f; margin-bottom: 10px;">Nebulosité</small>
+                <div style="color: #042c64; font-size: 25px; font-family:calibri;" class="value fw-bold">{{open_data.nebulosite}}%</div>
+            </div>
+            </div>    
+            <div class="metric">
+            <div class="metric-icon"><i style="color: #3b82f6;" class="bi bi-water"></i></div>&nbsp;&nbsp;
+            <div class="metric-text">
+                <small style="color: #9d9e9f; margin-bottom: 10px;">Pression</small>
+                <div style="color: #042c64; font-size: 25px; font-family:calibri;" class="value fw-bold">{{open_data.pression}} hpa</div>
+            </div>
+            </div>
+             <div class="metric">
+            <div class="metric-icon"><i style="color: #3b82f6;" class="bi bi-sun"></i></div>&nbsp;&nbsp;
+            <div class="metric-text">
+                <small style="color: #9d9e9f; margin-bottom: 10px;">Indice UV</small>
+                <div style="color: #042c64; font-size: 25px; font-family:calibri;" class="value fw-bold">{{open_data.uv_index}}</div>
+            </div>
+            </div>
+      </div>
+    </section>
+
+     <section class="current-weather">
+        <div class="weather-card">
+        <div style="color: #3b82f6;font-weight: bold;"> Visual Crossing</div>
+        <div class="weather-header">
+            <div class="location" style="color: #3b82f6;"><i class="bi bi-geo-alt"></i> {{visual_data.ville}}</div>
+            <div class="time" style="color: #042c64;">Aujourd'hui, {{heureActuelle}}</div>
+        </div>
+
+        <div class="temperature" style="color: #042c64; font-family: calibri;">{{visual_data.temperature}}°</div>
+        <div class="status" style="color: #042c64; font-family: calibri;"><img src="{{data_weather.icon}}" alt="" srcset="">{{condition_visual}}</div>
+        <button>Temperature</button>
+        </div>
+      <div class="weather-overview">
+            <div class="metric">
+            <div class="metric-icon"><i style="color: #3b82f6;" class="bi bi-wind"></i></div>&nbsp;&nbsp;
+            <div class="metric-text">
+                <small style="color: #9d9e9f; margin-bottom: 10px;">vitese vent</small>
+                <div style="color: #042c64; font-size: 25px; font-family:calibri;" class="value fw-bold">{{visual_data.vitesse_vent}} km/h</div>
+            </div>
+            </div>  
+
+            <div class="metric">
+            <div class="metric-icon"><i style="color: #3b82f6;" class="bi bi-cloud-drizzle"></i></div>&nbsp;&nbsp;
+            <div class="metric-text">
+                <small style="color: #9d9e9f; margin-bottom: 10px;">Chance de pluie</small>
+                <div style="color: #042c64; font-size: 25px; font-family:calibri;" class="value fw-bold">{{visual_data.chance_pluie}}%</div>
+            </div>
+            </div>    
+            <div class="metric">
+            <div class="metric-icon"><i style="color: #3b82f6;" class="bi bi-cloud"></i></div>&nbsp;&nbsp;
+            <div class="metric-text">
+                <small style="color: #9d9e9f; margin-bottom: 10px;">Nébulosité</small>
+                <div style="color: #042c64; font-size: 25px; font-family:calibri;" class="value fw-bold">{{visual_data.nebulosite}} %</div>
+            </div>
+            </div>
+             <div class="metric">
+            <div class="metric-icon"><i style="color: #3b82f6;" class="bi bi-sun"></i></div>&nbsp;&nbsp;
+            <div class="metric-text">
+                <small style="color: #9d9e9f; margin-bottom: 10px;">Indice UV</small>
+                <div style="color: #042c64; font-size: 25px; font-family:calibri;" class="value fw-bold">{{visual_data.uv_index}}</div>
+            </div>
+            </div>
+      </div>
+    </section>
+
+   
+
+    <section class="charts">
+      <div class="chart-box">
+         <h5 style="color: #042c64; font-family: calibri;">Temperature moyenne par semaine</h5>
+        <canvas baseChart
+            [data]="tempChartData"
+            [options]="tempChartOptions"
+            [type]="lineChartType">
+        </canvas>
+        </div>
+
+        <div class="chart-box">
+         <h5 style="color: #042c64; font-family: calibri;">Précipitations quotidiennes moyennes</h5>
+        <canvas baseChart
+            [data]="rainChartData"
+            [options]="rainChartOptions"
+            chartType="bar">
+  </canvas>
+</div>
+
+    </section>
+  </main>
+</div>

@@ -1,0 +1,81 @@
+<div class="d-flex justify-content-center align-items-center vh-100 bg-white" *ngIf="loading">
+  <div class="spinner-border" role="status" style="width: 4rem; height: 4rem; color: #7bb37b;">
+    <span class="visually-hidden">Chargement...</span>
+  </div>
+</div>
+<div class="row">
+    <app-header></app-header>
+</div>
+  
+<div class="row " >
+    <div class="body">
+        <header class="header">
+            
+        </header>
+        <div class="sup">
+        <section class="hero" style="margin-top: 80px;" >
+            <h2 class="text-light">Se connecter </h2>
+            <div class="breadcrumb">
+                <a href="/accueil">Accueil</a>
+                <span>•</span>
+                <span>Connexion</span>
+            </div>
+        
+        </section>
+
+        <section class="wave-section">
+            <div class="wave-shape"></div>
+            
+            <div class="form-container">
+                <div class="signin-form">
+                    <div class="form-title">
+                        <h2>Se connecter </h2>
+                        <p>Veuillez vous connecter pour accéder à votre espace personnel. Entrez vos identifiants ci-dessous.</p>
+                    </div>
+                    
+                    <form #loginForm="ngForm"  (ngSubmit)="loginUser()"  id="signinForm">
+                        <div class="form-group" style="margin-bottom:0px">
+                            <label for="email">Email</label>
+                            <input type="email" name="email" id="email" (keyup)="emailVerif(email.value)" required [class.is-invalid]="emailError || (email.invalid && email.touched ) " [class.is-valid]="email.valid" #email="ngModel" [(ngModel)]="user.email" tabindex="2" class="form-control" placeholder="Email">
+                            <br>
+                            <div *ngIf="emailError || (email.touched && email.invalid)">
+                                <small class="text-danger" [class.d-none]=" email.untouched || email.valid"> Veuillez saisir votre email </small>
+                                <small class="text-danger" [class.d-none]="!emailError || email.value == ''"> Veuillez saisir l'email au bon format</small>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Mot de passe</label>
+                            <input type="password" name="pass" id="pass"  required [class.is-invalid]="passError || (pass.invalid && pass.touched )" [class.is-valid]="pass.valid" #pass="ngModel" [(ngModel)]="user.pass" tabindex="2" class="form-control" placeholder="Password">
+                            <br>
+                        <div *ngIf="passError || (pass.touched && pass.invalid)">
+                        <small class="text-danger" [class.d-none]="pass.untouched || pass.valid"> Veuillez saisir le  mot de passe </small>
+                        
+                    </div>
+                        </div>
+                        
+                        <div class="form-options">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="remember" name="remember">
+                                <label for="remember">Rester connecter</label>
+                            </div>
+                            <a href="#" class="forgot-password">Mot de passe oublié?</a>
+                        </div>
+                        
+                        <button type="submit" class="signin-btn">Connexion</button>
+                    </form>
+                    
+                    <div class="signup-link">
+                        Vous n'avez pas de compte  <a href="/inscription">Inscrivez-vous</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<div class="row" >
+      
+    <app-footer></app-footer>
+      
+</div>
+  

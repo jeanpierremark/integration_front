@@ -1,0 +1,32 @@
+<svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fond transparent -->
+  
+  <!-- Globe wireframe réduit -->
+  <g transform="translate(150, 150)">
+    <!-- Cercle extérieur principal -->
+    <circle cx="0" cy="0" r="60" fill="none" stroke="#1B5E20" stroke-width="2"/>
+    
+    <!-- Lignes de longitude -->
+    <ellipse cx="0" cy="0" rx="60" ry="15" fill="none" stroke="#1B5E20" stroke-width="1.5"/>
+    <ellipse cx="0" cy="0" rx="60" ry="30" fill="none" stroke="#1B5E20" stroke-width="1.5"/>
+    <ellipse cx="0" cy="0" rx="60" ry="45" fill="none" stroke="#1B5E20" stroke-width="1.5"/>
+    
+    <!-- Lignes de latitude -->
+    <ellipse cx="0" cy="0" rx="15" ry="60" fill="none" stroke="#1B5E20" stroke-width="1.5"/>
+    <ellipse cx="0" cy="0" rx="30" ry="60" fill="none" stroke="#1B5E20" stroke-width="1.5"/>
+    <ellipse cx="0" cy="0" rx="45" ry="60" fill="none" stroke="#1B5E20" stroke-width="1.5"/>
+    
+    <!-- Ligne équatoriale horizontale -->
+    <line x1="-60" y1="0" x2="60" y2="0" stroke="#1B5E20" stroke-width="2"/>
+    
+    <!-- Ligne méridienne verticale -->
+    <line x1="0" y1="-60" x2="0" y2="60" stroke="#1B5E20" stroke-width="2"/>
+    
+    <!-- Point central -->
+    <circle cx="0" cy="0" r="3" fill="#1B5E20"/>
+  </g>
+  
+  <!-- Texte centré -->
+  <text x="150" y="140" font-family="Blanka, Impact, 'Arial Black', sans-serif" font-size="26" font-weight="bold" fill="#1B5E20" text-anchor="middle">CLIMA</text>
+  <text x="150" y="170" font-family="Blanka, Impact, 'Arial Black', sans-serif" font-size="26" font-weight="bold" fill="#1B5E20" text-anchor="middle">DATA</text>
+</svg>
