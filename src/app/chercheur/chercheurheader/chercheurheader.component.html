@@ -1,0 +1,58 @@
+<div class="header">
+        <div class="logo" >
+            <span class=" bi bi-cloud me-3 h2 fw-bold mb-1"> Climate</span>
+        </div>
+        <div class="header-right">
+            <div
+            class="d-flex align-items-center gap-2"
+            (mouseenter)="hovered = true"
+            (mouseleave)="hovered = false"
+            >
+            <div class="btn-group bg-light rounded-lg p-1" role="group">
+                <button
+                (click)="logOut()"
+                class="btn btn-sm d-flex align-items-center gap-2 px-3 py-1 rounded border-0 shadow-sm"
+                [ngClass]="hovered ? 'text-danger bg-bg-light' : 'text-primary bg-light'"
+                style="transition: all 0.2s ease;"
+                >
+                <i class="bi bi-box-arrow-right" [ngClass]="hovered ? 'text-danger' : 'text-primary'"></i>
+                <span class="small fw-medium" [ngClass]="hovered ? 'text-danger' : 'text-primary'">
+                    Déconnexion
+                </span>
+                </button>
+            </div>
+            </div>
+
+
+            <div class="user-info ">
+            <div class=" user-name text-light small">
+                {{user}}
+                <span class="user-role text-warning fw-semibold" style="text-align: right; ">{{stat}}</span>
+            </div>
+              <div class="user-avatar" >
+                <img src="assets/img/avatar.png" alt="Avatar utilisateur" class="avatar-img" />
+              </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- Navigation -->
+    <div class="nav">
+        <div class="nav-items" >
+            <div class="nav-item-wrapper" [class.active]="activeLink === 'accueil'" (click)="setActive('accueil')">
+                <a href="/chercheur/accueil" class="nav-item">Chercheur Accueil</a>
+            </div>
+            <div class="nav-item-wrapper" [class.active]="activeLink === 'sources'" (click)="setActive('sources')" >
+                <a href="/chercheur/sources" class="nav-item">Comparer Sources</a>
+            </div>
+            <div class="nav-item-wrapper" [class.active]="activeLink === 'analyse'" (click)="setActive('analyse')">
+                <a href="/chercheur/analyse" class="nav-item">Analyse Approfondie</a>
+            </div>
+            <div class="nav-item-wrapper" [class.active]="activeLink === 'statistiques'" (click)="setActive('statistiques')">
+                <a href="/chercheur/statistiques" class="nav-item">Statistiques</a>
+            </div>
+            <div class="nav-item-wrapper" [class.active]="activeLink === 'prevision'" (click)="setActive('prevision')">
+                <a href="#" class="nav-item">Prédiction</a>
+            </div>
+        </div>
+    </div>

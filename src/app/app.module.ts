@@ -19,6 +19,11 @@ import { NgChartsModule } from 'ng2-charts';
 import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
 import { ChercheurComponent } from './chercheur/chercheur/chercheur.component';
+import { ChercheurheaderComponent } from './chercheur/chercheurheader/chercheurheader.component';
+import { ComparesourcesComponent } from './chercheur/comparesources/comparesources.component';
+import { AdminComponent } from './admin/admin/admin.component';
+import { AnalyseComponent } from './chercheur/analyse/analyse.component';
+import { StatistiqueComponent } from './chercheur/statistique/statistique.component';
 
 registerLocaleData(localeFr);
 
@@ -35,6 +40,11 @@ registerLocaleData(localeFr);
     ChercheurhomeComponent,
     EtudianthomeComponent,
     ChercheurComponent,
+    ChercheurheaderComponent,
+    ComparesourcesComponent,
+    AdminComponent,
+    AnalyseComponent,
+    StatistiqueComponent,
   ],
   imports: [
     BrowserModule,

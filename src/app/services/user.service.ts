@@ -18,11 +18,11 @@ export class UserService {
   }
 
   register(prenom:string,nom: string,email:string,password:string,role:string,genre:string,age:number,deletable:boolean){
-    return this.http.post<any>('http://localhost:3001/users/api/user/register',{prenom,nom,email,password,role,age,genre,deletable},{ observe: 'response'});
+    return this.http.post<any>('http://localhost:3001/users/register/api/user/register',{prenom,nom,email,password,role,age,genre,deletable},{ observe: 'response'});
   }
   
   login(email:string,password:string){
-    return this.http.post<any>('http://localhost:3001/users/api/user/login',{email,password},{observe: 'response'})
+    return this.http.post<any>('http://localhost:3001/users/login/api/user/login',{email,password},{observe: 'response'})
     .pipe(
      map((userdata)=>{
       const token = userdata.body.token as string;

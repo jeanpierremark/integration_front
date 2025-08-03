@@ -1,0 +1,337 @@
+<!-- weather-dashboard.component.html -->
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+  <!-- Header Dashboard -->
+  <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 shadow-lg">
+    <div class="container-fluid">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-graph-up me-3" style="font-size: 2.5rem;"></i>
+            <div>
+              <h1 class="h2 fw-bold mb-1" style="margin-top:10px">Analyse</h1>
+              <p class="mb-0 text-blue-100" style="font-size: 17px;">Analyses avancées </p>
+            </div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+            <div class="search-bar" style="margin-left: 50px;">
+                  <input type="text" class="form-control" placeholder="Recherche..."[(ngModel)]="searchText"/>
+                  <i  style="color: #3b82f6; font-size:30px;" class="bi bi-search search-icon" ></i>
+            </div>
+             <div class="d-flex align-items-center gap-2" style="margin-left:25px">
+              <select
+                [(ngModel)]="selectedPeriod"
+                (change)="onPeriodChange(selectedPeriod)"
+                class="form-select form-select-sm bg-white"
+                style="width: auto; min-width: 120px;">
+                <option *ngFor="let period of periods" [value]="period.value">
+                  {{ period.label }}
+                </option>
+              </select>
+           
+            </div>
+            
+          </div>           
+          </div>
+        
+        <div class="col-md-4 text-end">
+          <div class="d-flex justify-content-end align-items-right gap-3">
+            <!-- Date Filter -->
+            <div class="text-end">
+              <div class="fw-medium btn bg-light shadow-sm text-primary w-100" style="font-size: 16px;" >{{ dateHeureActuelle$ | async }}</div>
+            </div>
+            <div class="d-flex align-items-center gap-2" style="margin-left:25px">
+              <select
+                [(ngModel)]="selectedSource"
+                (change)="onSourceChange(selectedSource)"
+                class="form-select form-select-sm bg-white"
+                style="width: auto; min-width: 120px;">
+                <option *ngFor="let source of sources" [value]="source.value">
+                  {{ source.label }}
+                </option>
+              </select>
+           
+            </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid p-4">
+    <!-- Quick Stats Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-xl-3 col-md-6" *ngFor="let stat of quickStats">
+        <div class="card border-0 shadow-sm h-100 fade-in">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between">
+              <div>
+                <div class="text-muted small fw-medium mb-1">{{ stat.label }}</div>
+                <h3 class="h4 fw-bold mb-0" [style.color]="stat.color">
+                  {{ stat.value }}{{ stat.unit }}
+                </h3>
+                <div class="d-flex align-items-center mt-2">
+                  <span 
+                    [class]="'badge rounded-pill me-2 ' + (stat.trend > 0 ? 'bg-success' : 'bg-danger')"
+                    style="font-size: 0.75rem;">
+                    <i [class]="'bi ' + (stat.trend > 0 ? 'bi-arrow-up' : 'bi-arrow-down')"></i>
+                    {{stat.trend }}%
+                  </span>
+                  <small class="text-muted">vs hier</small>
+                </div>
+              </div>
+              <div class="text-end">
+                <div 
+                  class="rounded-circle d-flex align-items-center justify-content-center"
+                  [style.background-color]="stat.color + '20'"
+                  style="width: 60px; height: 60px;">
+                  <i [class]="'bi ' + stat.icon" [style.color]="stat.color" style="font-size: 1.5rem;"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Climate Variables Charts Grid -->
+    <div class="row g-4 mb-4">
+      <div class="col-xl-6 col-lg-6" *ngFor="let param of parameters; trackBy: trackByParameter">
+        <div class="card border-0 shadow-sm fade-in">
+          <div class="card-header bg-white border-0 pb-0">
+            <div class="d-flex justify-content-between align-items-center">
+              <h6 class="card-title mb-0 d-flex align-items-center">
+                <i [class]="'bi ' + param.icon + ' me-2'" [style.color]="param.color"></i>
+                {{ param.label }}
+              </h6>
+              <div class="d-flex align-items-center gap-2 small">
+                <!-- Sources Legend -->
+                <div class="d-flex align-items-center gap-3">
+                  <div class="d-flex align-items-center gap-1">
+                    <div class="bg-primary rounded-circle" style="width: 8px; height: 8px;"></div>
+                    <span class="text-muted small">Weather API</span>
+                  </div>
+                  <div class="d-flex align-items-center gap-1">
+                    <div class="bg-success rounded-circle" style="width: 8px; height: 8px;"></div>
+                    <span class="text-muted small">Open Meteo</span>
+                  </div>
+                  <div class="d-flex align-items-center gap-1">
+                    <div class="bg-warning rounded-circle" style="width: 8px; height: 8px;"></div>
+                    <span class="text-muted small">Visual Crossing</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <!-- Current Values Summary -->
+            <div class="row g-2 mb-3 text-center">
+              <div class="col-4">
+                <div class="small text-muted">Moyenne</div>
+                <div class="fw-semibold" [style.color]="param.color">
+                  {{ getParameterStats(param.value).avg }}{{ param.unit }}
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="small text-muted">Min</div>
+                <div class="fw-semibold text-info">
+                  {{ getParameterStats(param.value).min }}{{ param.unit }}
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="small text-muted">Max</div>
+                <div class="fw-semibold text-danger">
+                  {{ getParameterStats(param.value).max }}{{ param.unit }}
+                </div>
+              </div>
+            </div>
+            <!-- Chart Container -->
+            <div style="height: 250px; position: relative;">
+              <canvas [id]="'chart-' + param.value"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Dashboard Grid -->
+    <div class="row g-4">
+      <!-- Left Column - Sources Analysis -->
+      <div class="col-xl-8">
+        <!-- Sources Comparison Cards -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-white border-0">
+            <h5 class="card-title mb-0 d-flex align-items-center">
+              <i class="bi bi-clipboard-data text-primary me-2"></i>
+              Analyse Comparative des Sources
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-4" *ngFor="let source of sourcesComparison">
+                <div class="card border-0 bg-light h-100">
+                  <div class="card-body text-center">
+                    <div 
+                      class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+                      [style.background-color]="source.color + '20'"
+                      style="width: 50px; height: 50px;">
+                      <i [class]="'bi ' + source.icon" [style.color]="source.color"></i>
+                    </div>
+                    <h6 class="card-title">{{ source.name }}</h6>
+                    <div class="row g-2 text-center mb-3">
+                      <div class="col-4">
+                        <div class="small text-muted">Moy</div>
+                        <div class="fw-semibold">{{ source.avg }}</div>
+                      </div>
+                      <div class="col-4">
+                        <div class="small text-muted">Min</div>
+                        <div class="fw-semibold text-success">{{ source.min }}</div>
+                      </div>
+                      <div class="col-4">
+                        <div class="small text-muted">Max</div>
+                        <div class="fw-semibold text-danger">{{ source.max }}</div>
+                      </div>
+                    </div>
+                    <div class="mt-2">
+                      <div class="progress" style="height: 6px;">
+                        <div 
+                          class="progress-bar rounded-pill"
+                          [style.background-color]="source.color"
+                          [style.width.%]="source.reliability">
+                        </div>
+                      </div>
+                      <small class="text-muted">Fiabilité: {{ source.reliability }}%</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accuracy Analysis -->
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+              <div class="card-header bg-white border-0">
+                <h6 class="card-title mb-0 d-flex align-items-center">
+                  <i class="bi bi-bullseye text-info me-2"></i>
+                  Précision par Source
+                </h6>
+              </div>
+              <div class="card-body">
+                <div style="height: 200px; position: relative;">
+                  <canvas id="accuracyChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+              <div class="card-header bg-white border-0">
+                <h6 class="card-title mb-0 d-flex align-items-center">
+                  <i class="bi bi-graph-up-arrow text-success me-2"></i>
+                  Écarts Moyens
+                </h6>
+              </div>
+              <div class="card-body">
+                <div style="height: 200px; position: relative;">
+                  <canvas id="deviationChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column -->
+      <div class="col-xl-4">
+        <!-- Live Data Card -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-white border-0">
+            <h6 class="card-title mb-0 d-flex align-items-center">
+              <div class="bg-success rounded-circle me-2 animate-pulse" style="width: 8px; height: 8px;"></div>
+              Données en Temps Réel
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="list-group list-group-flush">
+              <div class="list-group-item border-0 px-0" *ngFor="let item of liveData">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div class="d-flex align-items-center">
+                    <i [class]="'bi ' + item.icon + ' text-secondary me-2'"></i>
+                    <small class="text-muted">{{ item.label }}</small>
+                  </div>
+                  <div class="text-end">
+                    <div class="fw-semibold" [style.color]="item.color">
+                      {{ item.value }}{{ item.unit }}
+                    </div>
+                    <small class="text-muted">{{ item.time }}</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alerts Card -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-white border-0">
+            <h6 class="card-title mb-0 d-flex align-items-center">
+              <i class="bi bi-exclamation-triangle text-warning me-2"></i>
+              Alertes & Notifications
+            </h6>
+          </div>
+          <div class="card-body">
+            <div class="alert alert-warning alert-sm d-flex align-items-center mb-2" *ngFor="let alert of alerts">
+              <i [class]="'bi ' + alert.icon + ' me-2'"></i>
+              <div class="flex-grow-1">
+                <div class="fw-semibold small">{{ alert.title }}</div>
+                <div class="small text-muted">{{ alert.message }}</div>
+              </div>
+              <small class="text-muted">{{ alert.time }}</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Statistics Summary -->
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white border-0">
+            <h6 class="card-title mb-0">Résumé Statistique</h6>
+          </div>
+          <div class="card-body">
+            <div class="d-grid gap-2">
+              <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <span class="small text-muted">Points de données</span>
+                <span class="fw-semibold">{{ getTotalDataPoints() }}</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <span class="small text-muted">Sources actives</span>
+                <span class="fw-semibold text-success">3/3</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <span class="small text-muted">Écart moyen</span>
+                <span class="fw-semibold text-warning">2.3%</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center py-2">
+                <span class="small text-muted">Dernière sync</span>
+                <span class="fw-semibold">{{ getLastSyncTime() }}</span>
+              </div>
+            </div>
+            <hr>
+            <div class="d-grid gap-2">
+              <button class="btn btn-outline-primary btn-sm d-flex align-items-center justify-content-center">
+                <i class="bi bi-download me-2"></i>
+                Exporter Rapport
+              </button>
+              <button class="btn btn-outline-success btn-sm d-flex align-items-center justify-content-center">
+                <i class="bi bi-share me-2"></i>
+                Partager Dashboard
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

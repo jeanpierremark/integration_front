@@ -54,7 +54,8 @@ user: any = []
 
 
   loginUser(){
-    
+    console.log(this.user.email)
+    console.log(this.user.pass)
     this.user_service.login(this.user.email,this.user.pass)
           .subscribe({
             next:(response)=>{  
@@ -65,7 +66,7 @@ user: any = []
               }
               else if(response.body.user.role == "Chercheur"){
                 this.showAlertMessage("Success","Bienvenu(e) "+response.body.user.prenom+" "+response.body.user.nom ,"success")
-                this.router.navigate(["/chercheur"])
+                this.router.navigate(["/chercheur/accueil"])
               } 
               else{
                 this.showAlertMessage("Success","Bienvenu(e) "+response.body.user.prenom+" "+response.body.user.nom ,"success")
