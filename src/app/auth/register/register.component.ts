@@ -96,47 +96,49 @@ passwordConfirmVerif(pass1:string, pass2:string){
       next:(data) => {
          if(data.body.message == "Success"){
          this.router.navigate(["/connexion"])
-         this.showAlertMessage("Success","Informations saved successfully","success")
+         this.showToastMessage("success","Informations enregistrées avec succès")
         
         }
         else{
           this.router.navigate(["/inscription"])
-          this.showAlertMessage("Error","Error when saving information ","warning")
+          this.showToastMessage("error","Erreur d'enregistrement veullez réessayer")
         }
 
       },
       error:(err) => {
         this.router.navigate(["/inscription"])
-        this.showAlertMessage("Error","Internal Server Error","warning")
+          this.showToastMessage("error","Erreur au niveau du serveur veullez réessayer")
 
       }
     })
   }
 
-   showAlertMessage( title:string, message:string, icon:any ){
-    return Swal.fire({
 
-      title: title,
-      text: message,
-      icon: icon,
-      showCloseButton: true,
-      //showCancelButton: false,
-      confirmButtonColor: '#3085d6',
-      // cancelButtonColor: '#d33',
-      //confirmButtonText: 'Se connecter',
-
-      // position: 'top-end',
-      // timer: 3000
-
-      // showCancelButton: showCancelButton,
-
-    }).then((result)=>{
-        if(result.isConfirmed){
-          if(icon == "warning"){
-            this.router.navigate(["/connexion"])
-          }
-
-        }
-    })
+  getProgressBarClass = (type: string) => {
+  switch(type) {
+    case 'success': return 'custom-progress-bar-success';
+    case 'error': return 'custom-progress-bar-error';
+    case 'warning': return 'custom-progress-bar-warning';
+    case 'info': return 'custom-progress-bar-info';
+    default: return 'custom-progress-bar';
   }
+};
+  showToastMessage(
+        type: 'success' | 'error' | 'warning' | 'info' | 'question',
+        message: string,
+        position: 'top-end' | 'top-start' | 'bottom-end' | 'bottom-start' | 'center' = 'top-end'
+      ): void {
+        Swal.fire({
+          toast: true,
+          position: position,
+          icon: type,
+          title: message,
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+           customClass: {
+            timerProgressBar: this.getProgressBarClass(type)
+          }
+        });
+      }
 }

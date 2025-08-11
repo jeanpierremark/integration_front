@@ -1,6 +1,6 @@
-<div class="header">
+<div class="bg-primary header" >
         <div class="logo" >
-            <span class=" bi bi-cloud me-3 h2 fw-bold mb-1"> Climate</span>
+        <img src="/assets/img/image copy.png" class="image" alt="">
         </div>
         <div class="header-right">
             <div
@@ -48,11 +48,11 @@
             <div class="nav-item-wrapper" [class.active]="activeLink === 'analyse'" (click)="setActive('analyse')">
                 <a href="/chercheur/analyse" class="nav-item">Analyse Approfondie</a>
             </div>
-            <div class="nav-item-wrapper" [class.active]="activeLink === 'statistiques'" (click)="setActive('statistiques')">
-                <a href="/chercheur/statistiques" class="nav-item">Statistiques</a>
+            <div class="nav-item-wrapper" [class.active]="activeLink === 'rapport'" (click)="setActive('rapport')">
+                <a href="/chercheur/rapport" class="nav-item">Rédiger un rapport</a>
             </div>
             <div class="nav-item-wrapper" [class.active]="activeLink === 'prevision'" (click)="setActive('prevision')">
-                <a href="#" class="nav-item">Prédiction</a>
+                <a href="/chercheur/#" class="nav-item">Prévision</a>
             </div>
         </div>
     </div>

@@ -1,0 +1,235 @@
+<!-- weather-dashboard.component.html -->
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+  <!-- Header Dashboard -->
+  <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 shadow-lg">
+    <div class="container-fluid">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-graph-up me-3" style="font-size: 2.5rem;"></i>
+            <div>
+              <h1 class="h2 fw-bold mb-1" style="margin-top:10px">Analyse</h1>
+              <p class="mb-0 text-blue-100" style="font-size: 16px;">Visualisation</p>
+            </div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+            <div class="search-bar" style="margin-left: 50px;">
+                  <input type="text" class="form-control" placeholder="Recherche..."[(ngModel)]="searchText"/>
+                  <i  style="color: #3b82f6; font-size:30px;" class="bi bi-search search-icon" (click)="getdataforgraph(selectedSource,searchText,selectedPeriod)"></i>
+            </div>
+            
+  
+             <div class="d-flex align-items-center gap-2" style="margin-left:30px;">
+              <select
+                [(ngModel)]="selectedPeriod"
+                (change)="onPeriodChange(selectedPeriod)"
+                class="form-select form-select-sm bg-white"
+                style="width: auto; min-width: 120px;">
+                <option *ngFor="let period of periods" [value]="period.value">
+                  {{ period.label }}
+                </option>
+              </select>
+           
+            </div>
+
+            <div class="d-flex align-items-center gap-2" style="margin-left:18px;">
+              <select
+                [(ngModel)]="graph"
+                (change)="onGraphChange(graph)"
+                class="form-select form-select-sm bg-white"
+                style="width: auto; min-width: 120px;">
+                <option *ngFor="let diagram of diagrams" [value]="diagram.value">
+                  {{ diagram.label }}
+                </option>
+              </select>
+           
+            </div>
+            
+          </div>           
+          </div>
+        
+        <div class="col-md-4 text-end">
+          <div class="d-flex justify-content-end align-items-right gap-3">
+            <!-- Date Filter -->
+            <div class="text-end">
+              <div class="fw-medium btn bg-light shadow-sm text-primary w-100" style="font-size: 16px;" >{{ dateHeureActuelle$ | async }}</div>
+            </div>
+              <div class="d-flex align-items-center gap-2" style="margin-left:25px">
+              <!--<select
+                [(ngModel)]="selectedSource"
+                (change)="onSourceChange(selectedSource)"
+                class="form-select form-select-sm bg-white"
+                style="width: auto; min-width: 120px;">
+                <option *ngFor="let source of sources" [value]="source.value">
+                  {{ source.label }}
+                </option>
+              </select>-->
+              <span class="btn btn-light" (click)="visualisation()"> 
+              <i class="bi bi-arrow-bar-left text-success fw-bold fw-bold"></i>
+            </span>
+            
+            </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="analysis-grid">
+            <!-- Analysis Methods -->
+            <section class="config-section">
+                <h2 class="bi bi-pie-chart-fill section-title">
+                    Méthode d'Analyse
+                </h2>
+                <div class="methods-grid">
+                    <div class="method-card active">
+                        <div class="method-icon">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                                <polyline points="17 6 23 6 23 12"/>
+                            </svg>
+                        </div>
+                        <div class="method-name">Analyse de Tendance</div>
+                        <div class="method-desc">Évolution des paramètres dans le temps</div>
+                    </div>
+                    
+                    <div class="method-card">
+                        <div class="method-icon">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <line x1="18" y1="20" x2="18" y2="10"/>
+                                <line x1="12" y1="20" x2="12" y2="4"/>
+                                <line x1="6" y1="20" x2="6" y2="14"/>
+                            </svg>
+                        </div>
+                        <div class="method-name">Corrélation</div>
+                        <div class="method-desc">Relations entre différents paramètres</div>
+                    </div>
+                    
+                    <div class="method-card">
+                        <div class="method-icon">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
+                                <path d="M22 12A10 10 0 0 0 12 2v10z"/>
+                            </svg>
+                        </div>
+                        <div class="method-name">Distribution</div>
+                        <div class="method-desc">Répartition statistique des valeurs</div>
+                    </div>
+                    
+                    <div class="method-card">
+                        <div class="method-icon">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/>
+                            </svg>
+                        </div>
+                        <div class="method-name">Détection d'Anomalie</div>
+                        <div class="method-desc">Identification des valeurs atypiques</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Parameters -->
+            <section class="config-section">
+                <h2 class="bi bi-activity section-title">
+                    Paramètres à Analyser
+                </h2>
+                <div class="params-grid">
+                    <div class="param-item active">
+                        <div class="param-info">
+                            <h4>Température</h4>
+                            <div class="param-unit">°C</div>
+                        </div>
+                    </div>
+                    
+                    <div class="param-item">
+                        <div class="param-icon">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <path d="M2 12C2 6.48 6.48 2 12 2s10 4.48 10 10-4.48 10-10 10S2 17.52 2 12z"/>
+                                <path d="M7.94 15.54l2.24-2.24"/>
+                            </svg>
+                        </div>
+                        <div class="param-info">
+                            <h4>Humidité</h4>
+                            <div class="param-unit">%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="param-item">
+                        <div class="param-icon">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10"/>
+                                <circle cx="12" cy="12" r="6"/>
+                                <circle cx="12" cy="12" r="2"/>
+                            </svg>
+                        </div>
+                        <div class="param-info">
+                            <h4>Pression Atmos.</h4>
+                            <div class="param-unit">hPa</div>
+                        </div>
+                    </div>
+                    
+                    <div class="param-item">
+                        <div class="param-icon">
+                            <svg class="icon" viewBox="0 0 24 24">
+                                <path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/>
+                                <path d="M9.6 4.6A2 2 0 1 1 11 8H2"/>
+                                <path d="M12.6 19.4A2 2 0 1 0 14 16H2"/>
+                            </svg>
+                        </div>
+                        <div class="param-info">
+                            <h4>Vitesse du Vent</h4>
+                            <div class="param-unit">km/h</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Source Selection -->
+            <section class="config-section">
+                <h2 class="bi bi-database-fill-check section-title">
+                    Source de Données
+                </h2>
+                <div class="select-group">
+                    <select class="custom-select">
+                        <option value="weather-api" selected>Weather API - Haute qualité, Temps réel</option>
+                        <option value="meteorologie">Météorologie Nationale - Très haute qualité, 1h</option>
+                        <option value="satellite">Données Satellite - Haute qualité, 30min</option>
+                        <option value="stations-locales">Stations Locales - Moyenne qualité, Temps réel</option>
+                    </select>
+                </div>
+            </section>
+
+            
+
+            <section class="config-section">
+                <h2 class="bi bi-database-fill-check section-title">
+                    Source de Données
+                </h2>
+                <div class="select-group">
+                    <select class="custom-select">
+                        <option value="1h">1 heure - 60 points de données</option>
+                        <option value="6h">6 heures - 360 points de données</option>
+                        <option value="24h" selected>24 heures - 1440 points de données</option>
+                        <option value="7d">7 jours - 10080 points de données</option>
+                        <option value="30d">30 jours - 43200 points de données</option>
+                    </select>
+                </div>
+            </section>
+
+            <!-- Action Button -->
+            <div class="action-section">
+                <button class="analyze-btn">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <polygon points="5,3 19,12 5,21"/>
+                    </svg>
+                    Lancer l'Analyse
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Preview -->
+        
+    </main>

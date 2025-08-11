@@ -58,7 +58,7 @@ export class ChercheurComponent implements OnInit, OnDestroy {
   today: Date = new Date();
 
   // Recherche
-  searchText: string = 'Dakar';
+  searchText: string = 'Thiès';
 
   //last update
   lastUpdate: Date | null = null;

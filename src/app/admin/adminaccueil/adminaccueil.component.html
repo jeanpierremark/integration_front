@@ -1,0 +1,191 @@
+
+ <!-- Header Dashboard -->
+  <div style="width:100%">
+   <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 shadow-lg">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-speedometer2 me-3" style="font-size: 2.5rem; margin-left: 50px;"></i>
+                        <div>
+                            <h1 class="h2 fw-bold mb-1" style="margin-top:10px">Dashboard Admin</h1>
+                            <p class="text-blue-100 mb-0" style="font-size: 17px;">Vue d'ensemble sur le système </p>
+                        </div>
+                       
+                    </div>
+                </div>
+                <div class="col-md-4 text-end">
+                    
+                    <div class="d-flex justify-content-end align-items-center gap-3">
+                        <div class="text-end" style="margin-right: 50px;">
+                                <div class="btn fw-semibold bg-light shadow-sm text-primary w-100" style="font-size: 18px; padding: 10px 6px;" >{{ dateHeureActuelle$ | async }}</div>
+                        </div>
+                      <!--<div class="dropdown">
+                            <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-gear me-1"></i> Options
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-download me-2"></i>Exporter données</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-refresh me-2"></i>Actualiser</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-sliders me-2"></i>Paramètres</a></li>
+                            </ul>
+                        </div>-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 
+<main class="main-content">
+    <div class="stats-grid">
+        <div class="stat-card users">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-title">Utilisateurs actifs</div>
+                    <div class="stat-value" style="color: #4f5af5;margin-top: 16px;">{{stats.activeUsers}}</div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas #usersChart></canvas>
+            </div>
+        </div>
+
+        <div class="stat-card datasets">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-title">Connexions Actuelles </div>
+                    <div class="stat-value">{{stats.systemAlerts}}</div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas #datasetsChart></canvas>
+            </div>
+        </div>
+
+        <div class="stat-card analyses">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-title">Utilisateurs Bloqués</div>
+                    <div class="stat-value">{{stats.runningAnalyses}}</div>
+                    
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas #analysesChart></canvas>
+            </div>
+        </div>
+
+        <div class="stat-card alerts">
+            <div class="stat-header">
+                <div>
+                    <div class="stat-title">Analyses Actuelles </div>
+                    <div class="stat-value">{{stats.systemAlerts}}</div>
+                    
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas #alertsChart></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="charts-section">
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Évolution des inscriptions</h2>
+                <select class="time-filter" [(ngModel)]="registrationsPeriod" (change)="updateRegistrationsChart()">
+                    <option value="7">7 derniers jours</option>
+                    <option value="30">30 derniers jours</option>
+                    <option value="90">90 derniers jours</option>
+                </select>
+            </div>
+            <div class="large-chart-container">
+                <canvas #registrationsChart></canvas>
+            </div>
+            <div class="chart-stats">
+                <div class="chart-stat">
+                    <span class="stat-label">Aujourd'hui</span>
+                    <span class="stat-number">{{registrationStats.today}}</span>
+                </div>
+                <div class="chart-stat">
+                    <span class="stat-label">Cette semaine</span>
+                    <span class="stat-number">{{registrationStats.thisWeek}}</span>
+                </div>
+                <div class="chart-stat">
+                    <span class="stat-label">Ce mois</span>
+                    <span class="stat-number">{{registrationStats.thisMonth}}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Connexions quotidiennes</h2>
+                <select class="time-filter" [(ngModel)]="connectionsPeriod" (change)="updateConnectionsChart()">
+                    <option value="7">7 derniers jours</option>
+                    <option value="30">30 derniers jours</option>
+                    <option value="90">90 derniers jours</option>
+                </select>
+            </div>
+            <div class="large-chart-container">
+                <canvas #connectionsChart></canvas>
+            </div>
+            <div class="chart-stats">
+                <div class="chart-stat">
+                    <span class="stat-label">Pic aujourd'hui</span>
+                    <span class="stat-number">{{connectionStats.todayPeak}}</span>
+                </div>
+                <div class="chart-stat">
+                    <span class="stat-label">Moyenne/jour</span>
+                    <span class="stat-number">{{connectionStats.dailyAverage}}</span>
+                </div>
+                <div class="chart-stat">
+                    <span class="stat-label">Temps moyen</span>
+                    <span class="stat-number">{{connectionStats.averageTime}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-grid">
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Activité récente</h2>
+                <a href="#" class="see-all" (click)="viewAllActivities()">Voir tout →</a>
+            </div>
+            
+            <div class="activity-item" *ngFor="let activity of recentActivities">
+                <div class="activity-avatar" [style.background]="activity.avatarColor">
+                    {{activity.initials}}
+                </div>
+                <div class="activity-info">
+                    <div class="activity-user">{{activity.userName}}</div>
+                    <div class="activity-action">{{activity.action}}</div>
+                    <div class="activity-time">{{activity.timeAgo}}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">Gestion des utilisateurs</h2>
+                <a href="#" class="see-all" (click)="viewAllUsers()">Voir tout →</a>
+            </div>
+            
+            <div class="user-item" *ngFor="let user of recentUsers">
+                <div class="user-avatar-small" [style.background]="user.avatarColor">
+                    {{user.initials}}
+                </div>
+                <div class="user-info">
+                    <div class="user-name">{{user.name}}</div>
+                    <div class="user-email">{{user.email}}</div>
+                </div>
+                <span class="status-badge" [ngClass]="{'status-active': user.isActive, 'status-inactive': !user.isActive}">
+                    {{user.isActive ? 'Actif' : 'Inactif'}}
+                </span>
+            </div>
+        </div>
+    </div>
+
+</main>

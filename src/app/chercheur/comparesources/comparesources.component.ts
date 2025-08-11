@@ -1,7 +1,8 @@
 // weather-comparison.component.ts
 import { Component, OnInit } from '@angular/core';
 import { Chart, ChartConfiguration, ChartType } from 'chart.js';
-import { interval, map, startWith } from 'rxjs';
+import { interval, map, startWith, forkJoin } from 'rxjs';
+import { ChercheurService } from 'src/app/services/chercheur.service';
 
 @Component({
   selector: 'app-comparesources',
@@ -12,46 +13,53 @@ export class ComparesourcesComponent implements OnInit {
   selectedParameter = 'temperature';
   selectedPeriod = '7days';
   chartType = 'line';
-
-    // Recherche
-  searchText: string = 'Dakar';
+  constructor(private chercheur_service : ChercheurService){}
+  
+  // Recherche
+  searchText: string = 'Thiès';
 
   //Current date et time
   dateHeureActuelle$ : any
   
   data: any[] = [];
   chart: Chart | null = null;
+  isLoading = false;
 
   parameters = [
     { value: 'temperature', label: 'Température', icon: 'bi-thermometer', unit: '°C', color: '#ef4444' },
-    { value: 'humidity', label: 'Humidité', icon: 'bi-droplet', unit: '%', color: '#3b82f6' },
-    { value: 'pressure', label: 'Pression', icon: 'bi-speedometer2', unit: 'hPa', color: '#8b5cf6' },
-    { value: 'windSpeed', label: 'Vitesse du vent', icon: 'bi-wind', unit: 'km/h', color: '#10b981' },
-    { value: 'uvIndex', label: 'Indice UV', icon: 'bi-sun', unit: '', color: '#f59e0b' },
+    { value: 'humidite', label: 'Humidité', icon: 'bi-droplet', unit: '%', color: '#3b82f6' },
+    { value: 'pression', label: 'Pression', icon: 'bi-speedometer2', unit: 'hPa', color: '#8b5cf6' },
+    { value: 'vitesse_vent', label: 'Vitesse du vent', icon: 'bi-wind', unit: 'km/h', color: '#10b981' },
+    { value: 'nebulosite', label: 'Nébulosité', icon: 'bi-cloud', unit: '%', color: '#f1652eff' },
   ];
 
   periods = [
-    { value: '7days', label: '7 derniers jours' },
-    { value: '30days', label: '30 derniers jours' },
-    { value: '3months', label: '3 derniers mois' },
-    { value: '1year', label: '1 an' },
+    { value: '7days', label: '7 derniers jours' }
   ];
 
   chartTypes = [
     { value: 'line', label: 'Courbes', icon: 'bi-graph-up' },
     { value: 'bar', label: 'Barres', icon: 'bi-bar-chart' },
-    { value: 'radar', label: 'Radar', icon: 'bi-radar' },
+   // { value: 'radar', label: 'Radar', icon: 'bi-radar' },
   ];
 
   stats: any[] = [];
 
+  //Dictionaries pour les données des 7 derniers jours
+  last7weather : any[]  = [];
+  last7meteo :  any[]  = [];
+  last7open : any[] = [];
+
   ngOnInit() {
-    this.generateData();
-    this.calculateStats();
-    this.createChart();
+    this.loadInitialData();
+    this.setupDateTime();
+    this.onParameterChange(this.selectedParameter);
+  }
+
+  setupDateTime() {
     this.dateHeureActuelle$ = interval(1000).pipe(
-        startWith(0),
-        map(() =>
+      startWith(0),
+      map(() =>
         new Date().toLocaleString('fr-FR', {
           day: '2-digit',
           month: '2-digit',
@@ -60,21 +68,172 @@ export class ComparesourcesComponent implements OnInit {
           minute: '2-digit',
           second: '2-digit'
         })
-      ))
+      )
+    );
+  }
+
+  loadInitialData() {
+    this.isLoading = true;
+    this.loadDataForParameter(this.selectedParameter);
+  }
+
+  // Chargement des données pour un paramètre donné
+  loadDataForParameter(parameter: string) {
+    this.isLoading = true;
+    
+    // Utilisation de forkJoin pour attendre que toutes les requêtes se terminent
+    forkJoin({
+      weather: this.chercheur_service.getlast7weather(this.searchText, parameter),
+      meteo: this.chercheur_service.getlast7meteo(this.searchText, parameter),
+      open: this.chercheur_service.getlast7open(this.searchText, parameter)
+    }).subscribe({
+      next: (responses) => {
+        // Traitement des réponses
+        if (responses.weather.body.message === "success") {
+          this.last7weather = responses.weather.body.last7_weather;
+          console.log('7 days Weather API',this.last7weather)
+
+        }
+        
+        if (responses.meteo.body.message === "success") {
+          this.last7meteo = responses.meteo.body.last7_meteo;
+          console.log('7 days Open Meteo',this.last7meteo)
+
+        }
+        
+        if (responses.open.body.message === "success") {
+          this.last7open = responses.open.body.last7_open;
+          console.log('7 days Open Weather',this.last7open)
+        }
+        
+        // Génération des données une fois toutes les réponses reçues
+        this.generateDataFromAPIs();
+        this.calculateStats();
+        this.createChart();
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des données:', error);
+        this.isLoading = false;
+      }
+    });
+  }
+
+  //Get last 7 days data Weather API
+  getlast7weatheravg(param:string){
+    this.chercheur_service.getlast7weather(this.searchText,param).subscribe({
+      next : (response)=>{
+        if(response.body.message =="success"){
+          this.last7weather = response.body.last7_weather
+          //console.log('7 days Weather API',this.last7weather)
+        }
+      }
+    })
+  }
+
+  //Get last 7 days data Open Meteo
+  getlast7meteoavg(param:string){
+    this.chercheur_service.getlast7meteo(this.searchText,param).subscribe({
+      next : (response)=>{
+        if(response.body.message =="success"){
+          this.last7meteo = response.body.last7_meteo
+          //console.log('7 days Open Meteo',this.last7meteo)
+        }
+      }
+    })
+  }
+
+  //Get last 7 days data Open Weather
+  getlast7openavg(param:string){
+    this.chercheur_service.getlast7open(this.searchText,param).subscribe({
+      next : (response)=>{
+        if(response.body.message =="success"){
+          this.last7open = response.body.last7_open
+          //console.log('7 days Open Weather',this.last7open)
+        }
+      }
+    })
+  }
+
+  // Génération des données à partir des APIs réelles
+  generateDataFromAPIs() {
+    this.data = [];
+    
+    // Obtenir toutes les dates uniques des trois sources
+    const allDates = this.getAllUniqueDates();
+    
+    // Pour chaque date, créer un point de données
+    allDates.forEach(date => {
+      const formattedDate = new Date(date);
+      
+      this.data.push({
+        date: formattedDate.toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' }),
+        fullDate: date,
+        weatherAPI: this.getValueForDate(this.last7weather, date),
+        openMeteo: this.getValueForDate(this.last7meteo, date),
+        openWeather: this.getValueForDate(this.last7open, date),
+      });
+    });
+    
+    // Trier par date croissante
+    this.data.sort((a, b) => new Date(a.fullDate).getTime() - new Date(b.fullDate).getTime());
+  }
+
+  // Obtenir toutes les dates uniques des trois sources
+  getAllUniqueDates(): string[] {
+    const datesSet = new Set<string>();
+    
+    // Collecter les dates de Weather API
+    if (this.last7weather && Array.isArray(this.last7weather)) {
+      this.last7weather.forEach(item => {
+        if (item.date) {
+          datesSet.add(item.date);
+        }
+      });
+    }
+    
+    // Collecter les dates d'Open Meteo
+    if (this.last7meteo && Array.isArray(this.last7meteo)) {
+      this.last7meteo.forEach(item => {
+        if (item.date) {
+          datesSet.add(item.date);
+        }
+      });
+    }
+    
+    // Collecter les dates d'Open Weather
+    if (this.last7open && Array.isArray(this.last7open)) {
+      this.last7open.forEach(item => {
+        if (item.date) {
+          datesSet.add(item.date);
+        }
+      });
+    }
+    
+    return Array.from(datesSet).sort();
+  }
+
+  // Obtenir la valeur moyenne pour une date donnée dans une source de données
+  getValueForDate(dataSource: any[], date: string): number {
+    if (!dataSource || !Array.isArray(dataSource)) {
+      return 0;
+    }
+    
+    const item = dataSource.find(d => d.date === date);
+    return item ? (item.moyenne || 0) : 0;
   }
 
   onParameterChange(parameter: string) {
     this.selectedParameter = parameter;
-    this.generateData();
-    this.calculateStats();
-    this.updateChart();
+    this.loadDataForParameter(parameter);
   }
 
   onPeriodChange(period: string) {
     this.selectedPeriod = period;
-    this.generateData();
-    this.calculateStats();
-    this.updateChart();
+    // Pour l'instant, on ne gère que les 7 derniers jours
+    if (period === '7days') {
+      this.loadDataForParameter(this.selectedParameter);
+    }
   }
 
   onChartTypeChange(type: string) {
@@ -82,47 +241,38 @@ export class ComparesourcesComponent implements OnInit {
     this.createChart();
   }
 
-  generateData() {
-    const days = this.selectedPeriod === '7days' ? 7 : 
-                 this.selectedPeriod === '30days' ? 30 : 
-                 this.selectedPeriod === '3months' ? 90 : 365;
-    
-    this.data = [];
-    
-    for (let i = 0; i < days; i++) {
-      const date = new Date();
-      date.setDate(date.getDate() - (days - i - 1));
-      
-      let baseValue = 25;
-      if (this.selectedParameter === 'humidity') baseValue = 60;
-      if (this.selectedParameter === 'pressure') baseValue = 1013;
-      if (this.selectedParameter === 'windSpeed') baseValue = 15;
-      if (this.selectedParameter === 'uvIndex') baseValue = 5;
-      
-      this.data.push({
-        date: date.toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' }),
-        fullDate: date.toISOString().split('T')[0],
-        weatherAPI: +(baseValue + Math.random() * 10 - 5).toFixed(1),
-        openMeteo: +(baseValue + Math.random() * 8 - 4).toFixed(1),
-        visualCrossing: +(baseValue + Math.random() * 12 - 6).toFixed(1),
-      });
-    }
-  }
-
   calculateStats() {
-    const sources = ['weatherAPI', 'openMeteo', 'visualCrossing'];
+    const sources = [
+      { key: 'weatherAPI', name: 'Weather API' },
+      { key: 'openMeteo', name: 'Open Meteo' },
+      { key: 'openWeather', name: 'Open Weather' }
+    ];
+    
     this.stats = sources.map(source => {
-      const values = this.data.map(d => d[source]);
+      const values = this.data
+        .map(d => d[source.key])
+        .filter(v => v !== undefined && v !== null && !isNaN(v) && v > 0);
+      
+      if (values.length === 0) {
+        return {
+          source: source.key,
+          avg: '0.0',
+          min: '0.0',
+          max: '0.0',
+          name: source.name
+        };
+      }
+      
       const avg = values.reduce((a, b) => a + b, 0) / values.length;
       const min = Math.min(...values);
       const max = Math.max(...values);
+      
       return {
-        source,
+        source: source.key,
         avg: avg.toFixed(1),
         min: min.toFixed(1),
         max: max.toFixed(1),
-        name: source === 'weatherAPI' ? 'Weather API' : 
-              source === 'openMeteo' ? 'Open Meteo' : 'Visual Crossing'
+        name: source.name
       };
     });
   }
@@ -160,10 +310,10 @@ export class ComparesourcesComponent implements OnInit {
             tension: 0.4
           },
           {
-            label: 'Visual Crossing',
-            data: this.data.map(d => d.visualCrossing),
-            borderColor: '#f59e0b',
-            backgroundColor: this.chartType === 'line' ? 'transparent' : '#f59e0b',
+            label: 'Open Weather',
+            data: this.data.map(d => d.openWeather),
+            borderColor: 'red',
+            backgroundColor: this.chartType === 'line' ? 'transparent' : 'red',
             borderWidth: 2,
             tension: 0.4
           }
@@ -208,16 +358,12 @@ export class ComparesourcesComponent implements OnInit {
       this.chart.data.labels = this.data.map(d => d.date);
       this.chart.data.datasets[0].data = this.data.map(d => d.weatherAPI);
       this.chart.data.datasets[1].data = this.data.map(d => d.openMeteo);
-      this.chart.data.datasets[2].data = this.data.map(d => d.visualCrossing);
+      this.chart.data.datasets[2].data = this.data.map(d => d.openWeather);
       this.chart.update();
     }
   }
 
   getCurrentParameter() {
     return this.parameters.find(p => p.value === this.selectedParameter) || this.parameters[0];
-  }
-
-  getCurrentTime() {
-    return new Date().toLocaleString('fr-FR');
   }
 }

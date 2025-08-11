@@ -1,4 +1,4 @@
-import { HttpClient} from '@angular/common/http';
+import { HttpClient, HttpHeaders} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import {jwtDecode} from 'jwt-decode';
 import { map } from 'rxjs';
@@ -16,6 +16,14 @@ export class UserService {
         return null;
       }
   }
+
+    httpOptions = {
+      headers: new HttpHeaders({
+        'authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
+  
+      })
+    };
 
   register(prenom:string,nom: string,email:string,password:string,role:string,genre:string,age:number,deletable:boolean){
     return this.http.post<any>('http://localhost:3001/users/register/api/user/register',{prenom,nom,email,password,role,age,genre,deletable},{ observe: 'response'});
@@ -42,11 +50,10 @@ export class UserService {
      })
     )
   }
+  logout_sec(){
+    return this.http.post<any>('http://localhost:3001/users/api/user/logout',null,{ observe: 'response',headers: this.httpOptions.headers});
+  }
 
- /* LoggedIn(){
-    let user = localStorage.getItem('token');
-    return !(user ===null)
-  }*/
   logout(){
     localStorage.removeItem('token');
     localStorage.removeItem('key');

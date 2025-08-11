@@ -83,7 +83,7 @@
     </div>
   </div>
 
-  <!-- Statistiques générales -->
+  <!-- Statistiques générales 
   <div class="row mb-4">
     <div class="col-md-3">
       <div class="card text-center">
@@ -99,7 +99,7 @@
     <div class="col-md-3">
       <div class="card text-center">
         <div class="card-body">
-          <i class="bi-arrow-down fs-2 text-success mb-2"></i>
+          <i class="bi-graph-down-arrow fs-2 text-success mb-2"></i>
           <h5 class="card-title">Minimum</h5>
           <p class="card-text fs-4 fw-bold text-success">
             {{ getMinValue() }}{{ getCurrentParameter().unit }}
@@ -110,7 +110,7 @@
     <div class="col-md-3">
       <div class="card text-center">
         <div class="card-body">
-          <i class="bi-arrow-up fs-2 text-danger mb-2"></i>
+          <i class="bi-graph-up-arrow fs-2 text-danger mb-2"></i>
           <h5 class="card-title">Maximum</h5>
           <p class="card-text fs-4 fw-bold text-danger">
             {{ getMaxValue() }}{{ getCurrentParameter().unit }}
@@ -129,7 +129,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </div>-->
 
   <!-- Données des sources -->
   <div class="row">
@@ -139,7 +139,7 @@
           <h5 class="mb-0">
             <i [class]="getCurrentParameter().icon + ' me-2'"></i>
             {{ getCurrentParameter().label }} par source  &nbsp;<span class="btn bg-primary text-light fw-bold"> {{searchText}}</span>
-            &nbsp;<span class="text-success blink">{{condition_openweather}} <img src="{{openweather_data.icon}}" alt=""> </span>
+            &nbsp;<span class="text-danger blink">{{condition_openweather}} <img src="{{openweather_data.icon}}" alt=""> </span>
           </h5>
         </div>
         <div class="card-body p-0">
@@ -210,7 +210,7 @@
       <h5>
         <i class="bi-grid-3x3-gap me-2"></i>
         Quelques paramètres par source &nbsp;<span class="btn bg-primary text-light fw-bold"> {{searchText}}</span> 
-        &nbsp;<span class="text-success blink">{{condition_openweather}} <img src="{{openweather_data.icon}}" alt=""> </span>
+        &nbsp;<span class="text-danger blink">{{condition_openweather}} <img src="{{openweather_data.icon}}" alt=""> </span>
       </h5>
     </div>
   </div>

@@ -36,7 +36,7 @@ getFirstName(): string {
 
 
  //Log out
-   logOut(){
+    logOut(){
         Swal.fire({
       title: 'Vous allez vous déconnecté !',
       icon: 'warning',
@@ -47,9 +47,16 @@ getFirstName(): string {
       cancelButtonColor: '#d33',
     }).then((result) => {
       if (result.isConfirmed) {
-        this.user_service.logout();
-        this.router.navigate(["/connexion"]);
-        console.log('vers connexion')
+        this.user_service.logout_sec().subscribe({
+          next : (response=>{
+          if(response.body.message=='success'){
+            this.user_service.logout();
+            this.showToastMessage('success', 'Déconnexion réussie');
+            this.router.navigate(["/connexion"]);
+            console.log('vers connexion')
+          }
+          })
+        });
       }
     })
   }
@@ -66,35 +73,43 @@ getFirstName(): string {
       this.activeLink = 'analyse';
     } else if (url.includes('/chercheur/sources')) {
       this.activeLink = 'sources';
-    } else if (url.includes('/chercheur/statistiques')) {
-      this.activeLink = 'statistiques';
+    } else if (url.includes('/chercheur/prevision')) {
+      this.activeLink = 'prevision';
+    } else if (url.includes('/chercheur/rapport')) {
+      this.activeLink = 'rapport';
     } 
   }
 
-    chartType = 'line';
-    
+ 
+  getProgressBarClass = (type: string) => {
+  switch(type) {
+    case 'success': return 'custom-progress-bar-success';
+    case 'error': return 'custom-progress-bar-error';
+    case 'warning': return 'custom-progress-bar-warning';
+    case 'info': return 'custom-progress-bar-info';
+    default: return 'custom-progress-bar';
+  }
+};
   
-    chart: Chart | null = null;
+   
   
-    
-  
-    chartTypes = [
-      { value: 'line', label: 'Courbes', icon: 'bi-graph-up' },
-      { value: 'bar', label: 'Barres', icon: 'bi-bar-chart' },
-      { value: 'radar', label: 'Radar', icon: 'bi-radar' },
-    ];
-  
-    
-  
-
-  
-    onChartTypeChange(type: string) {
-      this.chartType = type;
-    }
-  
-    
-  
-    getCurrentTime() {
-      return new Date().toLocaleString('fr-FR');
-    }
+  showToastMessage(
+        type: 'success' | 'error' | 'warning' | 'info' | 'question',
+        message: string,
+        position: 'top-end' | 'top-start' | 'bottom-end' | 'bottom-start' | 'center' = 'top-end'
+      ): void {
+        Swal.fire({
+          toast: true,
+          position: position,
+          icon: type,
+          title: message,
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          customClass: {
+            popup: 'custom-toast',
+            timerProgressBar: this.getProgressBarClass(type)
+          }
+        });
+      }
 }

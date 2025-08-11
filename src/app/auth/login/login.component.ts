@@ -61,30 +61,30 @@ user: any = []
             next:(response)=>{  
             if(response.body.message =="Success"){
               if(response.body.user.role == "Admin"){
-                this.showAlertMessage("Success","Bienvenu(e) "+response.body.user.prenom+" "+response.body.user.nom ,"success")
+                this.showToastMessage('success', 'Connexion réussie');
                 this.router.navigate(["/admin"])
               }
               else if(response.body.user.role == "Chercheur"){
-                this.showAlertMessage("Success","Bienvenu(e) "+response.body.user.prenom+" "+response.body.user.nom ,"success")
+                this.showToastMessage('success', 'Connexion réussie');
                 this.router.navigate(["/chercheur/accueil"])
               } 
               else{
-                this.showAlertMessage("Success","Bienvenu(e) "+response.body.user.prenom+" "+response.body.user.nom ,"success")
-                this.router.navigate(["/etudiant"])
+                this.showToastMessage('success', 'Connexion réussie');
+                this.router.navigate(["/etudiant/visualisation"])
               }
             }           
         },error : (error: HttpErrorResponse) => {
           if(error.error.error == "not found"){
-          this.showAlertMessage("Error","User does not exist","error")
-          console.log(error.error.error)
+            this.showToastMessage("error", "Email et/ou mot de passe incorrecte");
+            console.log(error.error.error)
           }
           else if(error.error.error == "error"){
-            this.showAlertMessage("Error","Incorrect email or/and password ","error")
+            this.showToastMessage("error", "Email et/ou mot de passe incorrecte");
             console.log(error.error.error)
             }
             else{
               console.log(error)
-              this.showAlertMessage("Error","Internal Server Error ","error")
+              this.showToastMessage("error", "Erreur au niveau du serveur veuillez réessayer ultérieurement");
             }
         }
     })
@@ -111,4 +111,36 @@ showAlertMessage( title:string, message:string, icon:any ){
     
 })
 }
+
+  
+getProgressBarClass = (type: string) => {
+  switch(type) {
+    case 'success': return 'custom-progress-bar-success';
+    case 'error': return 'custom-progress-bar-error';
+    case 'warning': return 'custom-progress-bar-warning';
+    case 'info': return 'custom-progress-bar-info';
+    default: return 'custom-progress-bar';
+  }
+};
+  
+
+showToastMessage(
+  type: 'success' | 'error' | 'warning' | 'info' | 'question',
+  message: string,
+  position: 'top-end' | 'top-start' | 'bottom-end' | 'bottom-start' | 'center' = 'top-end'
+): void {
+  Swal.fire({
+    toast: true,
+    position: position,
+    icon: type,
+    title: message,
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    customClass: {
+      timerProgressBar: this.getProgressBarClass(type)
+    }
+  });
+}
+
 }

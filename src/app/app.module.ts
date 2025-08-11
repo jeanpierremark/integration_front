@@ -23,7 +23,15 @@ import { ChercheurheaderComponent } from './chercheur/chercheurheader/chercheurh
 import { ComparesourcesComponent } from './chercheur/comparesources/comparesources.component';
 import { AdminComponent } from './admin/admin/admin.component';
 import { AnalyseComponent } from './chercheur/analyse/analyse.component';
-import { StatistiqueComponent } from './chercheur/statistique/statistique.component';
+import { RapportComponent } from './chercheur/rapport/rapport.component';
+import { VisualisationComponent } from './chercheur/visualisation/visualisation.component';
+import { EtudiantheaderComponent } from './etudiant/etudiantheader/etudiantheader.component';
+import { EtudiantvisualisationComponent } from './etudiant/etudiantvisualisation/etudiantvisualisation.component';
+import { EtudiantprevisionComponent } from './etudiant/etudiantprevision/etudiantprevision.component';
+import { PrevisionComponent } from './chercheur/prevision/prevision.component';
+import { AdminheaderComponent } from './admin/adminheader/adminheader.component';
+import { AnalyseavanceComponent } from './chercheur/analyseavance/analyseavance.component';
+import { AdminaccueilComponent } from './admin/adminaccueil/adminaccueil.component';
 
 registerLocaleData(localeFr);
 
@@ -44,7 +52,15 @@ registerLocaleData(localeFr);
     ComparesourcesComponent,
     AdminComponent,
     AnalyseComponent,
-    StatistiqueComponent,
+    RapportComponent,
+    VisualisationComponent,
+    EtudiantheaderComponent,
+    EtudiantvisualisationComponent,
+    EtudiantprevisionComponent,
+    PrevisionComponent,
+    AdminheaderComponent,
+    AnalyseavanceComponent,
+    AdminaccueilComponent,
   ],
   imports: [
     BrowserModule,

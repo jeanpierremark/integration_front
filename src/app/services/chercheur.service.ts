@@ -47,5 +47,15 @@ export class ChercheurService {
   getcurrentdata(bucket:string,ville:string){
     return this.http.get<any>('http://localhost:3001/data_chercheur/api/chercheur/current_data/'+bucket+'/'+ville,{observe:'response',headers: this.httpOptions.headers})
    }
+
+   getlast7weather(ville:string,param:string){
+    return this.http.get<any>('http://localhost:3001/data_chercheur/api/chercheur/last7weather/'+ville+'/'+param,{observe:'response',headers: this.httpOptions.headers})
+   }
+   getlast7meteo(ville:string,param:string){
+    return this.http.get<any>('http://localhost:3001/data_chercheur/api/chercheur/last7meteo/'+ville+'/'+param,{observe:'response',headers: this.httpOptions.headers})
+   }
+   getlast7open(ville:string,param:string){
+    return this.http.get<any>('http://localhost:3001/data_chercheur/api/chercheur/last7open/'+ville+'/'+param,{observe:'response',headers: this.httpOptions.headers})
+   }
    
 }

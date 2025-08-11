@@ -50,7 +50,7 @@ condition:any
   
 
   ngOnInit(){
-      this.getMeteo()
+      //this.getMeteo()
       this.intervalId = setInterval(() => {
         this.getMeteo()
     }, 600000);

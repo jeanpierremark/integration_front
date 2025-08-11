@@ -1,0 +1,12 @@
+/* admin-home.component.css */
+.layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+
+.main {
+  flex: 1;
+  overflow-y: auto;
+}
