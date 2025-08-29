@@ -54,24 +54,26 @@ user: any = []
 
 
   loginUser(){
-    console.log(this.user.email)
-    console.log(this.user.pass)
     this.user_service.login(this.user.email,this.user.pass)
           .subscribe({
             next:(response)=>{  
-            if(response.body.message =="Success"){
-              if(response.body.user.role == "Admin"){
-                this.showToastMessage('success', 'Connexion réussie');
-                this.router.navigate(["/admin"])
+            if(response.body.message == "Success"){
+                if(response.body.user.isActive == true ){
+                  if(response.body.user.role == "Admin"){
+                  this.showToastMessage('success', 'Connexion réussie');
+                  this.router.navigate(["/admin/accueil"])
+                  
+                }
+                else if(response.body.user.role == "Chercheur"){
+                  this.showToastMessage('success', 'Connexion réussie');
+                  this.router.navigate(["/chercheur/accueil"])
+                } 
+                else{
+                  this.showToastMessage('success', 'Connexion réussie');
+                  this.router.navigate(["/etudiant/visualisation"])
+                }
               }
-              else if(response.body.user.role == "Chercheur"){
-                this.showToastMessage('success', 'Connexion réussie');
-                this.router.navigate(["/chercheur/accueil"])
-              } 
-              else{
-                this.showToastMessage('success', 'Connexion réussie');
-                this.router.navigate(["/etudiant/visualisation"])
-              }
+             
             }           
         },error : (error: HttpErrorResponse) => {
           if(error.error.error == "not found"){
@@ -82,7 +84,11 @@ user: any = []
             this.showToastMessage("error", "Email et/ou mot de passe incorrecte");
             console.log(error.error.error)
             }
-            else{
+          else if(error.error.message=="suspended"){
+            this.showToastMessage('error', 'votre compte a été suspendu');
+
+          }
+          else{
               console.log(error)
               this.showToastMessage("error", "Erreur au niveau du serveur veuillez réessayer ultérieurement");
             }

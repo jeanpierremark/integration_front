@@ -19,14 +19,14 @@ export class UserService {
 
     httpOptions = {
       headers: new HttpHeaders({
-        'authorization': `Bearer ${localStorage.getItem('token')}`,
+        'authorization': `Bearer ${sessionStorage.getItem('token')}`,
         'Content-Type': 'application/json'
   
       })
     };
 
-  register(prenom:string,nom: string,email:string,password:string,role:string,genre:string,age:number,deletable:boolean){
-    return this.http.post<any>('http://localhost:3001/users/register/api/user/register',{prenom,nom,email,password,role,age,genre,deletable},{ observe: 'response'});
+  register(prenom:string,nom: string,email:string,password:string,role:string,genre:string,age:number){
+    return this.http.post<any>('http://localhost:3001/users/register/api/user/register',{prenom,nom,email,password,role,age,genre},{ observe: 'response'});
   }
   
   login(email:string,password:string){
@@ -36,37 +36,40 @@ export class UserService {
       const token = userdata.body.token as string;
       const tokenInfo= this.getDecodedAccessToken(token);
       
-      localStorage.setItem('token', token);
+      sessionStorage.setItem('token', token);
       console.log(userdata.body)
-      localStorage.setItem('id', tokenInfo.userId);
-      localStorage.setItem('email', userdata.body.user.email);
-      localStorage.setItem('prenom', userdata.body.user.prenom);
-      localStorage.setItem('nom',userdata.body.user.nom);
-      localStorage.setItem('genre',userdata.body.user.genre);
-      localStorage.setItem('age',userdata.body.user.age);
-      localStorage.setItem('key', tokenInfo.key);
-      localStorage.setItem('role', userdata.body.user.role);
+      sessionStorage.setItem('id', userdata.body.user.id);
+      sessionStorage.setItem('email', userdata.body.user.email);
+      sessionStorage.setItem('prenom', userdata.body.user.prenom);
+      sessionStorage.setItem('nom',userdata.body.user.nom);
+      sessionStorage.setItem('genre',userdata.body.user.genre);
+      sessionStorage.setItem('age',userdata.body.user.age);
+      sessionStorage.setItem('key', tokenInfo.key);
+      sessionStorage.setItem('role', userdata.body.user.role);
       return userdata;
      })
     )
   }
+  
   logout_sec(){
     return this.http.post<any>('http://localhost:3001/users/api/user/logout',null,{ observe: 'response',headers: this.httpOptions.headers});
   }
 
   logout(){
-    localStorage.removeItem('token');
-    localStorage.removeItem('key');
-    localStorage.removeItem('email');
-    localStorage.removeItem('prenom');
-    localStorage.removeItem('nom');
-    localStorage.removeItem('id');
-    localStorage.removeItem('role');
-    localStorage.removeItem('genre');
-    localStorage.removeItem('age');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('key');
+    sessionStorage.removeItem('email');
+    sessionStorage.removeItem('prenom');
+    sessionStorage.removeItem('nom');
+    sessionStorage.removeItem('id');
+    sessionStorage.removeItem('role');
+    sessionStorage.removeItem('genre');
+    sessionStorage.removeItem('age');
   }
 
-  
+  do_something(id:number,action:string,statut:boolean){
+    return this.http.post<any>('http://localhost:3001/users/api/user/do_something',{id,action,statut},{observe: 'response',headers: this.httpOptions.headers})
+  }
 
   
 }

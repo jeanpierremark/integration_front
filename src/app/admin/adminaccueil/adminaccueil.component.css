@@ -31,7 +31,7 @@
 
 .main-content {
     padding: 2rem;
-    max-width: 1400px;
+    max-width: 2000px;
     margin: 0 auto;
 }
 
@@ -73,7 +73,7 @@
 .stat-card.users::before { --accent-color: #4f5af5; }
 .stat-card.datasets::before { --accent-color: #06c270; }
 .stat-card.analyses::before { --accent-color: #7c3aed; }
-.stat-card.alerts::before { --accent-color: #f59e0b; }
+.stat-card.alerts::before { --accent-color: #f42828; }
 
 .stat-header {
     display: flex;

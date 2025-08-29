@@ -228,6 +228,10 @@ getLastUpdateString(): string {
       },
       error: (error) => {
         console.error('Erreur Weather API:', error);
+         if (error.error.message == "Token expiré"){
+          this.user_service.logout()
+          this.router.navigate(["/connexion"])
+        }
         this.updateSourceStatus('Weather API', 'error');
         this.loading = false;
       }
@@ -249,6 +253,10 @@ getLastUpdateString(): string {
         this.loading = false;
       },
       error: (error) => {
+        if (error.error.message == "Token expiré"){
+          this.user_service.logout()
+          this.router.navigate(["/connexion"])
+        }
         console.error('Erreur Open Meteo:', error);
         this.updateSourceStatus('Open Meteo', 'error');
         this.loading = false;
@@ -276,6 +284,10 @@ capitalize(text: string): string {
         this.loading = false;
       },
       error: (error) => {
+        if (error.error.message == "Token expiré"){
+          this.user_service.logout()
+          this.router.navigate(["/connexion"])
+        }
         console.error('Erreur Open Weather :', error);
         this.updateSourceStatus('Open Weather', 'error');
         this.loading = false;

@@ -40,19 +40,19 @@
     <div class="nav">
         <div class="nav-items" >
             <div class="nav-item-wrapper" [class.active]="activeLink === 'accueil'" (click)="setActive('accueil')">
-                <a href="/chercheur/accueil" class="nav-item">Chercheur Accueil</a>
+                <a routerLink="/chercheur/accueil" class="nav-item">Chercheur Accueil</a>
             </div>
             <div class="nav-item-wrapper" [class.active]="activeLink === 'sources'" (click)="setActive('sources')" >
-                <a href="/chercheur/sources" class="nav-item">Comparer Sources</a>
+                <a routerLink="/chercheur/sources" class="nav-item">Comparer Sources</a>
             </div>
             <div class="nav-item-wrapper" [class.active]="activeLink === 'analyse'" (click)="setActive('analyse')">
-                <a href="/chercheur/analyse" class="nav-item">Analyse Approfondie</a>
+                <a routerLink="/chercheur/analyse" class="nav-item">Analyse Approfondie</a>
             </div>
             <div class="nav-item-wrapper" [class.active]="activeLink === 'rapport'" (click)="setActive('rapport')">
-                <a href="/chercheur/rapport" class="nav-item">Rédiger un rapport</a>
+                <a routerLink="/chercheur/rapport" class="nav-item">Rédiger un rapport</a>
             </div>
             <div class="nav-item-wrapper" [class.active]="activeLink === 'prevision'" (click)="setActive('prevision')">
-                <a href="/chercheur/#" class="nav-item">Prévision</a>
+                <a routerLink="/chercheur/#" class="nav-item">Prévision</a>
             </div>
         </div>
     </div>

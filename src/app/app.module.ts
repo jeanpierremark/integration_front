@@ -1,5 +1,7 @@
 import { NgModule, LOCALE_ID  } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { CommonModule } from '@angular/common';
+
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -32,6 +34,10 @@ import { PrevisionComponent } from './chercheur/prevision/prevision.component';
 import { AdminheaderComponent } from './admin/adminheader/adminheader.component';
 import { AnalyseavanceComponent } from './chercheur/analyseavance/analyseavance.component';
 import { AdminaccueilComponent } from './admin/adminaccueil/adminaccueil.component';
+import { UserComponent } from './admin/user/user.component';
+import { LoguserComponent } from './admin/loguser/loguser.component';
+//import { DataTablesModule } from 'angular-datatables';
+
 
 registerLocaleData(localeFr);
 
@@ -61,6 +67,8 @@ registerLocaleData(localeFr);
     AdminheaderComponent,
     AnalyseavanceComponent,
     AdminaccueilComponent,
+    UserComponent,
+    LoguserComponent,
   ],
   imports: [
     BrowserModule,
@@ -68,7 +76,9 @@ registerLocaleData(localeFr);
     AppRoutingModule,
     RouterModule,
     HttpClientModule,
-    NgChartsModule
+    NgChartsModule,
+    CommonModule,
+    //DataTablesModule
   ],
   providers: [
       { provide: LOCALE_ID, useValue: 'fr-FR' } 

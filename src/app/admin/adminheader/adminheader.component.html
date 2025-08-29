@@ -38,16 +38,15 @@
     </div>
     <!-- Navigation -->
     <div class="nav">
-        <div class="nav-items" >
+        <div class="nav-items">
             <div class="nav-item-wrapper" [class.active]="activeLink === 'accueil'" (click)="setActive('accueil')">
-                <a href="/admin/accueil" class="nav-item">Vue d'ensemble</a>
+                <a routerLink="/admin/accueil" class="nav-item">Vue d'ensemble</a>
             </div>
-            <div class="nav-item-wrapper" [class.active]="activeLink === 'user'" (click)="setActive('user')" >
-                <a href="/admin/user" class="nav-item">Gestion des utilisateurs</a>
+            <div class="nav-item-wrapper" [class.active]="activeLink === 'user'" (click)="setActive('user')">
+                <a routerLink="/admin/user" class="nav-item">Gestion des utilisateurs</a>
             </div>
             <div class="nav-item-wrapper" [class.active]="activeLink === 'activite'" (click)="setActive('activite')">
-                <a href="/admin/#" class="nav-item">Journal d'activité</a>
+                <a routerLink="/admin/activite" class="nav-item">Journal d'activité</a>
             </div>
-           
         </div>
     </div>

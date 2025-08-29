@@ -1,8 +1,10 @@
 // weather-comparison.component.ts
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { Chart, ChartConfiguration, ChartType } from 'chart.js';
 import { interval, map, startWith, forkJoin } from 'rxjs';
 import { ChercheurService } from 'src/app/services/chercheur.service';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-comparesources',
@@ -13,7 +15,7 @@ export class ComparesourcesComponent implements OnInit {
   selectedParameter = 'temperature';
   selectedPeriod = '7days';
   chartType = 'line';
-  constructor(private chercheur_service : ChercheurService){}
+  constructor(private chercheur_service : ChercheurService, private user_service : UserService, private router:Router){}
   
   // Recherche
   searchText: string = 'Thiès';
@@ -40,7 +42,7 @@ export class ComparesourcesComponent implements OnInit {
   chartTypes = [
     { value: 'line', label: 'Courbes', icon: 'bi-graph-up' },
     { value: 'bar', label: 'Barres', icon: 'bi-bar-chart' },
-   // { value: 'radar', label: 'Radar', icon: 'bi-radar' },
+    { value: 'radar', label: 'Radar', icon: 'bi-radar' },
   ];
 
   stats: any[] = [];
@@ -114,6 +116,10 @@ export class ComparesourcesComponent implements OnInit {
       },
       error: (error) => {
         console.error('Erreur lors du chargement des données:', error);
+         if (error.error.message == "Token expiré"){
+          this.user_service.logout()
+          this.router.navigate(["/connexion"])
+        }
         this.isLoading = false;
       }
     });
@@ -127,6 +133,11 @@ export class ComparesourcesComponent implements OnInit {
           this.last7weather = response.body.last7_weather
           //console.log('7 days Weather API',this.last7weather)
         }
+      }, error : (error)=>{
+         if (error.error.message == "Token expiré"){
+          this.user_service.logout()
+          this.router.navigate(["/connexion"])
+        }
       }
     })
   }
@@ -139,6 +150,11 @@ export class ComparesourcesComponent implements OnInit {
           this.last7meteo = response.body.last7_meteo
           //console.log('7 days Open Meteo',this.last7meteo)
         }
+      }, error :(error)=>{
+         if (error.error.message == "Token expiré"){
+          this.user_service.logout()
+          this.router.navigate(["/connexion"])
+        }
       }
     })
   }
@@ -150,6 +166,11 @@ export class ComparesourcesComponent implements OnInit {
         if(response.body.message =="success"){
           this.last7open = response.body.last7_open
           //console.log('7 days Open Weather',this.last7open)
+        }
+      }, error : (error) =>{
+         if (error.error.message == "Token expiré"){
+          this.user_service.logout()
+          this.router.navigate(["/connexion"])
         }
       }
     })
@@ -172,6 +193,11 @@ export class ComparesourcesComponent implements OnInit {
         weatherAPI: this.getValueForDate(this.last7weather, date),
         openMeteo: this.getValueForDate(this.last7meteo, date),
         openWeather: this.getValueForDate(this.last7open, date),
+        avgSources: (
+          (this.getValueForDate(this.last7weather, date) +
+          this.getValueForDate(this.last7meteo, date) +
+          this.getValueForDate(this.last7open, date)) / 3
+        )
       });
     });
     
@@ -241,41 +267,47 @@ export class ComparesourcesComponent implements OnInit {
     this.createChart();
   }
 
-  calculateStats() {
-    const sources = [
-      { key: 'weatherAPI', name: 'Weather API' },
-      { key: 'openMeteo', name: 'Open Meteo' },
-      { key: 'openWeather', name: 'Open Weather' }
-    ];
+calculateStats() {
+  const sources = [
+    { key: 'weatherAPI', name: 'Weather API' },
+    { key: 'openMeteo', name: 'Open Meteo' },
+    { key: 'openWeather', name: 'Open Weather' }
+  ];
+  
+  this.stats = sources.map(source => {
+    const values = this.data
+      .map(d => d[source.key])
+      .filter(v => v !== undefined && v !== null && !isNaN(v) && v > 0);
     
-    this.stats = sources.map(source => {
-      const values = this.data
-        .map(d => d[source.key])
-        .filter(v => v !== undefined && v !== null && !isNaN(v) && v > 0);
-      
-      if (values.length === 0) {
-        return {
-          source: source.key,
-          avg: '0.0',
-          min: '0.0',
-          max: '0.0',
-          name: source.name
-        };
-      }
-      
-      const avg = values.reduce((a, b) => a + b, 0) / values.length;
-      const min = Math.min(...values);
-      const max = Math.max(...values);
-      
+    if (values.length === 0) {
       return {
         source: source.key,
-        avg: avg.toFixed(1),
-        min: min.toFixed(1),
-        max: max.toFixed(1),
+        avg: '0.0',
+        min: '0.0',
+        max: '0.0',
+        std: '0.0',
         name: source.name
       };
-    });
-  }
+    }
+    
+    const avg = values.reduce((a, b) => a + b, 0) / values.length;
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    
+    // Calcul de l’écart-type
+    const variance = values.reduce((acc, val) => acc + Math.pow(val - avg, 2), 0) / values.length;
+    const std = Math.sqrt(variance);
+
+    return {
+      source: source.key,
+      avg: avg.toFixed(1),
+      min: min.toFixed(1),
+      max: max.toFixed(1),
+      std: std.toFixed(2), // deux décimales
+      name: source.name
+    };
+  });
+}
 
   createChart() {
     const canvas = document.getElementById('weatherChart') as HTMLCanvasElement;
@@ -312,9 +344,18 @@ export class ComparesourcesComponent implements OnInit {
           {
             label: 'Open Weather',
             data: this.data.map(d => d.openWeather),
-            borderColor: 'red',
-            backgroundColor: this.chartType === 'line' ? 'transparent' : 'red',
+            borderColor: '#eb8a1bff',
+            backgroundColor: this.chartType === 'line' ? 'transparent' : '#eb8a1bff',
             borderWidth: 2,
+            tension: 0.4
+          },
+          {
+            label: 'Moyenne des 3 sources',
+            data: this.data.map(d => d.avgSources),
+            borderColor: '#f71717ff',
+            backgroundColor: this.chartType === 'line' ? 'transparent' : '#f71717ff',
+            borderWidth: 2,
+            borderDash: [5, 5],
             tension: 0.4
           }
         ]

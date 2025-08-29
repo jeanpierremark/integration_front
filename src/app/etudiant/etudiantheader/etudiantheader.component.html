@@ -40,10 +40,10 @@
     <div class="nav">
         <div class="nav-items" >
             <div class="nav-item-wrapper" [class.active]="activeLink === 'visualisation'" (click)="setActive('visualisation')">
-                <a href="/etudiant/visualisation" class="nav-item">Etudiant Accueil</a>
+                <a routerLink="/etudiant/visualisation" class="nav-item">Etudiant Accueil</a>
             </div>
             <div class="nav-item-wrapper" [class.active]="activeLink === 'prevision'" (click)="setActive('prevision')" >
-                <a href="/etudiant/prevision" class="nav-item">Prévision</a>
+                <a routerLink="/etudiant/prevision" class="nav-item">Prévision</a>
             </div>
 
         </div>

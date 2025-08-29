@@ -19,6 +19,8 @@ import { EtudiantprevisionComponent } from './etudiant/etudiantprevision/etudian
 import { PrevisionComponent } from './chercheur/prevision/prevision.component';
 import { AnalyseavanceComponent } from './chercheur/analyseavance/analyseavance.component';
 import { AdminaccueilComponent } from './admin/adminaccueil/adminaccueil.component';
+import { UserComponent } from './admin/user/user.component';
+import { LoguserComponent } from './admin/loguser/loguser.component';
 
 
 const routes: Routes = [  
@@ -31,7 +33,9 @@ const routes: Routes = [
     children :[
       { path: '', redirectTo: 'accueil', pathMatch: 'full' },
       {path:'accueil',component:AdminaccueilComponent},
-      {path:'user',component:AdminComponent},
+      {path:'user',component:UserComponent},
+      {path:'activite',component:LoguserComponent},
+
 
     ],
     canActivate: [authGuard],

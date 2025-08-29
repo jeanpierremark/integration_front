@@ -1,9 +1,12 @@
 // weather-dashboard.component.ts
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { Chart, ChartConfiguration, ChartType } from 'chart.js';
 import { interval, map, startWith, forkJoin, finalize } from 'rxjs';
 import { ChercheurService } from 'src/app/services/chercheur.service';
+import { UserService } from 'src/app/services/user.service';
+import Swal from 'sweetalert2';
 
 interface QuickStat {
   label: string;
@@ -70,6 +73,7 @@ export class VisualisationComponent implements OnInit, OnDestroy {
   constructor(
     private router :Router,
     private chercheur_service: ChercheurService,
+    private user_service : UserService,
     private cdr: ChangeDetectorRef  // Ajout pour OnPush
   ) {}
 
@@ -80,8 +84,12 @@ export class VisualisationComponent implements OnInit, OnDestroy {
   selectedSource: string = 'climate_data_weather';
   source = "Weather API";
 
+  user_id : any =  sessionStorage.getItem('id')
+  action = ''
+  statut : boolean = false
+  
   //Graph type
-  graph:any  ='line'
+  graph:any  ='bar'
 
   // Source value
   sourceValue = '';
@@ -269,6 +277,10 @@ export class VisualisationComponent implements OnInit, OnDestroy {
             }
           },
           error: (error) => {
+             if (error.error.message == "Token expiré"){
+              this.user_service.logout()
+              this.router.navigate(["/connexion"])
+            }
             console.error(`Erreur pour ${param}:`, error);
             completedRequests++;
             if (completedRequests === totalRequests) {
@@ -304,6 +316,10 @@ export class VisualisationComponent implements OnInit, OnDestroy {
             }
           },
           error: (error) => {
+             if (error.error.message == "Token expiré"){
+              this.user_service.logout()
+              this.router.navigate(["/connexion"])
+            }
             console.error(`Erreur pour ${param}:`, error);
             completedRequests++;
             if (completedRequests === totalRequests) {
@@ -339,6 +355,10 @@ export class VisualisationComponent implements OnInit, OnDestroy {
             }
           },
           error: (error) => {
+             if (error.error.message == "Token expiré"){
+              this.user_service.logout()
+              this.router.navigate(["/connexion"])
+            }
             console.error(`Erreur pour ${param}:`, error);
             completedRequests++;
             if (completedRequests === totalRequests) {
@@ -365,6 +385,10 @@ export class VisualisationComponent implements OnInit, OnDestroy {
 
         },
         error: (error) => {
+           if (error.error.message == "Token expiré"){
+            this.user_service.logout()
+            this.router.navigate(["/connexion"])
+          }
           console.error('Erreur getlasthourdata:', error);
           resolve(); // Continue même avec erreur
         }
@@ -388,8 +412,11 @@ export class VisualisationComponent implements OnInit, OnDestroy {
 
           }
           resolve();
-        },
-        error: (error) => {
+        }, error: (error) => {
+           if (error.error.message == "Token expiré"){
+            this.user_service.logout()
+            this.router.navigate(["/connexion"])
+          }
           console.error('Erreur getcurrentdata:', error);
           resolve(); // Continue même avec erreur
         }
@@ -709,8 +736,75 @@ ngOnDestroy() {
     this.getdataforgraph(this.selectedSource, this.searchText, this.selectedPeriod);
     }
 
+//Download Image
+  downloadCardAsImage(className: string, fileName: string = 'resultat_image.png'): void {
+    const card: HTMLElement | null = document.querySelector(`.${className}`);
+    if (!card) {
+      console.error("Aucun élément avec la classe spécifiée n'a été trouvé.");
+      return;
+    }
 
-    
+    const script: HTMLScriptElement = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    script.onload = (): void => {
+      (window as any).html2canvas(card).then((canvas: HTMLCanvasElement) => {
+        const image: string = canvas.toDataURL('image/png');
+        const link: HTMLAnchorElement = document.createElement('a');
+        link.href = image;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        this.showNotification("Image téléchargée avec succès", 'success');
+        this.action ='L\'utilisateur à télécharger une visualistation'
+        this.statut = true
+        this.save_do_something(this.user_id,this.action,this.statut)
+      }).catch((error: Error) => {
+        console.error('Erreur lors de la création de l\'image:', error);
+      });
+    };
+    script.onerror = (): void => {
+      console.error('Erreur lors du chargement de html2canvas.');
+       this.action ='L\'utilisateur tente télécharger une visualisation'
+        this.statut = false
+        this.save_do_something(this.user_id,this.action,this.statut)
+    };
+    document.head.appendChild(script);
+  }
+
+  save_do_something(id: number, action: string, statut: boolean) {
+   console.log('Calling save_do_something with:', { id, action, statut });
+   if (!id) {
+      console.error('User ID is not available');
+      this.showNotification('ID utilisateur non disponible', 'error');
+      return;
+   }
+   this.user_service.do_something(id, action, statut).subscribe({
+      next: (response) => {
+         console.log('Activity saved successfully:', response.body);
+      },
+      error: (error: HttpErrorResponse) => {
+         if (error.error.message == "Token expiré"){
+          this.user_service.logout()
+          this.router.navigate(["/connexion"])
+        }
+         console.error('Error saving activity:', error);
+      }
+   });
+}
+
+showNotification(message: string, type: 'success' | 'error' | 'warning' | 'info'): void {
+    Swal.fire({
+      toast: true,
+      icon: type,
+      title: message,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 6000,
+      timerProgressBar: true
+    });
+    this.cdr.detectChanges();
+  }
 
 
 //Pour aller dans avancé

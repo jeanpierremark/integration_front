@@ -1,0 +1,184 @@
+ <!-- Header Dashboard -->
+  <div style="width:100%">
+   <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 shadow-lg">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div  class="d-flex align-items-center" style="margin-left:0px;" >
+                        <i class="bi bi-activity me-3" style="font-size: 2.5rem; margin-left:0px;"></i>
+                        <div>
+                            <h1 class="h2 fw-bold mb-1" style="margin-top:10px">Activités des utilisateurs</h1>
+                            <p class="text-blue-100 mb-0" style="font-size: 17px;">Voir toutes les activités des utilisateurs  </p>
+                        </div>
+                       
+                    </div>
+                </div>
+                <div class="col-md-4 text-end">
+                    
+                    <div class="d-flex justify-content-end align-items-center gap-3">
+                        <div class="text-end" style="margin-right: 5px;">
+                                <div class="btn fw-semibold bg-light shadow-sm text-primary w-100">{{ dateHeureActuelle$ | async }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 
+<div class="container">
+  <!-- En-tête -->
+
+  <!-- Statistiques 
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-content">
+        <div>
+          <p class="stat-label">Total Utilisateurs</p>
+          <p class="stat-value">{{ users.length }}</p>
+        </div>
+        <div class="stat-icon blue">
+          <i class="icon-shield"></i>
+        </div>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-content">
+        <div>
+          <p class="stat-label">Utilisateurs Actifs</p>
+          <p class="stat-value green">{{ getActiveUsers().length }}</p>
+        </div>
+        <div class="stat-icon green">
+          <i class="icon-check"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-content">
+        <div>
+          <p class="stat-label">Administrateurs</p>
+          <p class="stat-value red">{{ getAdmins().length }}</p>
+        </div>
+        <div class="stat-icon red">
+          <i class="icon-shield"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-content">
+        <div>
+          <p class="stat-label">Suspendus</p>
+          <p class="stat-value yellow">{{ getSuspendedUsers().length }}</p>
+        </div>
+        <div class="stat-icon yellow">
+          <i class="icon-x"></i>
+        </div>
+      </div>
+    </div>
+  </div>-->
+
+  <!-- Barre d'actions -->
+  <div class="actions-bar">
+    <div class="actions-content">
+      <div class="search-filters">
+        <div class="search-box">
+          <i class="bi bi-search text-primary"></i>
+          <input
+            type="text"
+            placeholder="Rechercher un utilisateur..."
+            [(ngModel)]="searchTerm"
+            (input)="filterUsers()"
+          />
+        </div>
+      </div>
+      
+      <!--<div class="action-buttons">
+        <button class="btn btn-secondary" (click)="exportUsers()">
+          <i class="bi bi-download"></i>
+          Exporter
+        </button>
+      </div>-->
+    </div>
+  </div>
+
+  <!-- Tableau des utilisateurs -->
+  <div class="table-container">
+    <div class="table-wrapper">
+      <table  class="users-table">
+        <thead>
+          <tr>
+            <th class="fw-bold text-dark">Utilisateur</th>
+            <th class="fw-bold text-dark">Contact</th>
+            <th class="fw-bold text-dark">Activité</th>
+            <th class="fw-bold text-dark">Résultat </th>
+            <th class="fw-bold text-dark">Date Activité</th>
+            <th class="text-center fw-bold text-dark">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of filteredUsers" class="user-row">
+            <td>
+              <div class="user-info">
+                <div class="avatar">{{ user.avatar }}</div>
+                <div class="user-details">
+                  <div class="user-name">{{ user.prenom }} {{ user.nom }}</div>
+        
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="contact-info">
+                <div class="email">
+                  <i class="bi bi-envelope-check"></i>
+                  {{ user.email }}
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="action">
+                <i class="bi bi-activity text-dark fw-small"></i>
+                {{ user.action }}
+              </div>
+            </td>
+            <td>
+              <span [class]="'badge  rounded-pill me-2 text-small ' + (user.statut === 'Succès' ? 'bg-success' : 'bg-danger')">{{user.statut}}</span>
+            </td>
+            <td>
+              <div class="last-connection">
+                <i class="bi bi-clock text-dark fw-small"></i>
+                {{ user.date_action }}
+              </div>
+            </td>
+            <td class="text-center">
+              <div class="action-buttons">
+                <button [ngClass]="user.isActive ? 'btn btn-danger' : 'btn btn-info'" (click)="user.isActive ? suspend_user(user.id) : active_user(user.id)">
+                  <i [ngClass]="user.isActive ? 'bi bi-ban ' : 'bi bi-check-circle'"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div *ngIf="filteredUsers.length === 0" class="empty-state">
+      <i class="bi bi-search text-danger"></i>
+      <h3>Aucune activité trouvée</h3>
+      <p>Essayez de modifier vos critères de recherche.</p>
+    </div>
+  </div>
+
+  
+
+    <!--<div class="modal-footer">
+        <button *ngIf="modalType !== 'view'" class="btn btn-primary" (click)="handleSubmit()">
+          {{ modalType === 'add' ? 'Ajouter' : 'Modifier' }}
+        </button>
+        <button class="btn btn-secondary" (click)="closeModal()">
+          {{ modalType === 'view' ? 'Fermer' : 'Annuler' }}
+        </button>
+      </div>-->
+    </div>
+  

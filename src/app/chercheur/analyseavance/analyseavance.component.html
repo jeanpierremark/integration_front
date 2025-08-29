@@ -1,235 +1,676 @@
-<!-- weather-dashboard.component.html -->
-<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+<!-- weather-analysis.component.html -->
+<div class="min-h-screen bg-gradient-to-br">
   <!-- Header Dashboard -->
-  <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 shadow-lg">
+  <div class="bg-gradient-to-r text-white p-4 shadow-lg">
     <div class="container-fluid">
       <div class="row align-items-center">
         <div class="col-md-8">
           <div class="d-flex align-items-center">
             <i class="bi bi-graph-up me-3" style="font-size: 2.5rem;"></i>
             <div>
-              <h1 class="h2 fw-bold mb-1" style="margin-top:10px">Analyse</h1>
-              <p class="mb-0 text-blue-100" style="font-size: 16px;">Visualisation</p>
-            </div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
-            <div class="search-bar" style="margin-left: 50px;">
-                  <input type="text" class="form-control" placeholder="Recherche..."[(ngModel)]="searchText"/>
-                  <i  style="color: #3b82f6; font-size:30px;" class="bi bi-search search-icon" (click)="getdataforgraph(selectedSource,searchText,selectedPeriod)"></i>
+              <h1 class="h2 fw-bold mb-1">Analyse Avancée</h1>
+              <p class="mb-0 text-blue-100" style="font-size: 16px;">Configuration & Visualisation</p>
             </div>
             
-  
-             <div class="d-flex align-items-center gap-2" style="margin-left:30px;">
-              <select
-                [(ngModel)]="selectedPeriod"
-                (change)="onPeriodChange(selectedPeriod)"
-                class="form-select form-select-sm bg-white"
-                style="width: auto; min-width: 120px;">
-                <option *ngFor="let period of periods" [value]="period.value">
-                  {{ period.label }}
-                </option>
-              </select>
-           
-            </div>
-
-            <div class="d-flex align-items-center gap-2" style="margin-left:18px;">
-              <select
-                [(ngModel)]="graph"
-                (change)="onGraphChange(graph)"
-                class="form-select form-select-sm bg-white"
-                style="width: auto; min-width: 120px;">
-                <option *ngFor="let diagram of diagrams" [value]="diagram.value">
-                  {{ diagram.label }}
-                </option>
-              </select>
-           
-            </div>
             
           </div>           
-          </div>
+        </div>
         
         <div class="col-md-4 text-end">
-          <div class="d-flex justify-content-end align-items-right gap-3">
-            <!-- Date Filter -->
+          <div class="d-flex justify-content-end align-items-center gap-3">
             <div class="text-end">
-              <div class="fw-medium btn bg-light shadow-sm text-primary w-100" style="font-size: 16px;" >{{ dateHeureActuelle$ | async }}</div>
+              <div class="fw-medium btn bg-light shadow-sm text-primary" style="font-size: 16px;">
+                {{ dateHeureActuelle$ | async }}
+              </div>
             </div>
-              <div class="d-flex align-items-center gap-2" style="margin-left:25px">
-              <!--<select
-                [(ngModel)]="selectedSource"
-                (change)="onSourceChange(selectedSource)"
-                class="form-select form-select-sm bg-white"
-                style="width: auto; min-width: 120px;">
-                <option *ngFor="let source of sources" [value]="source.value">
-                  {{ source.label }}
-                </option>
-              </select>-->
+            <div class="d-flex align-items-center gap-2">
               <span class="btn btn-light" (click)="visualisation()"> 
-              <i class="bi bi-arrow-bar-left text-success fw-bold fw-bold"></i>
-            </span>
-            
+                <i class="bi bi-arrow-bar-left text-success fw-bold"></i>
+              </span>
             </div>
-            
           </div>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- Loading Overlay -->
+  <div *ngIf="loading" class="loading-overlay">
+    <div class="loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+      <p class="mt-3">Chargement...</p>
+    </div>
+  </div>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <div class="analysis-grid">
-            <!-- Analysis Methods -->
-            <section class="config-section">
-                <h2 class="bi bi-pie-chart-fill section-title">
-                    Méthode d'Analyse
-                </h2>
-                <div class="methods-grid">
-                    <div class="method-card active">
-                        <div class="method-icon">
-                            <svg class="icon" viewBox="0 0 24 24">
-                                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
-                                <polyline points="17 6 23 6 23 12"/>
-                            </svg>
-                        </div>
-                        <div class="method-name">Analyse de Tendance</div>
-                        <div class="method-desc">Évolution des paramètres dans le temps</div>
-                    </div>
-                    
-                    <div class="method-card">
-                        <div class="method-icon">
-                            <svg class="icon" viewBox="0 0 24 24">
-                                <line x1="18" y1="20" x2="18" y2="10"/>
-                                <line x1="12" y1="20" x2="12" y2="4"/>
-                                <line x1="6" y1="20" x2="6" y2="14"/>
-                            </svg>
-                        </div>
-                        <div class="method-name">Corrélation</div>
-                        <div class="method-desc">Relations entre différents paramètres</div>
-                    </div>
-                    
-                    <div class="method-card">
-                        <div class="method-icon">
-                            <svg class="icon" viewBox="0 0 24 24">
-                                <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
-                                <path d="M22 12A10 10 0 0 0 12 2v10z"/>
-                            </svg>
-                        </div>
-                        <div class="method-name">Distribution</div>
-                        <div class="method-desc">Répartition statistique des valeurs</div>
-                    </div>
-                    
-                    <div class="method-card">
-                        <div class="method-icon">
-                            <svg class="icon" viewBox="0 0 24 24">
-                                <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/>
-                            </svg>
-                        </div>
-                        <div class="method-name">Détection d'Anomalie</div>
-                        <div class="method-desc">Identification des valeurs atypiques</div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Parameters -->
-            <section class="config-section">
-                <h2 class="bi bi-activity section-title">
-                    Paramètres à Analyser
-                </h2>
-                <div class="params-grid">
-                    <div class="param-item active">
-                        <div class="param-info">
-                            <h4>Température</h4>
-                            <div class="param-unit">°C</div>
-                        </div>
-                    </div>
-                    
-                    <div class="param-item">
-                        <div class="param-icon">
-                            <svg class="icon" viewBox="0 0 24 24">
-                                <path d="M2 12C2 6.48 6.48 2 12 2s10 4.48 10 10-4.48 10-10 10S2 17.52 2 12z"/>
-                                <path d="M7.94 15.54l2.24-2.24"/>
-                            </svg>
-                        </div>
-                        <div class="param-info">
-                            <h4>Humidité</h4>
-                            <div class="param-unit">%</div>
-                        </div>
-                    </div>
-                    
-                    <div class="param-item">
-                        <div class="param-icon">
-                            <svg class="icon" viewBox="0 0 24 24">
-                                <circle cx="12" cy="12" r="10"/>
-                                <circle cx="12" cy="12" r="6"/>
-                                <circle cx="12" cy="12" r="2"/>
-                            </svg>
-                        </div>
-                        <div class="param-info">
-                            <h4>Pression Atmos.</h4>
-                            <div class="param-unit">hPa</div>
-                        </div>
-                    </div>
-                    
-                    <div class="param-item">
-                        <div class="param-icon">
-                            <svg class="icon" viewBox="0 0 24 24">
-                                <path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/>
-                                <path d="M9.6 4.6A2 2 0 1 1 11 8H2"/>
-                                <path d="M12.6 19.4A2 2 0 1 0 14 16H2"/>
-                            </svg>
-                        </div>
-                        <div class="param-info">
-                            <h4>Vitesse du Vent</h4>
-                            <div class="param-unit">km/h</div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Source Selection -->
-            <section class="config-section">
-                <h2 class="bi bi-database-fill-check section-title">
-                    Source de Données
-                </h2>
-                <div class="select-group">
-                    <select class="custom-select">
-                        <option value="weather-api" selected>Weather API - Haute qualité, Temps réel</option>
-                        <option value="meteorologie">Météorologie Nationale - Très haute qualité, 1h</option>
-                        <option value="satellite">Données Satellite - Haute qualité, 30min</option>
-                        <option value="stations-locales">Stations Locales - Moyenne qualité, Temps réel</option>
-                    </select>
-                </div>
-            </section>
-
-            
-
-            <section class="config-section">
-                <h2 class="bi bi-database-fill-check section-title">
-                    Source de Données
-                </h2>
-                <div class="select-group">
-                    <select class="custom-select">
-                        <option value="1h">1 heure - 60 points de données</option>
-                        <option value="6h">6 heures - 360 points de données</option>
-                        <option value="24h" selected>24 heures - 1440 points de données</option>
-                        <option value="7d">7 jours - 10080 points de données</option>
-                        <option value="30d">30 jours - 43200 points de données</option>
-                    </select>
-                </div>
-            </section>
-
-            <!-- Action Button -->
-            <div class="action-section">
-                <button class="analyze-btn">
-                    <svg class="icon" viewBox="0 0 24 24">
-                        <polygon points="5,3 19,12 5,21"/>
-                    </svg>
-                    Lancer l'Analyse
-                </button>
+  <!-- Main Content -->
+  <main class="main-content" >
+     <!-- Cities Selection -->
+      <section class="config-section">
+        <h2 class="bi bi-geo-alt-fill text-primary section-title">
+        Villes
+        </h2>
+        <div class="cities-container">
+          <div class="selected-cities-summary" *ngIf="selectedCities.length > 0">
+            <div class="summary-badge">
+              <i class="bi bi-check-circle me-2"></i>
+              {{ selectedCities.length }} ville(s) sélectionnée(s)
             </div>
+            <button class="btn btn-outline-danger btn-sm ms-2" (click)="clearAllCities()">
+              <i class="bi bi-x-circle me-1"></i>Tout désélectionner
+            </button>
+          </div>
+          
+          <div class="cities-search mb-3">
+            <div class="position-relative">
+              <input 
+                type="text" 
+                class="form-control" 
+                placeholder="Rechercher une ville..."
+                [(ngModel)]="citySearchText"
+                (input)="filterCities()"
+              />
+              <i class="bi bi-search position-absolute" style="right: 10px; top: 50%; transform: translateY(-50%); color: #6b7280;"></i>
+            </div>
+          </div>
+
+          <div class="cities-grid">
+            <div 
+              *ngFor="let city of filteredCities; trackBy: trackByCity"
+              class="city-item" 
+              [class.selected]="selectedCities.includes(city)"
+              (click)="toggleCity(city)"
+            >
+              <div class="city-checkbox">
+                <i class="bi bi-check" *ngIf="selectedCities.includes(city)"></i>
+              </div>
+              <div class="city-icon">
+                <i class="bi bi-geo-alt"></i>
+              </div>
+              <div class="city-name">{{ city }}</div>
+            </div>
+          </div>
+
+          <div class="quick-select-buttons mt-3">
+            <button class="btn btn-outline-primary btn-sm me-2" (click)="selectMajorCities()">
+              <i class="bi bi-star me-1"></i>Villes principales
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" (click)="selectAllCities()">
+              <i class="bi bi-check-all me-1"></i>Toutes les villes
+            </button>
+          </div>
+        </div>
+      </section>
+
+    <div class="analysis-grid" style="margin-top: 2rem;">
+      <!-- Analysis Methods -->
+      <section class="config-section">
+        <h2 class="bi bi-pie-chart-fill text-primary section-title">
+          Méthode d'Analyse
+        </h2>
+        <div class="methods-grid">
+          <div 
+            class="method-card" 
+            [class.active]="selectedMethod === 'trend'"
+            (click)="selectMethod('trend')"
+          >
+            <div class="method-icon">
+              <i class="bi bi-graph-up"></i>
+            </div>
+            <div class="method-name">Analyse de Tendance</div>
+            <div class="method-desc">Évolution des paramètres dans le temps</div>
+          </div>
+          
+          <div 
+            class="method-card" 
+            [class.active]="selectedMethod === 'correlation'"
+            (click)="selectMethod('correlation')"
+          >
+            <div class="method-icon">
+              <i class="bi bi-diagram-3"></i>
+            </div>
+            <div class="method-name">Corrélation</div>
+            <div class="method-desc">Relations entre différents paramètres</div>
+          </div>
+          
+          <div 
+            class="method-card" 
+            [class.active]="selectedMethod === 'descriptive'"
+            (click)="selectMethod('descriptive')"
+          >
+            <div class="method-icon">
+              <i class="bi bi-bar-chart"></i>
+            </div>
+            <div class="method-name">Analyse Descriptive</div>
+            <div class="method-desc">Résumer et décrire les données des paramètres</div>
+          </div>
+          
+          <div 
+            class="method-card" 
+            [class.active]="selectedMethod === 'compare'"
+            (click)="selectMethod('compare')"
+          >
+            <div class="method-icon">
+              <i class="bi bi-signpost-2"></i>
+            </div>
+            <div class="method-name">Comparaison </div>
+            <div class="method-desc">Écarts des valeurs des paramètres entre plusieurs villes </div>
+          </div>
+        </div>
+      </section>
+
+     
+      <!-- Parameters -->
+      <section class="config-section">
+        <h2 class="bi bi-activity text-primary section-title">
+          Paramètres à Analyser
+        </h2>
+        <div class="params-grid">
+          <div 
+            *ngFor="let param of parameters; trackBy: trackByParameter"
+            class="param-item" 
+            [class.selected]="selectedParameters.includes(param.value)"
+            (click)="toggleParameter(param.value)"
+          >
+            <div class="param-checkbox">
+              <i class="bi bi-check" *ngIf="selectedParameters.includes(param.value)"></i>
+            </div>
+            <div class="param-icon" [style.color]="param.color">
+              <i [class]="param.icon"></i>
+            </div>
+            <div class="param-info">
+              <h4>{{ param.label }}</h4>
+              <div class="param-unit">{{ param.unit }}</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Periods -->
+      <section class="config-section">
+        <h2 class="bi bi-calendar-range text-primary section-title">
+          Période d'Analyse
+        </h2>
+        <div class="period-options">
+          <div 
+            *ngFor="let period of periods"
+            class="period-btn" 
+            [class.active]="selectedPeriod === period.value"
+            (click)="selectPeriod(period.value)"
+          >
+            <i [class]="period.icon" class="me-2"></i>{{ period.label }}
+          </div>
+        </div>
+      </section>
+
+      <!-- Source Selection -->
+      <section class="config-section">
+        <h2 class="bi bi-database-fill-check text-primary section-title">
+          Source de Données
+        </h2>
+        <div class="source-options">
+          <div 
+            *ngFor="let source of sources"
+            class="source-option" 
+            [class.selected]="selectedSource === source.value"
+            [class.disabled]="getSourceAvailability(source.value) === 'unavailable'"
+            (click)="selectSource(source.value)"
+          >
+            <div class="source-radio">
+              <div class="radio-dot" *ngIf="selectedSource === source.value"></div>
+            </div>
+            <div class="source-info">
+              <div class="source-name">{{ source.label }}</div>
+              <div class="source-desc">{{ source.description }}</div>
+            </div>
+            <span 
+              class="availability-badge" 
+              [class]="getSourceAvailability(source.value)"
+            >
+              {{ getSourceAvailabilityText(source.value) }}
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Action Button -->
+      <div class="action-section">
+        <button 
+          class="analyze-btn" 
+          [disabled]="!canLaunchAnalysis()"
+          (click)="loadAnalysisMethod()"
+        >
+          <svg class="icon" viewBox="0 0 24 24">
+            <polygon points="5,3 19,12 5,21"/>
+          </svg>
+          Lancer l'Analyse
+        </button>
+      </div>
+    </div>
+
+<!-- Results Preview -->
+<section class="results-preview" id="results-preview" *ngIf="tendance || correlation || compare || descriptive">
+  <h2 class="section-title">
+    <i class="bi bi-graph-up-arrow me-2"></i>
+    Aperçu des Résultats d'Analyse<div style="position:absolute;right:8px"><span  class="btn btn-secondary tesxt-white">{{getCurrentDate()}}</span>&nbsp;&nbsp;&nbsp; <span class="btn btn-success bi bi-download"  (click)="downloadCardAsImage('preview-cards')">Télécharger</span></div>
+
+  </h2>
+  <div class="preview-cards">
+    <!-- Analyse de tendance -->
+    <ng-container *ngIf="selectedMethod === 'trend' && hasTrendanceData()">
+      <div class="preview-card" *ngFor="let city of selectedCities">
+        <!-- Vérifier si la ville existe dans les données de tendance -->
+        <ng-container>
+      
+          <!-- Itérer sur chaque paramètre sélectionné -->
+          <div class="parameter-section" *ngFor="let param of selectedParameters">
+            <!-- Vérifier si le paramètre existe pour cette ville -->
+            <ng-container *ngIf="tendance[city][param]">
+              <div class="trend-analysis-card">
+                <!-- Label du paramètre -->
+                <div class="preview-label">
+                  Tendance {{ getParameterLabel(param) }} à <span class="btn btn-primary ">{{ city }}</span>
+                </div>
+                <!-- Valeur principale de la pente -->
+                <div class="preview-value fw-bold" [style.color]="getParameterColor(param)">
+                  {{ formatSlope(tendance[city][param].slope) }} {{ getParameterUnit(param) }}/jour
+                </div>
+                
+              
+                
+            <!-- Direction de la tendance -->
+            <div class="preview-status fw-bold" 
+                 [ngClass]="{
+                   'rising': tendance[city][param].trend_direction === 'croissante',
+                   'falling': tendance[city][param].trend_direction === 'décroissante',
+                   'stable': tendance[city][param].trend_direction === 'stable'
+                 }">
+              {{ getTrendLabel(tendance[city][param].trend_direction) }}
+            </div>
+            
+            <!-- Informations statistiques supplémentaires -->
+            <div class="trend-stats">
+              <div class="stat-item">
+                <span class="stat-label">Variation totale:</span>
+                <span class="stat-value">{{ tendance[city][param].total_increase.toFixed(2) || 'N/A' }}</span>
+              </div>
+              
+              <div class="stat-item">
+                <span class="stat-label">Corrélation (R):</span>
+                <span class="stat-value">{{ tendance[city][param].r_value.toFixed(4) || 'N/A' }}</span>
+              </div>
+              
+              <div class="stat-item">
+                <span class="stat-label">Significativité (p):</span>
+                <span class="stat-value" 
+                     [ngClass]="{'significant': tendance[city][param].p_value < 0.05, 'not-significant': tendance[city][param].p_value >= 0.05}">
+                  {{ tendance[city][param].p_value.toFixed(6) || 'N/A' }}
+                </span>
+              </div>
+              
+              <div class="stat-item">
+                <span class="stat-label">Points de données:</span>
+                <span class="stat-value">{{ tendance[city][param].data_points || 'N/A' }}</span>
+              </div>
+            </div>
+            
+            <!-- Indicateur de fiabilité -->
+            <div class="reliability-indicator" 
+                 [ngClass]="{
+                   'high-reliability': tendance[city][param].p_value < 0.01,
+                   'medium-reliability': tendance[city][param].p_value >= 0.01 && tendance[city][param].p_value < 0.05,
+                   'low-reliability': tendance[city][param].p_value >= 0.05
+                 }">
+              <span class="reliability-label">
+                {{ getReliabilityLabel(tendance[city][param].p_value) }}
+              </span>
+            </div>
+          </div>
+        </ng-container>
+        
+        <!-- Message si le paramètre n'existe pas pour cette ville -->
+        <div *ngIf="!tendance[city][param]" class="no-data-message">
+          <div class="preview-label">{{ getParameterLabel(param) }} à {{ city }}</div>
+          <div class="no-data-text">Données de tendance non disponibles</div>
+        </div>
+      </div>
+    </ng-container>
+    
+    <!-- Message si la ville n'existe pas dans les données -->
+    <div *ngIf="!tendance[city]" class="no-city-data">
+      <h3>{{ city }}</h3>
+      <div class="no-data-text">Aucune donnée de tendance disponible pour cette ville</div>
+    </div>
+  </div>
+</ng-container>
+
+  <!-- Message si aucune donnée de tendance n'est disponible -->
+  <div *ngIf="selectedMethod === 'trend' && !hasTrendanceData()" class="no-trends-data">
+    <div class="no-city-data">
+      <i class="icon-trend"></i>
+      <h3>Aucune analyse de tendance disponible</h3>
+    </div>
+  </div>
+
+  <!-- Analyse de corrélation -->
+  <ng-container *ngIf="selectedMethod === 'correlation' && hasCorrelationData()">
+  <div class="preview-card" *ngFor="let city of selectedCities">
+    <!-- Vérifier si la ville existe dans les données de corrélation -->
+    <ng-container *ngIf="correlation[city]">
+      <div class="correlation-analysis-card">
+        <!-- En-tête de la ville -->
+        <div class="city-header">
+          <div class="preview-label">
+            Analyse de corrélation - <span class="btn btn-primary">{{ city }}</span>
+          </div>
+          <div class="data-points-info">
+            <span class="stat-label">Points de données:</span>
+            <span class="stat-value">{{ correlation[city].data_points }}</span>
+          </div>
         </div>
 
-        <!-- Results Preview -->
+        <!-- Matrice de corrélation -->
+<div class="correlation-matrix">
+  <h4 class="matrix-title">Matrice de corrélation</h4>
+  
+ <!-- Conteneur avec scroll horizontal -->
+<div class="table-container">
+  <table class="correlation-table">
+  <tbody>
+      <tr>
+        <td class="header-cell empty-cell"></td>
+        <td class="header-cell fw-bold" 
+            *ngFor="let param of getParametersFromMatrix(city)"
+            [style.color]="getParameterColor(param)"
+            [title]="getParameterLabel(param)">
+          {{ getParameterLabel(param).substring(0,3) }}
+        </td>
+      </tr>
+    
+    
+   
+      <tr *ngFor="let rowParam of getParametersFromMatrix(city)">
+        <!-- En-tête de ligne -->
+        <th class="header-cell row-header" 
+            [style.color]="getParameterColor(rowParam)"
+            [title]="getParameterLabel(rowParam)">
+          {{ getParameterLabel(rowParam) }}
+        </th>
         
-    </main>
+        <!-- Valeurs de corrélation -->
+        <td class="value-cell" 
+            *ngFor="let colParam of getParametersFromMatrix(city)"
+            [ngClass]="{
+              'perfect-correlation': getCorrelationValue(city, rowParam, colParam) === 1,
+              'strong-positive': getCorrelationValue(city, rowParam, colParam) > 0.7 && getCorrelationValue(city, rowParam, colParam) < 1,
+              'moderate-positive': getCorrelationValue(city, rowParam, colParam) > 0.3 && getCorrelationValue(city, rowParam, colParam) <= 0.7,
+              'weak-positive': getCorrelationValue(city, rowParam, colParam) > 0 && getCorrelationValue(city, rowParam, colParam) <= 0.3,
+              'weak-negative': getCorrelationValue(city, rowParam, colParam) < 0 && getCorrelationValue(city, rowParam, colParam) >= -0.3,
+              'moderate-negative': getCorrelationValue(city, rowParam, colParam) < -0.3 && getCorrelationValue(city, rowParam, colParam) >= -0.7,
+              'strong-negative': getCorrelationValue(city, rowParam, colParam) < -0.7 && getCorrelationValue(city, rowParam, colParam) > -1,
+              'perfect-negative': getCorrelationValue(city, rowParam, colParam) === -1,
+              'diagonal': rowParam === colParam
+            }"
+            [attr.title]="getCorrelationInterpretation(getCorrelationValue(city, rowParam, colParam))">
+          {{ formatCorrelationValue(getCorrelationValue(city, rowParam, colParam)) }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+    </div>
+
+        <!-- Analyse détaillée des corrélations significatives -->
+        <div class="significant-correlations">
+          <h4 class="analysis-title">Corrélations significatives</h4>
+          
+          <div class="correlation-pair" *ngFor="let pair of getSignificantCorrelations(city)">
+            <div class="pair-header">
+              <span class="param-name" [style.color]="getParameterColor(pair.param1)">
+                {{ getParameterLabel(pair.param1) }}
+              </span>
+              <span class="correlation-symbol">↔</span>
+              <span class="param-name" [style.color]="getParameterColor(pair.param2)">
+                {{ getParameterLabel(pair.param2) }}
+              </span>
+            </div>
+            
+            <div class="correlation-details">
+              <div class="correlation-strength" 
+                   [ngClass]="{
+                     'strong-positive': pair.value > 0.7,
+                     'moderate-positive': pair.value > 0.3 && pair.value <= 0.7,
+                     'weak-positive': pair.value > 0 && pair.value <= 0.3,
+                     'weak-negative': pair.value < 0 && pair.value >= -0.3,
+                     'moderate-negative': pair.value < -0.3 && pair.value >= -0.7,
+                     'strong-negative': pair.value < -0.7
+                   }">
+                {{ formatCorrelationValue(pair.value) }}
+              </div>
+              
+              <div class="correlation-interpretation">
+                {{ getCorrelationInterpretation(pair.value) }}
+              </div>
+              
+              <div class="correlation-direction" 
+                   [ngClass]="{
+                     'positive-correlation': pair.value > 0,
+                     'negative-correlation': pair.value < 0
+                   }">
+                {{ pair.value > 0 ? 'Corrélation positive' : 'Corrélation négative' }}
+              </div>
+            </div>
+          </div>
+          
+          <!-- Message si aucune corrélation significative -->
+          <div *ngIf="getSignificantCorrelations(city).length === 0" class="no-significant-correlations">
+            <div class="no-data-text">Aucune corrélation significative détectée</div>
+          </div>
+        </div>
+
+        <!-- Résumé statistique -->
+        <div class="correlation-summary">
+          <div class="summary-item">
+            <span class="summary-label">Corrélations positives:</span>
+            <span class="summary-value positive">{{ countPositiveCorrelations(city) }}</span>
+          </div>
+          
+          <div class="summary-item">
+            <span class="summary-label">Corrélations négatives:</span>
+            <span class="summary-value negative">{{ countNegativeCorrelations(city) }}</span>
+          </div>
+          
+          <div class="summary-item">
+            <span class="summary-label">Corrélation la plus forte:</span>
+            <span class="summary-value strong">{{ getStrongestCorrelation(city) }}</span>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+    
+    <!-- Message si la ville n'existe pas dans les données -->
+    <div *ngIf="!correlation[city]" class="no-city-data">
+      <h3>{{ city }}</h3>
+      <div class="no-data-text">Aucune donnée de corrélation disponible pour cette ville</div>
+    </div>
+  </div>
+</ng-container>
+
+<!-- Message si aucune donnée de corrélation n'est disponible -->
+<div *ngIf="selectedMethod === 'correlation' && !hasCorrelationData()" class="no-correlations-data">
+  <div class="no-city-data">
+    <i class="icon-correlation"></i>
+    <h3>Aucune analyse de corrélation disponible</h3>
+  </div>
+</div>
+
+
+<!-- Analyse comparative -->
+<ng-container *ngIf="selectedMethod === 'compare' && compare && compare.averages">
+  
+  <!-- Section des moyennes avec graphique -->
+  <div class="compare-section">
+    <h3 class="compare-title">Moyennes par ville</h3>
+    
+    <!-- Graphique des moyennes -->
+    <div class="compare-chart-wrapper">
+      <canvas #averagesChart></canvas>
+    </div>
+    
+    <!-- Cartes des moyennes -->
+    <div class="compare-averages-grid">
+      <div class="compare-card compare-average-card" *ngFor="let city of selectedCities">
+        <ng-container *ngIf="compare.averages && compare.averages[city]">
+          <div class="compare-city-header">
+            <h4>{{ city }}</h4>
+          </div>
+          <div class="compare-params-list">
+            <div class="compare-param-item" *ngFor="let param of selectedParameters">
+              <ng-container *ngIf="compare.averages[city][param] !== undefined && compare.averages[city][param] !== null">
+                <div class="compare-param-content">
+                  <div class="compare-value" [style.color]="getParameterColor(param)">
+                    {{ compare.averages[city][param].toFixed(2) }} {{ getParameterUnit(param) }}
+                  </div>
+                  <div class="compare-label">
+                    {{ getParameterLabel(param) }}
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+          <div class="compare-status compare-stable">Données moyennes</div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section des différences -->
+  <div class="compare-section" *ngIf="compare.differences">
+    <h3 class="compare-title">Différences entre villes</h3>
+    
+    <div class="compare-differences-grid">
+      <div class="compare-card compare-difference-card" *ngFor="let param of selectedParameters">
+        <ng-container *ngIf="compare.differences && compare.differences[param]">
+          <div class="compare-param-header">
+            <h4>{{ getParameterLabel(param) }}</h4>
+          </div>
+          <div class="compare-diff-list">
+            <div class="compare-diff-item" *ngFor="let cityPair of getDifferenceCityPairs(param)">
+              <ng-container *ngIf="compare.differences[param][cityPair] !== undefined && compare.differences[param][cityPair] !== null">
+                <div class="compare-diff-content">
+                  <div class="compare-value" [style.color]="getParameterColor(param)">
+                    {{ compare.differences[param][cityPair].toFixed(2) }} {{ getParameterUnit(param) }}
+                  </div>
+                  <div class="compare-label">
+                    {{ cityPair }}
+                  </div>
+                  <div class="compare-status" [ngClass]="getDifferenceStatusClass(param, cityPair)">
+                    
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+</ng-container>
+    
+<!-- Analyse descriptive -->
+<ng-container *ngIf="selectedMethod === 'descriptive' && descriptive?.statistics">
+  <!-- Grille principale des paramètres -->
+  <div class="parameters-grid">
+    <div *ngFor="let city of selectedCities">
+      <div *ngFor="let param of selectedParameters">
+        <ng-container *ngIf="descriptive.statistics[city]?.[param]">
+          <!-- Card pour chaque paramètre -->
+          <div class="parameter-card" style="margin-bottom: 16px;">
+            <!-- En-tête de la card -->
+            <div class="card-header">
+              <h3 class="parameter-title " [style.color]="getParameterColor(param)">
+                {{ getParameterLabel(param) }}
+              </h3>
+              
+              <span class="city-na btn btn-primary  text-white ">{{ city }}</span>
+            </div>
+
+            <!-- Contenu des statistiques -->
+            <div class="stats-content">
+              <!-- Moyenne -->
+              <div class="stat-row">
+                <span class="stat-label">Moyenne</span>
+                <span class="stat-value primary" [style.color]="getParameterColor(param)">
+                  {{ descriptive.statistics[city][param].mean | number:'1.2-2' }}
+                </span>
+              </div>
+
+              <!-- Médiane -->
+              <div class="stat-row">
+                <span class="stat-label">Médiane</span>
+                <span class="stat-value">
+                  {{ descriptive.statistics[city][param]['50%'] | number:'1.2-2' }}
+                </span>
+              </div>
+
+              <!-- Min/Max -->
+              <div class="stat-row">
+                <span class="stat-label">Min - Max</span>
+                <span class="stat-value">
+                  {{ descriptive.statistics[city][param].min | number:'1.2-2' }} - 
+                  {{ descriptive.statistics[city][param].max | number:'1.2-2' }}
+                </span>
+              </div>
+
+              <!-- Écart-type -->
+              <div class="stat-row">
+                <span class="stat-label">Écart-type</span>
+                <span class="stat-value">
+                  ± {{ descriptive.statistics[city][param].std | number:'1.2-2' }}
+                </span>
+              </div>
+
+              <!-- Quartiles -->
+              <div class="quartiles-row">
+                <div class="quartile-item">
+                  <span class="quartile-label">Q1</span>
+                  <span class="quartile-value">{{ descriptive.statistics[city][param]['25%'] | number:'1.2-2' }}</span>
+                </div>
+                <div class="quartile-item">
+                  <span class="quartile-label">Q3</span>
+                  <span class="quartile-value">{{ descriptive.statistics[city][param]['75%'] | number:'1.2-2' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer avec le nombre d'observations -->
+            <div class="card-footer">
+              <span class="observation-count">
+                <i class="fas fa-chart-bar text-success"></i>
+                <span class="text-success">{{ descriptive.statistics[city][param].count }} observations {{selectedPeriodLabel}}</span>
+              </span>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- Card d'erreur si pas de données -->
+        <div *ngIf="!descriptive.statistics[city] || !descriptive.statistics[city][param]" 
+             class="parameter-card error-card" style="margin-bottom:16px">
+          <div class="error-content">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>Aucune donnée disponible</p>
+            <small>{{ getParameterLabel(param) }} à {{ city }}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>
+  </div>
+</section>
+  </main>
+
+
+</div>

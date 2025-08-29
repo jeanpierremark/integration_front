@@ -1,0 +1,735 @@
+ <!-- Header Dashboard -->
+  <div style="width:100%">
+   <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 shadow-lg">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <div  class="d-flex align-items-center" style="margin-left:0px;" >
+                        <i class="bi bi-person-circle me-3" style="font-size: 2.5rem; margin-left:0px;"></i>
+                        <div>
+                            <h1 class="h2 fw-bold mb-1" style="margin-top:10px">Gestion des utilisateurs</h1>
+                            <p class="text-blue-100 mb-0" style="font-size: 17px;">Gérer les utilisateurs, leurs rôle et leurs permissions </p>
+                        </div>
+                       
+                    </div>
+                </div>
+                <div class="col-md-4 text-end">
+                    
+                    <div class="d-flex justify-content-end align-items-center gap-3">
+                        <div class="text-end" style="margin-right: 5px;">
+                                <div class="btn fw-semibold bg-light shadow-sm text-primary w-100">{{ dateHeureActuelle$ | async }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 
+<div class="container">
+  <!-- En-tête -->
+
+  <!-- Statistiques 
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-content">
+        <div>
+          <p class="stat-label">Total Utilisateurs</p>
+          <p class="stat-value">{{ users.length }}</p>
+        </div>
+        <div class="stat-icon blue">
+          <i class="icon-shield"></i>
+        </div>
+      </div>
+    </div>
+    
+    <div class="stat-card">
+      <div class="stat-content">
+        <div>
+          <p class="stat-label">Utilisateurs Actifs</p>
+          <p class="stat-value green">{{ getActiveUsers().length }}</p>
+        </div>
+        <div class="stat-icon green">
+          <i class="icon-check"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-content">
+        <div>
+          <p class="stat-label">Administrateurs</p>
+          <p class="stat-value red">{{ getAdmins().length }}</p>
+        </div>
+        <div class="stat-icon red">
+          <i class="icon-shield"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-content">
+        <div>
+          <p class="stat-label">Suspendus</p>
+          <p class="stat-value yellow">{{ getSuspendedUsers().length }}</p>
+        </div>
+        <div class="stat-icon yellow">
+          <i class="icon-x"></i>
+        </div>
+      </div>
+    </div>
+  </div>-->
+
+  <!-- Barre d'actions -->
+  <div class="actions-bar">
+    <div class="actions-content">
+      <div class="search-filters">
+        <div class="search-box">
+          <i class="bi bi-search text-primary"></i>
+          <input
+            type="text"
+            placeholder="Rechercher un utilisateur..."
+            [(ngModel)]="searchTerm"
+            (input)="filterUsers()"
+          />
+        </div>
+      </div>
+      
+      <div class="action-buttons">
+        <button class="btn btn-secondary" (click)="exportUsers()">
+          <i class="bi bi-download"></i>
+          Exporter
+        </button>
+        
+        <button class="btn btn-primary" (click)="openModal('add')">
+          <i class="bi bi-plus"></i>
+          Ajouter
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tableau des utilisateurs -->
+  <div class="table-container">
+    <div class="table-wrapper">
+      <table   class="users-table">
+        <thead>
+          <tr>
+            <th class="fw-bold text-dark">Utilisateur</th>
+            <th class="fw-bold text-dark">Contact</th>
+            <th class="fw-bold text-dark">Rôle</th>
+            <th class="fw-bold text-dark">Statut</th>
+            <th class="fw-bold text-dark">Dernière connexion</th>
+            <th class="text-center fw-bold text-dark">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of filteredUsers" class="user-row">
+            <td>
+              <div class="user-info">
+                <div class="avatar">{{ user.avatar }}</div>
+                <div class="user-details">
+                  <div class="user-name">{{ user.prenom }} {{ user.nom }}</div>
+                  <div class="user-date">
+                    <i class="bi bi-calendar-month"></i>
+                    Créé le {{ formatDate(user.dateCreation) }}
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="contact-info">
+                <div class="email">
+                  <i class="bi bi-envelope-check"></i>
+                  {{ user.email }}
+                </div>
+              </div>
+            </td>
+            <td>
+              <span [class]="'badge  rounded-pill me-2 text-small ' + (user.role === 'Admin' ? 'bg-primary' : (user.role === 'Chercheur' ? 'bg-info' : 'bg-secondary'))">{{user.role}}</span>
+            </td>
+            <td>
+              <span [class]="'badge  rounded-pill me-2 text-small ' + (user.statut === 'Actif' ? 'bg-success' : 'bg-danger')">{{user.statut}}</span>
+            </td>
+            <td>
+              <div class="last-connection">
+                <i class="bi bi-clock text-dark fw-small"></i>
+                {{ user.derniereConnexion }}
+              </div>
+            </td>
+            <td class="text-center">
+              <div class="action-buttons">
+                <button class="btn-icon blue" (click)="openModal('view', user)" title="Voir les détails">
+                  <i class="bi bi-eye text-success"></i>
+                </button>
+                <button class="btn-icon green" (click)="openModal('edit', user)" title="Modifier">
+                  <i class="bi bi-pencil-square text-warning"></i>
+                </button>
+                <button class="btn-icon red" (click)="deleteUser(user.id)" title="Supprimer">
+                  <i class="bi bi-trash3 text-danger"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div *ngIf="filteredUsers.length === 0" class="empty-state">
+      <i class="bi bi-search text-danger"></i>
+      <h3>Aucun utilisateur trouvé</h3>
+      <p>Essayez de modifier vos critères de recherche.</p>
+    </div>
+  </div>
+  
+
+<!-- MODAL FINAL - Version stylée qui fonctionne -->
+<div *ngIf="showModal" 
+     style="
+        position: fixed !important; 
+        top: 0 !important; 
+        left: 0 !important; 
+        width: 100% !important; 
+        height: 100% !important; 
+        background-color: rgba(0,0,0,0.75) !important; 
+        z-index: 999999 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+     "
+     (click)="closeModal()">
+     
+    <div (click)="$event.stopPropagation()" 
+         style="
+            background: white !important; 
+            border-radius: 12px !important; 
+            width: 90% !important;
+            max-width: 600px !important; 
+            max-height: 90vh !important; 
+            overflow-y: auto !important;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3) !important;
+            animation: modalSlideIn 0.3s ease-out !important;
+         ">
+         
+        <!-- HEADER -->
+        <div style="
+            background: #3e7dfa  !important; 
+            color: white !important; 
+            padding: 20px !important; 
+            border-radius: 12px 12px 0 0 !important;
+            margin: 0 !important;
+        ">
+            <h3 style="
+                margin: 0 !important; 
+                display: flex !important; 
+                align-items: center !important; 
+                gap: 10px !important; 
+                font-size: 20px !important; 
+                font-weight: 600 !important;
+                color: white !important;
+            ">
+                <i class="bi bi-person-circle" style="font-size: 24px !important;"></i>
+                <span *ngIf="modalType === 'add'">Ajouter un utilisateur</span>
+                <span *ngIf="modalType === 'edit'">Modifier l'utilisateur</span>
+                <span *ngIf="modalType === 'view'">Détails de l'utilisateur</span>
+            </h3>
+        </div>
+
+        <!-- BODY -->
+        <div style="padding: 25px !important; background: #f8f9fa !important;">
+            
+            <!-- MODE VISUALISATION -->
+            <div *ngIf="modalType === 'view' && selectedUser">
+                
+                <!-- En-tête utilisateur -->
+                <div style="
+                    display: flex !important; 
+                    align-items: center !important; 
+                    gap: 20px !important; 
+                    margin-bottom: 25px !important; 
+                    padding: 20px !important; 
+                    background: white !important; 
+                    border-radius: 10px !important; 
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+                ">
+                    <div style="
+                        width: 80px !important; 
+                        height: 80px !important; 
+                        border-radius: 50% !important; 
+                        background:  #3e7dfa  !important; 
+                        display: flex !important; 
+                        align-items: center !important; 
+                        justify-content: center !important; 
+                        color: white !important; 
+                        font-size: 28px !important; 
+                        font-weight: bold !important; 
+                        box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+                    ">
+                        {{ selectedUser.avatar }}
+                    </div>
+                    <div style="flex: 1 !important;">
+                        <h4 style="
+                            margin: 0 0 5px 0 !important; 
+                            color: #2c3e50 !important; 
+                            font-size: 24px !important; 
+                            font-weight: 600 !important;
+                        ">
+                            {{ selectedUser.prenom }} {{ selectedUser.nom }}
+                        </h4>
+                        <p style="
+                            margin: 0 !important; 
+                            color: #7f8c8d !important; 
+                            font-size: 16px !important; 
+                            display: flex !important; 
+                            align-items: center !important; 
+                            gap: 8px !important;
+                        ">
+                            <i class="bi bi-envelope" style="color: #3498db !important;"></i>
+                            {{ selectedUser.email }}
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Grille des détails -->
+                <div style="
+                    display: grid !important; 
+                    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important; 
+                    gap: 20px !important; 
+                    margin-bottom: 20px !important;
+                ">
+                    <!-- Informations de rôle et statut -->
+                    <div style="
+                        background: white !important; 
+                        padding: 20px !important; 
+                        border-radius: 10px !important; 
+                        box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+                    ">
+                        <h5 style="
+                            color: #2c3e50 !important; 
+                            margin-bottom: 15px !important; 
+                            display: flex !important; 
+                            align-items: center !important; 
+                            gap: 10px !important; 
+                            font-size: 16px !important; 
+                            font-weight: 600 !important;
+                        ">
+                            <i class="bi bi-shield-check" style="color: #27ae60 !important;"></i>
+                            Permissions
+                        </h5>
+                        
+                        <div style="margin-bottom: 15px !important;">
+                            <label style="
+                                font-weight: 500 !important; 
+                                color: #7f8c8d !important; 
+                                font-size: 13px !important; 
+                                text-transform: uppercase !important; 
+                                letter-spacing: 0.5px !important;
+                                display: block !important;
+                                margin-bottom: 5px !important;
+                            ">Rôle</label>
+                            <p style="margin: 5px 0 0 0 !important;">
+                                <span [ngClass]="{
+                                    'badge': true,
+                                    'rounded-pill': true,
+                                    'px-3': true,
+                                    'py-2': true,
+                                    'bg-primary': selectedUser.role === 'Admin',
+                                    'bg-info': selectedUser.role === 'Chercheur',
+                                    'bg-secondary': selectedUser.role === 'Etudiant'
+                                }" style="
+                                    font-size: 13px !important;
+                                    color: white !important;
+                                    padding: 6px 12px !important;
+                                    border-radius: 15px !important;
+                                ">
+                                    {{ selectedUser.role }}
+                                </span>
+                            </p>
+                        </div>
+                        
+                        <div>
+                            <label style="
+                                font-weight: 500 !important; 
+                                color: #7f8c8d !important; 
+                                font-size: 13px !important; 
+                                text-transform: uppercase !important; 
+                                letter-spacing: 0.5px !important;
+                                display: block !important;
+                                margin-bottom: 5px !important;
+                            ">Statut</label>
+                            <p style="margin: 5px 0 0 0 !important;">
+                                <span [ngClass]="{
+                                    'badge': true,
+                                    'rounded-pill': true,
+                                    'px-3': true,
+                                    'py-2': true,
+                                    'bg-success': selectedUser.statut === 'Actif',
+                                    'bg-danger': selectedUser.statut !== 'Actif'
+                                }" style="
+                                    font-size: 13px !important;
+                                    color: white !important;
+                                    padding: 6px 12px !important;
+                                    border-radius: 15px !important;
+                                    display: inline-flex !important;
+                                    align-items: center !important;
+                                    gap: 5px !important;
+                                ">
+                                    <i [ngClass]="{
+                                        'bi': true,
+                                        'bi-check-circle': selectedUser.statut === 'Actif',
+                                        'bi-x-circle': selectedUser.statut !== 'Actif'
+                                    }"></i>
+                                    {{ selectedUser.statut }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informations temporelles -->
+                <div style="
+                    background: white !important; 
+                    padding: 20px !important; 
+                    border-radius: 10px !important; 
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+                ">
+                    <h5 style="
+                        color: #2c3e50 !important; 
+                        margin-bottom: 15px !important; 
+                        display: flex !important; 
+                        align-items: center !important; 
+                        gap: 10px !important; 
+                        font-size: 16px !important; 
+                        font-weight: 600 !important;
+                    ">
+                        <i class="bi bi-clock-history" style="color: #f39c12 !important;"></i>
+                        Historique
+                    </h5>
+                    <div style="
+                        display: grid !important; 
+                        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important; 
+                        gap: 20px !important;
+                    ">
+                        <div>
+                            <label style="
+                                font-weight: 500 !important; 
+                                color: #7f8c8d !important; 
+                                font-size: 13px !important; 
+                                text-transform: uppercase !important; 
+                                letter-spacing: 0.5px !important;
+                                display: block !important;
+                                margin-bottom: 5px !important;
+                            ">Date de création</label>
+                            <p style="
+                                margin: 5px 0 0 0 !important; 
+                                color: #2c3e50 !important; 
+                                font-size: 15px !important; 
+                                display: flex !important; 
+                                align-items: center !important; 
+                                gap: 8px !important;
+                            ">
+                                <i class="bi bi-calendar-plus" style="color: #3498db !important;"></i>
+                                {{ formatDate(selectedUser.dateCreation) }}
+                            </p>
+                        </div>
+                        <div>
+                            <label style="
+                                font-weight: 500 !important; 
+                                color: #7f8c8d !important; 
+                                font-size: 13px !important; 
+                                text-transform: uppercase !important; 
+                                letter-spacing: 0.5px !important;
+                                display: block !important;
+                                margin-bottom: 5px !important;
+                            ">Dernière connexion</label>
+                            <p style="
+                                margin: 5px 0 0 0 !important; 
+                                color: #2c3e50 !important; 
+                                font-size: 15px !important; 
+                                display: flex !important; 
+                                align-items: center !important; 
+                                gap: 8px !important;
+                            ">
+                                <i class="bi bi-clock" style="color: #e74c3c !important;"></i>
+                                {{ selectedUser.derniereConnexion }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+         <!-- MODE AJOUT/ÉDITION avec Genre et Age -->
+<form  #userForm="ngForm">
+<div *ngIf="modalType !== 'view'" style="background: white !important; padding: 20px !important; border-radius: 10px !important;">
+    <!-- Ligne 1: Prénom et Nom -->
+    <div style="display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 15px !important; margin-bottom: 15px !important;">
+        <div>
+            <label style="
+                display: block !important; 
+                margin-bottom: 5px !important; 
+                font-weight: 500 !important; 
+                color: #2c3e50 !important;
+            ">Prénom</label>
+            <input
+                class="form-control"
+                type="text"
+                [(ngModel)]="formData.prenom"
+                name="prenom"
+                required 
+                [class.is-invalid]="prenom.invalid && prenom.touched " 
+                [class.is-valid]="prenom.valid" 
+                #prenom="ngModel" 
+                style="
+                    width: 100% !important; 
+                    padding: 10px !important; 
+                    border: 2px solid #e9ecef !important; 
+                    border-radius: 6px !important; 
+                    font-size: 14px !important;
+                    box-sizing: border-box !important;
+                "
+            />
+           <small class="text-danger" style="font-weight: bold;" [class.d-none]=" prenom.untouched || prenom.valid"> Veuillez saisir le prenom </small>
+        </div>
+        <div>
+            <label style="
+                display: block !important; 
+                margin-bottom: 5px !important; 
+                font-weight: 500 !important; 
+                color: #2c3e50 !important;
+            ">Nom</label>
+            <input
+                class="form-control"
+                type="text"
+                [(ngModel)]="formData.nom"
+                 name="nom"
+                required 
+                [class.is-invalid]="nom.invalid && nom.touched " 
+                [class.is-valid]="nom.valid" 
+                #nom="ngModel" 
+                style="
+                    width: 100% !important; 
+                    padding: 10px !important; 
+                    border: 2px solid #e9ecef !important; 
+                    border-radius: 6px !important; 
+                    font-size: 14px !important;
+                    box-sizing: border-box !important;
+                "
+            />
+            <small class="text-danger" style="font-weight: bold;" [class.d-none]=" nom.untouched || nom.valid"> Veuillez saisir le nom </small>
+        </div>
+    </div>
+    
+    <!-- Ligne 2: Email -->
+    <div style="margin-bottom: 15px !important;">
+        <label style="
+            display: block !important; 
+            margin-bottom: 5px !important; 
+            font-weight: 500 !important; 
+            color: #2c3e50 !important;
+        ">Email</label>
+        <input
+            type="email"
+            class="form-control"
+            [(ngModel)]="formData.email"
+            name="email" id="email" (keyup)="emailVerif(email.value)"
+             required [class.is-invalid]="emailError || (email.invalid && email.touched ) " 
+            [class.is-valid]="email.valid" #email="ngModel" 
+            style="
+                width: 100% !important; 
+                padding: 10px !important; 
+                border: 2px solid #e9ecef !important; 
+                border-radius: 6px !important; 
+                font-size: 14px !important;
+                box-sizing: border-box !important;
+            "
+        />
+        <div *ngIf="emailError || (email.touched && email.invalid)">
+          <small class="text-danger"  style="font-weight: bold;" [class.d-none]=" email.untouched || email.valid"> Veuillez saisir l'email </small>
+          <small class="text-danger"  style="font-weight: bold;" [class.d-none]="!emailError || email.value == ''"> Veuillez saisir l'email au bon format</small>
+        </div>
+    </div>
+
+    <!-- Ligne 3: Genre et Age -->
+    <div style="display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 15px !important; margin-bottom: 15px !important;">
+        <div>
+            <label style="
+                display: block !important; 
+                margin-bottom: 5px !important; 
+                font-weight: 500 !important; 
+                color: #2c3e50 !important;
+            ">Genre</label>
+            <select
+                class="form-control"
+                [(ngModel)]="formData.genre"
+                name="genre"
+                style="
+                    width: 100% !important; 
+                    padding: 10px !important; 
+                    border: 2px solid #e9ecef !important; 
+                    border-radius: 6px !important; 
+                    font-size: 14px !important;
+                    box-sizing: border-box !important;
+                "
+            >
+                <option value="Homme">Homme</option>
+                <option value="Femme">Femme</option>
+            </select>
+        </div>
+        <div>
+            <label style="
+                display: block !important; 
+                margin-bottom: 5px !important; 
+                font-weight: 500 !important; 
+                color: #2c3e50 !important;
+            ">Âge</label>
+            <input
+                class="form-control"
+                type="number"
+                min="18" max="70"
+                 id="age" 
+                 name="age" 
+                 required 
+                 [class.is-invalid]="age.invalid && age.touched " 
+                 [class.is-valid]="age.valid" 
+                 #age="ngModel"
+                [(ngModel)]="formData.age"
+                style="
+                    width: 100% !important; 
+                    padding: 10px !important; 
+                    border: 2px solid #e9ecef !important; 
+                    border-radius: 6px !important; 
+                    font-size: 14px !important;
+                    box-sizing: border-box !important;
+                "
+                placeholder="Ex: 25"
+            />
+            <small class="text-danger" style="font-weight: bold;" [class.d-none]=" age.untouched || age.valid"> Veuillez saisir un age correcte </small>
+        </div>
+    </div>
+    
+    <!-- Ligne 4: Rôle et Statut -->
+    <div style="display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 15px !important;">
+        <div>
+            <label style="
+                display: block !important; 
+                margin-bottom: 5px !important; 
+                font-weight: 500 !important; 
+                color: #2c3e50 !important;
+            ">Rôle</label>
+            <select
+                class="form-control"
+                [(ngModel)]="formData.role"
+                name="role"
+                style="
+                    width: 100% !important; 
+                    padding: 10px !important; 
+                    border: 2px solid #e9ecef !important; 
+                    border-radius: 6px !important; 
+                    font-size: 14px !important;
+                    box-sizing: border-box !important;
+                "
+            >
+                <option value="Admin">Administrateur</option>
+                <option value="Etudiant">Étudiant</option>
+                <option value="Chercheur">Chercheur</option>
+            </select>
+        </div>
+        <div>
+            <label style="
+                display: block !important; 
+                margin-bottom: 5px !important; 
+                font-weight: 500 !important; 
+                color: #2c3e50 !important;
+            ">Statut</label>
+            <select
+                class="form-control"
+                [(ngModel)]="formData.statut"
+                name="statut"
+                style="
+                    width: 100% !important; 
+                    padding: 10px !important; 
+                    border: 2px solid #e9ecef !important; 
+                    border-radius: 6px !important; 
+                    font-size: 14px !important;
+                    box-sizing: border-box !important;
+                "
+            >
+                <option value="Actif">Actif</option>
+                <option value="Suspendu">Suspendu</option>
+            </select>
+        </div>
+    </div>
+  
+</div>
+
+<!-- FOOTER -->
+<div style="
+    padding: 20px !important; 
+    background: #f8f9fa !important; 
+    border-top: 1px solid #e9ecef !important; 
+    display: flex !important; 
+    justify-content: flex-end !important; 
+    gap: 10px !important; 
+    border-radius: 0 0 12px 12px !important;
+">
+    <button *ngIf="modalType !== 'view'" 
+        (click)="handleSubmit()" 
+        [disabled]="userForm.form.invalid || emailError"
+        style="
+            padding: 10px 20px !important; 
+            border: none !important; 
+            border-radius: 6px !important; 
+            font-weight: 500 !important; 
+            cursor: pointer !important; 
+            transition: all 0.3s ease !important;
+            background-color: #007bff !important;
+            color: white !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            transform: translateY(0) !important;
+            box-shadow: 0 2px 4px rgba(0,123,255,0.3) !important;
+
+        "
+        
+        onmouseover="if(this.disabled){this.style.opacity='O.3'; }"
+        onclick="if(this.disabled){this.style.disabled=true;this.style.cursor='not-allowed'}"
+        onmouseout="this.style.backgroundColor='#007bff'; this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(0,123,255,0.3)'"
+        onmousedown="this.style.transform='translateY(1px)'; this.style.boxShadow='0 1px 2px rgba(0,123,255,0.5)'"
+        onmouseup="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(0,123,255,0.4)'">
+        <i [ngClass]="{
+            'bi': true,
+            'bi-plus-circle': modalType === 'add',
+            'bi-pencil-square': modalType === 'edit'
+        }"></i>
+        {{ modalType === 'add' ? 'Ajouter' : 'Modifier' }}
+    </button>
+
+    <button (click)="closeModal()" 
+        style="
+          padding: 10px 20px !important; 
+          border: none !important; 
+          border-radius: 6px !important; 
+          font-weight: 500 !important; 
+          cursor: pointer !important; 
+          transition: all 0.3s ease !important;
+          background-color: #c01704 !important;
+          color: white !important;
+          display: inline-flex !important;
+          align-items: center !important;
+          gap: 8px !important;
+          transform: translateY(0) !important;
+          box-shadow: 0 2px 4px rgba(192, 23, 4, 0.3) !important;
+        "
+        onmouseover="this.style.backgroundColor='#a01503'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(192, 23, 4, 0.4)'"
+        onmouseout="this.style.backgroundColor='#c01704'; this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(192, 23, 4, 0.3)'"
+        onmousedown="this.style.transform='translateY(1px)'; this.style.boxShadow='0 1px 2px rgba(192, 23, 4, 0.5)'"
+        onmouseup="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(192, 23, 4, 0.4)'">
+        <i [ngClass]="{
+            'bi': true,
+            'bi-x-circle': modalType === 'view',
+            'bi-arrow-left-circle': modalType !== 'view'
+        }"></i>
+        {{ modalType === 'view' ? 'Fermer' : 'Annuler' }}
+    </button>
+</div>
+</form>

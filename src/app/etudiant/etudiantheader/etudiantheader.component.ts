@@ -14,12 +14,12 @@ export class EtudiantheaderComponent {
 
  activeLink: string = '';
 getFirstName(): string {
-  const prenom = localStorage.getItem('prenom') || '';
+  const prenom = sessionStorage.getItem('prenom') || '';
   return prenom.split(' ')[0]; // Récupère le premier mot avant l'espace
 }
  // Informations utilisateur
-  user: string = `${this.getFirstName()} ${localStorage.getItem('nom') || ''}`.trim();
-  stat: any = localStorage.getItem('role');
+  user: string = `${this.getFirstName()} ${sessionStorage.getItem('nom') || ''}`.trim();
+  stat: any = sessionStorage.getItem('role');
 
   constructor(private router: Router, private user_service : UserService) {}
 
@@ -40,7 +40,7 @@ getFirstName(): string {
  //Log out
    logOut(){
         Swal.fire({
-      title: 'Vous allez vous déconnecté !',
+      title: 'Vous allez vous déconnecter!',
       icon: 'warning',
       showCancelButton: true,
       cancelButtonText: 'Cancel',
@@ -50,14 +50,19 @@ getFirstName(): string {
     }).then((result) => {
       if (result.isConfirmed) {
         this.user_service.logout_sec().subscribe({
-         next : (response=>{
+         next : (response)=>{
           if(response.body.message=='success'){
             this.user_service.logout();
             this.showToastMessage('success', 'Déconnexion réussie');
             this.router.navigate(["/connexion"]);
             console.log('vers connexion')
           }
-         })
+         }, error :(error)=>{
+           if (error.error.message == "Token expiré"){
+            this.user_service.logout()
+            this.router.navigate(["/connexion"])
+          }
+         }
         });
       }
     })

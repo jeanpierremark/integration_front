@@ -18,9 +18,6 @@ export class RegisterComponent {
     role :"Etudiant",
     genre : "M",
     age : 18,
-    deletable : false
-
-
   }
   passConf!:string
   
@@ -91,7 +88,6 @@ passwordConfirmVerif(pass1:string, pass2:string){
       this.user.role,
       this.user.genre,
       this.user.age,
-      this.user.deletable,
     ).subscribe({
       next:(data) => {
          if(data.body.message == "Success"){

@@ -118,12 +118,11 @@
     <!-- Climate Variables Charts Grid -->
     <div class="row g-4 mb-4">
       <div class="col-xl-6 col-lg-6" >
-        <div class="card border-0 shadow-sm fade-in">
+        <div class="card  border-0 shadow-sm fade-in">
           <div class="card-header bg-white border-0 pb-0">
             <div class="d-flex justify-content-between align-items-center">
               <h6 class="card-title mb-0 d-flex align-items-center">
-                <i [class]="parameters[0].icon" [style.color]="parameters[0].color"></i>
-                {{parameters[0].label}} 
+                <i [class]="parameters[0].icon+' fs-3'" [style.color]="parameters[0].color"></i>
               </h6>
               <div class="d-flex align-items-center gap-2 small">
                 <!-- Sources Legend -->
@@ -131,15 +130,26 @@
                   <div class="d-flex align-items-center gap-1">
                     <div class="bg-primary rounded-circle" style="width: 8px; height: 8px;"></div>
                     <span class="text-muted small">{{source}}</span>
+
                   </div>
-                  
+                      <span class="btn btn-light"  (click)="downloadCardAsImage('card-body-temp','visualisation_temperature')">
+                        <i class="bi bi-download text-success"></i>
+                      </span>
+
                 </div>
+
               </div>
             </div>
           </div>
-          <div class="card-body">
+          <div class="card-body-temp">
             
             <!-- Chart Container -->
+             <div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '24h'">{{parameters[0].label}} 24 dernières heures</div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '7d'">{{parameters[0].label}} 7 derniers jours</div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '30d'">{{parameters[0].label}} 30 derniers jours</div>
+            </div><br>
+
             <div style="height: 250px; position: relative;">
               <canvas [id]="parameters[0].value"></canvas>
             </div>
@@ -152,9 +162,7 @@
           <div class="card-header bg-white border-0 pb-0">
             <div class="d-flex justify-content-between align-items-center">
               <h6 class="card-title mb-0 d-flex align-items-center">
-                <i [class]="parameters[1].icon" [style.color]="parameters[1].color"></i>
-                {{parameters[1].label}} 
-                
+                <i [class]="parameters[1].icon+' fs-3'" [style.color]="parameters[1].color"></i>                
               </h6>
               <div class="d-flex align-items-center gap-2 small">
                 <!-- Sources Legend -->
@@ -163,14 +171,21 @@
                     <div class="bg-primary rounded-circle" style="width: 8px; height: 8px;"></div>
                     <span class="text-muted small">{{source}}</span>
                   </div>
-                  
+                  <span class="btn btn-light"  (click)="downloadCardAsImage('card-body-hum','visualisation_humidite')">
+                        <i class="bi bi-download text-success"></i>
+                      </span>
                 </div>
               </div>
             </div>
           </div>
-          <div class="card-body">
+          <div class="card-body-hum">
             
             <!-- Chart Container -->
+             <div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '24h'">{{parameters[1].label}} 24 dernières heures</div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '7d'">{{parameters[1].label}} 7 derniers jours</div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '30d'">{{parameters[1].label}} 30 derniers jours</div>
+            </div><br>
             <div style="height: 250px; position: relative;">
               <canvas [id]="parameters[1].value"></canvas>
             </div>
@@ -185,8 +200,7 @@
           <div class="card-header bg-white border-0 pb-0">
             <div class="d-flex justify-content-between align-items-center">
               <h6 class="card-title mb-0 d-flex align-items-center">
-                <i [class]="parameters[2].icon" [style.color]="parameters[2].color"></i>
-                &nbsp;{{parameters[2].label}} 
+                <i [class]="parameters[2].icon+' fs-3'" [style.color]="parameters[2].color"></i>
                 
               </h6>
               <div class="d-flex align-items-center gap-2 small">
@@ -196,13 +210,20 @@
                     <div class="bg-primary rounded-circle" style="width: 8px; height: 8px;"></div>
                     <span class="text-muted small">{{source}}</span>
                   </div>
-                  
+                  <span class="btn btn-light"  (click)="downloadCardAsImage('card-body-prec','visualisation_precipitation')">
+                        <i class="bi bi-download text-success"></i>
+                      </span>
                 </div>
               </div>
             </div>
           </div>
-          <div class="card-body">
-            
+          <div class="card-body-prec">
+            <div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '24h'">{{parameters[2].label}} 24 dernières heures</div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '7d'">{{parameters[2].label}} 7 derniers jours</div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '30d'">{{parameters[2].label}} 30 derniers jours</div>
+            </div><br>
+
             <!-- Chart Container -->
             <div style="height: 250px; position: relative;">
               <canvas [id]="parameters[2].value"></canvas>
@@ -216,8 +237,7 @@
           <div class="card-header bg-white border-0 pb-0">
             <div class="d-flex justify-content-between align-items-center">
               <h6 class="card-title mb-0 d-flex align-items-center">
-               <i [class]="parameters[3].icon" [style.color]="parameters[3].color"></i>
-                &nbsp;{{parameters[3].label}} 
+               <i [class]="parameters[3].icon+' fs-3'" [style.color]="parameters[3].color"></i>
                 
               </h6>
               <div class="d-flex align-items-center gap-2 small">
@@ -227,13 +247,20 @@
                     <div class="bg-primary rounded-circle" style="width: 8px; height: 8px;"></div>
                     <span class="text-muted small">{{source}}</span>
                   </div>
-                  
+                  <span class="btn btn-light"  (click)="downloadCardAsImage('card-body-pres','visualisation_precipitation')">
+                        <i class="bi bi-download text-success"></i>
+                      </span>
                 </div>
               </div>
             </div>
           </div>
-          <div class="card-body">
-            
+          <div class="card-body-pres">
+              <div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '24h'">{{parameters[3].label}} 24 dernières heures</div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '7d'">{{parameters[3].label}} 7 derniers jours</div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '30d'">{{parameters[3].label}} 30 derniers jours</div>
+            </div><br>
+          
             <!-- Chart Container -->
             <div style="height: 250px; position: relative;">
               <canvas [id]="parameters[3].value"></canvas>
@@ -248,8 +275,7 @@
           <div class="card-header bg-white border-0 pb-0">
             <div class="d-flex justify-content-between align-items-center">
               <h6 class="card-title mb-0 d-flex align-items-center">
-                <i [class]="parameters[4].icon" [style.color]="parameters[4].color"></i>
-                &nbsp;{{parameters[4].label}} 
+                <i [class]="parameters[4].icon+' fs-3'" [style.color]="parameters[4].color"></i>
                 
               </h6>
               <div class="d-flex align-items-center gap-2 small">
@@ -259,12 +285,19 @@
                     <div class="bg-primary rounded-circle" style="width: 8px; height: 8px;"></div>
                     <span class="text-muted small">{{source}}</span>
                   </div>
-                  
+                  <span class="btn btn-light"  (click)="downloadCardAsImage('card-body-vent','visualisation_vitesse_vent')">
+                        <i class="bi bi-download text-success"></i>
+                      </span>
                 </div>
               </div>
             </div>
           </div>
-          <div class="card-body">
+          <div class="card-body-vent">
+              <div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '24h'">{{parameters[4].label}} 24 dernières heures</div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '7d'">{{parameters[4].label}} 7 derniers jours</div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '30d'">{{parameters[4].label}} 30 derniers jours</div>
+            </div><br>
             
             <!-- Chart Container -->
             <div style="height: 250px; position: relative;">
@@ -279,8 +312,7 @@
           <div class="card-header bg-white border-0 pb-0">
             <div class="d-flex justify-content-between align-items-center">
               <h6 class="card-title mb-0 d-flex align-items-center">
-               <i [class]="parameters[5].icon" [style.color]="parameters[5].color"></i>
-                &nbsp;{{parameters[5].label}} 
+               <i [class]="parameters[5].icon+' fs-3'" [style.color]="parameters[5].color"></i>
                 
               </h6>
               <div class="d-flex align-items-center gap-2 small">
@@ -290,13 +322,20 @@
                     <div class="bg-primary rounded-circle" style="width: 8px; height: 8px;"></div>
                     <span class="text-muted small">{{source}}</span>
                   </div>
-                  
+                  <span class="btn btn-light"  (click)="downloadCardAsImage('card-body-neb','visualisation_nebulosite')">
+                        <i class="bi bi-download text-success"></i>
+                  </span>
                 </div>
               </div>
             </div>
           </div>
-          <div class="card-body">
-            
+          <div class="card-body-neb">
+              <div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '24h'">{{parameters[5].label}} 24 dernières heures</div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '7d'">{{parameters[5].label}} 7 derniers jours</div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '30d'">{{parameters[5].label}} 30 derniers jours</div>
+            </div><br>
+        
             <!-- Chart Container -->
             <div style="height: 250px; position: relative;">
               <canvas [id]="parameters[5].value"></canvas>

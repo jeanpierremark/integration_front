@@ -12,12 +12,12 @@ import Swal from 'sweetalert2';
 export class AdminheaderComponent {
 activeLink: string = '';
 getFirstName(): string {
-  const prenom = localStorage.getItem('prenom') || '';
+  const prenom = sessionStorage.getItem('prenom') || '';
   return prenom.split(' ')[0]; // Récupère le premier mot avant l'espace
 }
  // Informations utilisateur
-  user: string = `${this.getFirstName()} ${localStorage.getItem('nom') || ''}`.trim();
-  stat: any = localStorage.getItem('role');
+  user: string = `${this.getFirstName()} ${sessionStorage.getItem('nom') || ''}`.trim();
+  stat: any = sessionStorage.getItem('role');
 
   constructor(private router: Router, private user_service : UserService) {}
 
@@ -38,7 +38,7 @@ getFirstName(): string {
  //Log out
    logOut(){
         Swal.fire({
-      title: 'Vous allez vous déconnecté !',
+      title: 'Vous allez vous déconnecter !',
       icon: 'warning',
       showCancelButton: true,
       cancelButtonText: 'Cancel',
@@ -69,9 +69,11 @@ getFirstName(): string {
 
     if (url.includes('/admin/accueil')) {
       this.activeLink = 'accueil';
-    } else if (url.includes('/admin/#')) {
+    } else if (url.includes('/admin/user')) {
       this.activeLink = 'user';
-    } else if (url.includes('/admin/#')) {
+    } else if (url.includes('/admin/connexion')) {
+      this.activeLink = 'connexion'
+    }else if (url.includes('/admin/activite')) {
       this.activeLink = 'activite';
     }  
   }

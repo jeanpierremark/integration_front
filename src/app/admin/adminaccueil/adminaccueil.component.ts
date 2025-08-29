@@ -1,6 +1,8 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core';
+import { Router } from '@angular/router';
 import { Chart, ChartConfiguration, ChartType, registerables } from 'chart.js';
 import { interval, map, startWith } from 'rxjs';
+import { AdminService } from 'src/app/services/admin.service';
 
 Chart.register(...registerables);
 
@@ -29,7 +31,7 @@ interface ConnectionStats {
 
 interface Activity {
   initials: string;
-  userName: string;
+  name: string;
   action: string;
   timeAgo: string;
   avatarColor: string;
@@ -41,6 +43,8 @@ interface User {
   email: string;
   isActive: boolean;
   avatarColor: string;
+  role?: string; // Ajout du rôle
+  age?: number;  // Ajout de l'âge
 }
 
 interface QuickAction {
@@ -65,12 +69,30 @@ export class AdminaccueilComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('alertsChart', { static: false }) alertsChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('registrationsChart', { static: false }) registrationsChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('connectionsChart', { static: false }) connectionsChartRef!: ElementRef<HTMLCanvasElement>;
+  // Nouveau ViewChild pour le graphique log_history
+  @ViewChild('logHistoryChart', { static: false }) logHistoryChartRef!: ElementRef<HTMLCanvasElement>;
 
+  constructor(private admin_service: AdminService, private router: Router){}
+  
   // Propriétés du composant
   searchTerm: string = '';
   notificationCount: number = 3;
   registrationsPeriod: string = '30';
   connectionsPeriod: string = '30';
+
+  //Stats
+  activedusers : any = 0
+  connectedusers : any = 0
+  blockedusers : any = 0
+  analyses : any = 0
+
+  //interval 
+  intervalId : any
+
+  //loading
+  loading:boolean = false
+  //Periode
+  selectedPeriod: any = 30
 
   // Charts instances
   private charts: { [key: string]: Chart } = {};
@@ -100,111 +122,210 @@ export class AdminaccueilComponent implements OnInit, AfterViewInit, OnDestroy {
     averageTime: '2h 34m'
   };
 
-  recentActivities: Activity[] = [
-    {
-      initials: 'ML',
-      userName: 'Marie Lambert',
-      action: 'a téléchargé un nouveau dataset de températures océaniques',
-      timeAgo: 'il y a 15 min',
-      avatarColor: 'linear-gradient(45deg, #4f5af5, #526aff)'
-    },
-    {
-      initials: 'PD',
-      userName: 'Pierre Dubois',
-      action: 'a terminé l\'analyse des données météorologiques',
-      timeAgo: 'il y a 32 min',
-      avatarColor: 'linear-gradient(45deg, #06c270, #00c266)'
-    },
-    {
-      initials: 'SB',
-      userName: 'Sophie Bernard',
-      action: 'a créé un nouveau projet d\'analyse climatique',
-      timeAgo: 'il y a 1h',
-      avatarColor: 'linear-gradient(45deg, #7c3aed, #6d28d9)'
-    },
-    {
-      initials: 'JM',
-      userName: 'Jean Martin',
-      action: 'a configuré une nouvelle alerte de seuil de CO2',
-      timeAgo: 'il y a 2h',
-      avatarColor: 'linear-gradient(45deg, #f59e0b, #d97706)'
-    },
-    {
-      initials: 'AR',
-      userName: 'Anne Robert',
-      action: 'a exporté un rapport d\'analyse des précipitations',
-      timeAgo: 'il y a 3h',
-      avatarColor: 'linear-gradient(45deg, #8b5cf6, #7c3aed)'
-    }
-  ];
+  recentActivities: Activity[] = [];
 
-  recentUsers: User[] = [
-    {
-      initials: 'ML',
-      name: 'Marie Lambert',
-      email: 'marie.lambert@climate.org',
-      isActive: true,
-      avatarColor: 'linear-gradient(45deg, #4f5af5, #526aff)'
-    },
-    {
-      initials: 'PD',
-      name: 'Pierre Dubois',
-      email: 'pierre.dubois@climate.org',
-      isActive: true,
-      avatarColor: 'linear-gradient(45deg, #06c270, #00c266)'
-    },
-    {
-      initials: 'SB',
-      name: 'Sophie Bernard',
-      email: 'sophie.bernard@climate.org',
-      isActive: false,
-      avatarColor: 'linear-gradient(45deg, #7c3aed, #6d28d9)'
-    },
-    {
-      initials: 'JM',
-      name: 'Jean Martin',
-      email: 'jean.martin@climate.org',
-      isActive: true,
-      avatarColor: 'linear-gradient(45deg, #f59e0b, #d97706)'
-    },
-    {
-      initials: 'AR',
-      name: 'Anne Robert',
-      email: 'anne.robert@climate.org',
-      isActive: true,
-      avatarColor: 'linear-gradient(45deg, #8b5cf6, #7c3aed)'
-    }
-  ];
+  // MODIFIÉ - recentUsers maintenant sera rempli dynamiquement
+  recentUsers: User[] = [];
 
   dateHeureActuelle$:any
-
-  constructor() {}
+  
+  //Periods
+  periods = [
+    { value: 7, label: '7 jours' },
+    { value: 30, label: '30 jours' },
+    { value: 90, label: '90 jours' },
+  ];
 
   ngOnInit(): void {
-    this.startDataRefresh();
     this.setupDateTimeObservable()
+    this.setupIntervals()
+    this.getInfo() 
+    this.get_log_history(this.selectedPeriod)
+    this.get_latest_users()
+    this.get_latest_activities()
+  }
+
+  getInfo(){
+    this.admin_service.get_info().subscribe({next:(response)=>{
+      if (response.body.message == 'success'){
+        console.log(response.body)
+        this.activedusers = response.body.active_users
+        this.connectedusers = response.body.connected_users
+        this.blockedusers = response.body.blocked_users
+        this.analyses = response.body.analyses
+      }
+    }})
+  }
+
+  // Get all currents parameters every 10 mins
+  private setupIntervals(): void {
+    this.intervalId = setInterval(() => {
+      this.getInfo()
+    }, 10000);
+  }
+
+  log_history:any = {}
+  
+  //Get log history - MODIFIÉE pour créer/mettre à jour le graphique
+  get_log_history(periode:number){
+    this.loading=true
+    this.admin_service.get_log_history(periode).subscribe({next:(response)=>{
+      if(response.body.message == "success"){
+        this.log_history = response.body.log_history
+        console.log("log_history",this.log_history)
+        
+        // Créer ou mettre à jour le graphique après avoir reçu les données
+        setTimeout(() => {
+          if (this.charts['logHistory']) {
+            this.updateLogHistoryChart();
+          } else {
+            this.createLogHistoryChart();
+          }
+        }, 100);
+      this.loading=false
+      }
+    }})
+  }
+
+  //Change period
+  onPeriodChange(period: number): void {
+    this.selectedPeriod = period;
+    this.get_log_history(this.selectedPeriod)
+  } 
+
+  latest_users:any = {}
+  
+  // MODIFIÉE - Get latest users et transformer en recentUsers
+  get_latest_users(){
+    this.admin_service.get_latest_users().subscribe({next:(response)=>{
+      if(response.body.message == 'success'){
+        this.latest_users = response.body.users
+        console.log('latest_users : ',this.latest_users)
+        
+        // Transformer latest_users en recentUsers
+        this.transformLatestUsersToRecentUsers();
+      }
+    }})
+  }
+
+  latest_activities:any = {}
+  // MODIFIÉE - Get latest users et transformer en recentUsers
+  get_latest_activities(){
+    this.admin_service.get_latest_activity().subscribe({next:(response)=>{
+      if(response.body.message == 'success'){
+        this.latest_activities = response.body.latest_activities
+        console.log('latest_activities : ',this.latest_activities)
+        
+        // Transformer latest_activities en recentActivities
+        this.transformLatestActivitiesToRecentActivities();
+      }
+    }})
   }
 
 
-  private setupDateTimeObservable(): void {
-      this.dateHeureActuelle$ = interval(1000).pipe(
-        startWith(0),
-        map(() =>
-          new Date().toLocaleString('fr-FR', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
-          })
-        )
-      );
+  // NOUVELLE FONCTION - Transformer les données latest_users vers recentUsers
+  private transformLatestUsersToRecentUsers(): void {
+    if (!this.latest_users || !Array.isArray(this.latest_users)) {
+      return;
     }
+
+    this.recentUsers = this.latest_users.map((user: any) => {
+      // Générer les initiales à partir du prénom et nom
+      const initials = this.generateInitials(user.prenom, user.nom);
+      
+      // Générer une couleur basée sur l'ID de l'utilisateur
+      const avatarColor = this.generateAvatarColor(user.id);
+      
+      return {
+        initials: initials,
+        name: `${user.prenom} ${user.nom}`.trim(),
+        email: user.email,
+        isActive: user.isActive,
+        avatarColor: avatarColor,
+        role: user.role,
+        age: user.age
+      };
+    });
+
+    console.log('recentUsers transformé:', this.recentUsers);
+  }
+
+  
+
+  private transformLatestActivitiesToRecentActivities(): void {
+    if (!this.latest_activities || !Array.isArray(this.latest_activities)) {
+      return;
+    }
+
+    this.recentActivities = this.latest_activities.map((user: any) => {
+      // Générer les initiales à partir du prénom et nom
+      const initials = this.generateInitials(user.prenom, user.nom);
+      
+      // Générer une couleur basée sur l'ID de l'utilisateur
+      const avatarColor = this.generateAvatarColor(user.id);
+      
+      return {
+        initials: initials,
+        name: `${user.prenom} ${user.nom}`.trim(),
+        email: user.email,
+        action: user.action,
+        timeAgo :new Date(user.date_action).toISOString().slice(0, 16).replace('T', ' '),
+        avatarColor: avatarColor,
+        
+      };
+    });
+
+    console.log('recentActivities transformé:', this.recentActivities);
+  }
+
+  //Générer les initiales
+  private generateInitials(prenom: string, nom: string): string {
+    const prenomInitial = prenom ? prenom.trim().charAt(0).toUpperCase() : '';
+    const nomInitial = nom ? nom.trim().charAt(0).toUpperCase() : '';
+    return `${prenomInitial}${nomInitial}`;
+  }
+
+  //Générer une couleur d'avatar basée sur l'ID
+  private generateAvatarColor(id: number): string {
+    const colors = [
+      'linear-gradient(45deg, #4f5af5, #526aff)',
+      'linear-gradient(45deg, #06c270, #00c266)',
+      'linear-gradient(45deg, #7c3aed, #6d28d9)',
+      'linear-gradient(45deg, #f59e0b, #d97706)',
+      'linear-gradient(45deg, #8b5cf6, #7c3aed)',
+      'linear-gradient(45deg, #ef4444, #dc2626)',
+      'linear-gradient(45deg, #10b981, #059669)',
+      'linear-gradient(45deg, #f97316, #ea580c)',
+      'linear-gradient(45deg, #3b82f6, #2563eb)',
+      'linear-gradient(45deg, #ec4899, #db2777)'
+    ];
+    
+    return colors[id % colors.length];
+  }
+
+  private setupDateTimeObservable(): void {
+    this.dateHeureActuelle$ = interval(1000).pipe(
+      startWith(0),
+      map(() =>
+        new Date().toLocaleString('fr-FR', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        })
+      )
+    );
+  }
 
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.initializeCharts();
+      // Créer le graphique log_history si les données sont déjà disponibles
+      if (this.log_history && this.log_history.length > 0) {
+        this.createLogHistoryChart();
+      }
     }, 100);
   }
 
@@ -212,13 +333,15 @@ export class AdminaccueilComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.refreshInterval) {
       clearInterval(this.refreshInterval);
     }
+    if(this.intervalId){
+      clearInterval(this.intervalId)
+    }
     // Détruire tous les graphiques
     Object.values(this.charts).forEach(chart => chart.destroy());
   }
 
   private initializeCharts(): void {
     this.createSmallCharts();
-    this.createLargeCharts();
   }
 
   private createSmallCharts(): void {
@@ -245,7 +368,7 @@ export class AdminaccueilComponent implements OnInit, AfterViewInit, OnDestroy {
     // Graphique utilisateurs
     if (this.usersChartRef) {
       this.charts['users'] = new Chart(this.usersChartRef.nativeElement, {
-        type: 'line' as ChartType,
+        type: 'bar' as ChartType,
         data: {
           labels: labels,
           datasets: [{
@@ -262,7 +385,7 @@ export class AdminaccueilComponent implements OnInit, AfterViewInit, OnDestroy {
     // Graphique datasets
     if (this.datasetsChartRef) {
       this.charts['datasets'] = new Chart(this.datasetsChartRef.nativeElement, {
-        type: 'line' as ChartType,
+        type: 'bar' as ChartType,
         data: {
           labels: labels,
           datasets: [{
@@ -279,7 +402,7 @@ export class AdminaccueilComponent implements OnInit, AfterViewInit, OnDestroy {
     // Graphique analyses
     if (this.analysesChartRef) {
       this.charts['analyses'] = new Chart(this.analysesChartRef.nativeElement, {
-        type: 'line' as ChartType,
+        type: 'bar' as ChartType,
         data: {
           labels: labels,
           datasets: [{
@@ -296,13 +419,13 @@ export class AdminaccueilComponent implements OnInit, AfterViewInit, OnDestroy {
     // Graphique alertes
     if (this.alertsChartRef) {
       this.charts['alerts'] = new Chart(this.alertsChartRef.nativeElement, {
-        type: 'line' as ChartType,
+        type: 'bar' as ChartType,
         data: {
           labels: labels,
           datasets: [{
             data: [5, 8, 12, 7, 10, 15, 12],
-            borderColor: '#f59e0b',
-            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+            borderColor: '#f42828',
+            backgroundColor: '#f4282823',
             fill: true
           }]
         },
@@ -311,187 +434,160 @@ export class AdminaccueilComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  private createLargeCharts(): void {
-    const largeChartOptions: Partial<ChartConfiguration> = {
+  // NOUVELLE FONCTION - Créer le graphique log_history
+  private createLogHistoryChart(): void {
+    if (!this.logHistoryChartRef || !this.log_history || this.log_history.length === 0) {
+      return;
+    }
+
+    // Détruire le graphique existant s'il y en a un
+    if (this.charts['logHistory']) {
+      this.charts['logHistory'].destroy();
+    }
+
+    // Préparer les données
+    const labels = this.log_history.map((item: any) => {
+      const date = new Date(item.date);
+      return date.toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit'
+      });
+    });
+
+    const data = this.log_history.map((item: any) => item.nombre);
+
+    // Configuration du graphique
+    const config: ChartConfiguration = {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Connexions quotidiennes',
+          data: data,
+          borderColor: '#4f5af5',
+          backgroundColor: 'rgba(79, 90, 245, 0.1)',
+          borderWidth: 3,
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: '#4f5af5',
+          pointBorderColor: '#ffffff',
+          pointBorderWidth: 2,
+          pointRadius: 5,
+          pointHoverRadius: 7
+        }]
+      },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { display: false }
+          legend: {
+            display: true,
+            position: 'top',
+            labels: {
+              usePointStyle: true,
+              padding: 20,
+              font: {
+                size: 12,
+                weight: '500'
+              }
+            }
+          },
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            titleColor: '#ffffff',
+            bodyColor: '#ffffff',
+            borderColor: '#4f5af5',
+            borderWidth: 1,
+            cornerRadius: 8,
+            displayColors: false,
+            callbacks: {
+              title: (context) => {
+                const index = context[0].dataIndex;
+                const date = new Date(this.log_history[index].date);
+                return date.toLocaleDateString('fr-FR', {
+                  weekday: 'long',
+                  day: '2-digit',
+                  month: 'long',
+                  year: 'numeric'
+                });
+              },
+              label: (context) => {
+                return `Activité: ${context.parsed.y} connexions`;
+              }
+            }
+          }
         },
         scales: {
           x: {
             display: true,
             grid: {
-              color: 'rgba(0,0,0,0.05)'
+              display: true,
+              color: 'rgba(0, 0, 0, 0.05)'
             },
             ticks: {
-              color: '#6b7280'
+              font: {
+                size: 11
+              },
+              color: '#64748b'
             }
           },
           y: {
             display: true,
+            beginAtZero: true,
             grid: {
-              color: 'rgba(0,0,0,0.05)'
+              display: true,
+              color: 'rgba(0, 0, 0, 0.05)'
             },
             ticks: {
-              color: '#6b7280'
+              font: {
+                size: 11
+              },
+              color: '#64748b',
+              stepSize: Math.max(1, Math.ceil(Math.max(...data) / 5))
             }
           }
         },
+        interaction: {
+          intersect: false,
+          mode: 'index'
+        },
         elements: {
-          point: { 
-            radius: 4,
-            hoverRadius: 6
-          },
-          line: { tension: 0.4 }
+          point: {
+            hoverBorderWidth: 3
+          }
+        },
+        animation: {
+          duration: 750,
+          easing: 'easeInOutQuart'
         }
       }
     };
 
-    // Graphique des inscriptions
-    this.updateRegistrationsChart();
-    
-    // Graphique des connexions
-    this.updateConnectionsChart();
+    // Créer le graphique
+    this.charts['logHistory'] = new Chart(this.logHistoryChartRef.nativeElement, config);
   }
 
-  updateRegistrationsChart(): void {
-    const period = parseInt(this.registrationsPeriod);
-    const data = this.generateRegistrationData(period);
-    
-    if (this.charts['registrations']) {
-      this.charts['registrations'].destroy();
-    }
-
-    if (this.registrationsChartRef) {
-      this.charts['registrations'] = new Chart(this.registrationsChartRef.nativeElement, {
-        type: 'line' as ChartType,
-        data: {
-          labels: data.labels,
-          datasets: [{
-            label: 'Inscriptions',
-            data: data.values,
-            borderColor: '#4f5af5',
-            backgroundColor: 'rgba(79, 90, 245, 0.1)',
-            fill: true,
-            tension: 0.4
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false }
-          },
-          scales: {
-            x: {
-              display: true,
-              grid: { color: 'rgba(0,0,0,0.05)' },
-              ticks: { color: '#6b7280' }
-            },
-            y: {
-              display: true,
-              grid: { color: 'rgba(0,0,0,0.05)' },
-              ticks: { color: '#6b7280' }
-            }
-          }
-        }
+  // NOUVELLE FONCTION - Mettre à jour le graphique log_history
+  private updateLogHistoryChart(): void {
+    if (this.charts['logHistory'] && this.log_history && this.log_history.length > 0) {
+      const labels = this.log_history.map((item: any) => {
+        const date = new Date(item.date);
+        return date.toLocaleDateString('fr-FR', {
+          day: '2-digit',
+          month: '2-digit'
+        });
       });
+
+      const data = this.log_history.map((item: any) => item.nombre);
+
+      this.charts['logHistory'].data.labels = labels;
+      this.charts['logHistory'].data.datasets[0].data = data;
+      
+      // Simplement mettre à jour sans recalculer le stepSize
+      this.charts['logHistory'].update('active');
     }
-  }
-
-  updateConnectionsChart(): void {
-    const period = parseInt(this.connectionsPeriod);
-    const data = this.generateConnectionData(period);
-    
-    if (this.charts['connections']) {
-      this.charts['connections'].destroy();
-    }
-
-    if (this.connectionsChartRef) {
-      this.charts['connections'] = new Chart(this.connectionsChartRef.nativeElement, {
-        type: 'bar' as ChartType,
-        data: {
-          labels: data.labels,
-          datasets: [{
-            label: 'Connexions',
-            data: data.values,
-            backgroundColor: 'rgba(6, 194, 112, 0.7)',
-            borderColor: '#06c270',
-            borderWidth: 2,
-            borderRadius: 4
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false }
-          },
-          scales: {
-            x: {
-              display: true,
-              grid: { color: 'rgba(0,0,0,0.05)' },
-              ticks: { color: '#6b7280' }
-            },
-            y: {
-              display: true,
-              grid: { color: 'rgba(0,0,0,0.05)' },
-              ticks: { color: '#6b7280' }
-            }
-          }
-        }
-      });
-    }
-  }
-
-  private generateRegistrationData(days: number): { labels: string[], values: number[] } {
-    const labels: string[] = [];
-    const values: number[] = [];
-    const today = new Date();
-    
-    for (let i = days - 1; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
-      labels.push(date.toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' }));
-      values.push(Math.floor(Math.random() * 50) + 10);
-    }
-    
-    return { labels, values };
-  }
-
-  private generateConnectionData(days: number): { labels: string[], values: number[] } {
-    const labels: string[] = [];
-    const values: number[] = [];
-    const today = new Date();
-    
-    for (let i = days - 1; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
-      labels.push(date.toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' }));
-      values.push(Math.floor(Math.random() * 1500) + 500);
-    }
-    
-    return { labels, values };
-  }
-
-  private startDataRefresh(): void {
-    // Simulation de mise à jour des données toutes les 30 secondes
-    this.refreshInterval = setInterval(() => {
-      this.refreshStats();
-    }, 30000);
-  }
-
-  private refreshStats(): void {
-    // Simulation de nouvelles données
-    this.stats = {
-      ...this.stats,
-      activeUsers: this.stats.activeUsers + Math.floor(Math.random() * 10) - 5,
-      systemAlerts: Math.max(0, this.stats.systemAlerts + Math.floor(Math.random() * 3) - 1)
-    };
-
-    this.notificationCount = this.stats.systemAlerts > 0 ? this.stats.criticalAlerts : 0;
   }
 
   // Méthodes d'interaction
@@ -500,75 +596,11 @@ export class AdminaccueilComponent implements OnInit, AfterViewInit, OnDestroy {
     // Implémentation de l'affichage des notifications
   }
 
-  showUserMenu(): void {
-    console.log('Afficher le menu utilisateur');
-    // Implémentation du menu utilisateur
+  viewAllActivities(){
+   this.router.navigate(["/admin/activite"])
   }
 
-  viewAllActivities(): void {
-    console.log('Voir toutes les activités');
-    // Navigation vers la page des activités
-  }
-
-  viewAllUsers(): void {
-    console.log('Voir tous les utilisateurs');
-    // Navigation vers la page de gestion des utilisateurs
-  }
-
-  executeAction(actionId: string): void {
-    console.log(`Exécuter l'action: ${actionId}`);
-    
-    switch (actionId) {
-      case 'manage-users':
-        this.navigateToUserManagement();
-        break;
-      case 'usage-reports':
-        this.showUsageReports();
-        break;
-      case 'data-management':
-        this.navigateToDataManagement();
-        break;
-      case 'system-config':
-        this.showSystemConfig();
-        break;
-      case 'alerts-monitoring':
-        this.showAlertsMonitoring();
-        break;
-      case 'advanced-analytics':
-        this.showAdvancedAnalytics();
-        break;
-      default:
-        console.warn(`Action inconnue: ${actionId}`);
-    }
-  }
-
-  private navigateToUserManagement(): void {
-    // Navigation vers la gestion des utilisateurs
-    console.log('Navigation vers la gestion des utilisateurs');
-  }
-
-  private showUsageReports(): void {
-    // Affichage des rapports d'usage
-    console.log('Affichage des rapports d\'usage');
-  }
-
-  private navigateToDataManagement(): void {
-    // Navigation vers la gestion des données
-    console.log('Navigation vers la gestion des données');
-  }
-
-  private showSystemConfig(): void {
-    // Affichage de la configuration système
-    console.log('Affichage de la configuration système');
-  }
-
-  private showAlertsMonitoring(): void {
-    // Affichage des alertes et monitoring
-    console.log('Affichage des alertes et monitoring');
-  }
-
-  private showAdvancedAnalytics(): void {
-    // Affichage des analytics avancés
-    console.log('Affichage des analytics avancés');
+  viewAllUsers(){
+    this.router.navigate(["/admin/user"])
   }
 }

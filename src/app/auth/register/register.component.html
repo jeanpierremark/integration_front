@@ -56,9 +56,9 @@
                                 <label for="email">Email</label>
                                 <input type="email" name="email" id="email" (keyup)="emailVerif(email.value)" required [class.is-invalid]="emailError || (email.invalid && email.touched ) " [class.is-valid]="email.valid" #email="ngModel" [(ngModel)]="user.email" placeholder="Email">
                                 <div *ngIf="emailError || (email.touched && email.invalid)">
-                                <small class="text-danger"  style="font-weight: bold;" [class.d-none]=" email.untouched || email.valid"> Veuillez saisir votre email </small>
-                                <small class="text-danger"  style="font-weight: bold;" [class.d-none]="!emailError || email.value == ''"> Veuillez saisir l'email au bon format</small>
-                            </div>
+                                    <small class="text-danger"  style="font-weight: bold;" [class.d-none]=" email.untouched || email.valid"> Veuillez saisir votre email </small>
+                                    <small class="text-danger"  style="font-weight: bold;" [class.d-none]="!emailError || email.value == ''"> Veuillez saisir l'email au bon format</small>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="age">Age </label>
@@ -70,9 +70,9 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="role">Statut</label>
-                                <select id="role" name="role" [(ngModel)]="user.role">
+                                <select id="role" class="form-control" style="height:50px" name="role" [(ngModel)]="user.role">
                                     <option value="Chercheur">Chercheur</option>
-                                    <option value="Etudiant">Etudiant</option>
+                                    <option  value="Etudiant">Etudiant</option>
                                     
 
                                 </select>
