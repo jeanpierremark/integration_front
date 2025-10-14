@@ -16,8 +16,28 @@ interface User {
   action: string;
   statut: string;
   isActive:boolean;
+  connected : boolean;
   date_action : string;
   avatar: string;
+}
+
+interface UserLog {
+  id: number;
+  nom: string;
+  prenom: string;
+  email: string;
+  statut:string;
+  adresse_ip: string;
+  browser: string;
+  browser_version: string;
+  date_connexion: string;
+  device: string;
+  is_bot: boolean;
+  is_mobile: boolean;
+  is_pc: boolean;
+  is_tablet: boolean;
+  resultat: string;
+  role: string;
 }
 
 interface Role {
@@ -174,6 +194,54 @@ export class LoguserComponent implements OnInit {
       }
     });
   }
+
+ user_log: UserLog = {
+  id: 0,
+  nom: '',
+  prenom: '',
+  email: '',
+  statut: '',
+  adresse_ip: '',
+  browser: '',
+  browser_version: '',
+  date_connexion: '',
+  device: '',
+  is_bot: false,
+  is_mobile: false,
+  is_pc: false,
+  is_tablet: false,
+  resultat: '',
+  role: ''
+};
+
+get_user_log(id: number) {
+  this.admin_service.user_log(id).subscribe({
+    next: (response) => {
+      if (response.body.message === 'success') {
+        const data = response.body.user_log;
+        this.user_log.id = data.id || 0;
+        this.user_log.nom = data.nom || '';
+        this.user_log.prenom = data.prenom || '';
+        this.user_log.email = data.email || '';
+        this.user_log.statut = data.isActive ? 'Actif' : 'Suspendu';
+        this.user_log.adresse_ip = data.adresse_ip || '';
+        this.user_log.browser = data.browser || '';
+        this.user_log.browser_version = data.browser_version || '';
+        this.user_log.date_connexion = data.date_connexion || '';
+        this.user_log.device = data.device == "Other" ? "PC":data.device;
+        this.user_log.is_bot = data.is_bot || false;
+        this.user_log.is_mobile = data.is_mobile || false;
+        this.user_log.is_pc = data.is_pc || false;
+        this.user_log.is_tablet = data.is_tablet || false;
+        this.user_log.resultat = data.resultat || '';
+        this.user_log.role = data.role || '';
+      }
+    },
+    error: (error) => {
+      console.error('Error fetching user log:', error);
+    }
+  });
+}
     private setupDateTimeObservable(): void {
       this.dateHeureActuelle$ = interval(1000).pipe(
         startWith(0),
@@ -216,7 +284,11 @@ export class LoguserComponent implements OnInit {
   }
 
   // Gestion des modales
-  openModal(type: 'add' | 'edit' | 'view', user: User | null = null): void {
+  openModal(type:'view', user: User): void {
+    this.modalType = type;
+    this.showModal = true;
+    this.get_user_log(user.id);
+    this.selectedUser = user
   }
 
   closeModal(): void {

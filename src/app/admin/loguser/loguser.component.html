@@ -153,9 +153,19 @@
             </td>
             <td class="text-center">
               <div class="action-buttons">
-                <button [ngClass]="user.isActive ? 'btn btn-danger' : 'btn btn-info'" (click)="user.isActive ? suspend_user(user.id) : active_user(user.id)">
-                  <i [ngClass]="user.isActive ? 'bi bi-ban ' : 'bi bi-check-circle'"></i>
+                <button class="btn-icon blue"  
+                  title="Voir les détails"
+                  (click) = "openModal('view',user)"
+                  >                  
+                  <i class="bi bi-eye text-success"></i>
                 </button>
+                
+              <button
+                class="btn-icon blue" 
+                (click)="user.isActive ? suspend_user(user.id) : active_user(user.id)"
+                [title] = "user.isActive ? 'suspendre':'réactiver'">
+                <i [ngClass]= "user.isActive ? 'bi bi-person-fill-slash text-danger ' : 'bi bi-person-check text-primary'" ></i>
+              </button>
               </div>
             </td>
           </tr>
@@ -170,15 +180,364 @@
     </div>
   </div>
 
-  
 
-    <!--<div class="modal-footer">
-        <button *ngIf="modalType !== 'view'" class="btn btn-primary" (click)="handleSubmit()">
-          {{ modalType === 'add' ? 'Ajouter' : 'Modifier' }}
-        </button>
-        <button class="btn btn-secondary" (click)="closeModal()">
-          {{ modalType === 'view' ? 'Fermer' : 'Annuler' }}
-        </button>
-      </div>-->
+
+<!-- MODAL FINAL - Version stylée qui fonctionne -->
+<div *ngIf="showModal" 
+     style="
+        position: fixed !important; 
+        top: 0 !important; 
+        left: 0 !important; 
+        width: 100% !important; 
+        height: 100% !important; 
+        background-color: rgba(0,0,0,0.75) !important; 
+        z-index: 999999 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+     "
+     (click)="closeModal()">
+     
+    <div (click)="$event.stopPropagation()" 
+         style="
+            background: white !important; 
+            border-radius: 12px !important; 
+            width: 90% !important;
+            max-width: 600px !important; 
+            max-height: 90vh !important; 
+            overflow-y: auto !important;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3) !important;
+            animation: modalSlideIn 0.3s ease-out !important;
+         ">
+         
+        <!-- HEADER -->
+        <div style="
+            background: #3e7dfa  !important; 
+            color: white !important; 
+            padding: 20px !important; 
+            border-radius: 12px 12px 0 0 !important;
+            margin: 0 !important;
+        ">
+            <h3 style="
+                margin: 0 !important; 
+                display: flex !important; 
+                align-items: center !important; 
+                gap: 10px !important; 
+                font-size: 20px !important; 
+                font-weight: 600 !important;
+                color: white !important;
+            ">
+                <i class="bi bi-person-circle" style="font-size: 24px !important;"></i>
+                <span *ngIf="modalType === 'view'">Détails de l'action</span>
+            </h3>
+        </div>
+
+        <!-- BODY -->
+        <div style="padding: 25px !important; background: #f8f9fa !important;">
+            
+
+   <!-- MODE VISUALISATION -->
+<div *ngIf="modalType === 'view' && selectedUser ">
+    
+    <!-- En-tête utilisateur -->
+    <div style="
+        display: flex !important; 
+        align-items: center !important; 
+        gap: 20px !important; 
+        margin-bottom: 25px !important; 
+        padding: 20px !important; 
+        background: white !important; 
+        border-radius: 10px !important; 
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+    ">
+        <div style="
+            width: 80px !important; 
+            height: 80px !important; 
+            border-radius: 50% !important; 
+            background: #3e7dfa !important; 
+            display: flex !important; 
+            align-items: center !important; 
+            justify-content: center !important; 
+            color: white !important; 
+            font-size: 28px !important; 
+            font-weight: bold !important; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+        ">
+            {{selectedUser.avatar}}
+        </div>
+        <div style="flex: 1 !important;">
+            <h4 style="
+                margin: 0 0 5px 0 !important; 
+                color: #2c3e50 !important; 
+                font-size: 24px !important; 
+                font-weight: 600 !important;
+            ">
+                {{ selectedUser.prenom }} {{ selectedUser.nom }}
+            </h4>
+            <p style="
+                margin: 0 !important; 
+                color: #7f8c8d !important; 
+                font-size: 16px !important; 
+                display: flex !important; 
+                align-items: center !important; 
+                gap: 8px !important;
+            ">
+                <i class="bi bi-envelope" style="color: #3498db !important;"></i>
+                 {{ selectedUser.email }}
+            </p>
+        </div>
     </div>
+    
+    <!-- Grille des détails -->
+    <div style="
+        display: grid !important; 
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important; 
+        gap: 20px !important; 
+        margin-bottom: 20px !important;
+    ">
+        <!-- Informations de rôle et statut -->
+        <div style="
+            background: white !important; 
+            padding: 20px !important; 
+            border-radius: 10px !important; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+        ">
+            <h5 style="
+                color: #2c3e50 !important; 
+                margin-bottom: 15px !important; 
+                display: flex !important; 
+                align-items: center !important; 
+                gap: 10px !important; 
+                font-size: 16px !important; 
+                font-weight: 600 !important;
+            ">
+                <i class="bi bi-shield-check text-success" ></i>
+                Permissions
+            </h5>
+            
+            <div style="margin-bottom: 15px !important;">
+                <label style="
+                    font-weight: 500 !important; 
+                    color: #7f8c8d !important; 
+                    font-size: 13px !important; 
+                    text-transform: uppercase !important; 
+                    letter-spacing: 0.5px !important;
+                    display: block !important;
+                    margin-bottom: 5px !important;
+                ">Rôle</label>
+                <p style="margin: 5px 0 0 0 !important;">
+                    <span [ngClass]="{
+                        'badge': true,
+                        'rounded-pill': true,
+                        'px-3': true,
+                        'py-2': true,
+                        
+                    }" style="
+                        font-size: 13px !important;
+                        color: white !important;
+                        padding: 6px 12px !important;
+                        border-radius: 15px !important;
+                        background-color: #3498db !important;
+                    ">
+                      {{user_log.role}}
+                    </span>
+                </p>
+            </div>
+            
+            <div>
+                <label style="
+                    font-weight: 500 !important; 
+                    color: #7f8c8d !important; 
+                    font-size: 13px !important; 
+                    text-transform: uppercase !important; 
+                    letter-spacing: 0.5px !important;
+                    display: block !important;
+                    margin-bottom: 5px !important;
+                ">Statut</label>
+                <p style="margin: 5px 0 0 0 !important;">
+                    <span [ngClass]="{
+                        'badge': true,
+                        'rounded-pill': true,
+                        'px-3': true,
+                        'py-2': true,
+                       
+                    }" style="
+                        font-size: 13px !important;
+                        color: white !important;
+                        padding: 6px 12px !important;
+                        border-radius: 15px !important;
+                        display: inline-flex !important;
+                        align-items: center !important;
+                        gap: 5px !important;
+                    " 
+                    class="bg-success"    
+                    >
+                        <i class="bi bi-check" style="color: white !important;"></i>
+                        {{user_log.statut}}
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Informations temporelles -->
+    <div style="
+        background: white !important; 
+        padding: 20px !important; 
+        border-radius: 10px !important; 
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+    ">
+        <h5 style="
+            color: #2c3e50 !important; 
+            margin-bottom: 15px !important; 
+            display: flex !important; 
+            align-items: center !important; 
+            gap: 10px !important; 
+            font-size: 16px !important; 
+            font-weight: 600 !important;
+        ">
+            <i class="bi bi-book" style="color: #f39c12 !important;"></i>
+            Informations
+        </h5>
+        <div style="
+            display: grid !important; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important; 
+            gap: 20px !important;
+        ">
+          
+            <div>
+                <label style="
+                    font-weight: 500 !important; 
+                    color: #7f8c8d !important; 
+                    font-size: 13px !important; 
+                    text-transform: uppercase !important; 
+                    letter-spacing: 0.5px !important;
+                    display: block !important;
+                    margin-bottom: 5px !important;
+                ">Adresse IP</label>
+                <p style="
+                    margin: 5px 0 0 0 !important; 
+                    color: #2c3e50 !important; 
+                    font-size: 15px !important; 
+                    display: flex !important; 
+                    align-items: center !important; 
+                    gap: 8px !important;
+                ">
+                    <i class="bi bi-globe" style="color: #3498db !important;"></i>
+                    {{user_log.adresse_ip}}
+                </p>
+            </div>
+            <div>
+                <label style="
+                    font-weight: 500 !important; 
+                    color: #7f8c8d !important; 
+                    font-size: 13px !important; 
+                    text-transform: uppercase !important; 
+                    letter-spacing: 0.5px !important;
+                    display: block !important;
+                    margin-bottom: 5px !important;
+                ">Navigateur</label>
+                <p style="
+                    margin: 5px 0 0 0 !important; 
+                    color: #2c3e50 !important; 
+                    font-size: 15px !important; 
+                    display: flex !important; 
+                    align-items: center !important; 
+                    gap: 8px !important;
+                ">
+                    <i class="bi bi-browser-chrome" style="color: #3498db !important;"></i>
+                  {{user_log.browser}} {{user_log.browser_version}}
+                </p>
+            </div>
+            <div>
+                <label style="
+                    font-weight: 500 !important; 
+                    color: #7f8c8d !important; 
+                    font-size: 13px !important; 
+                    text-transform: uppercase !important; 
+                    letter-spacing: 0.5px !important;
+                    display: block !important;
+                    margin-bottom: 5px !important;
+                ">Dispositif</label>
+                <p style="
+                    margin: 5px 0 0 0 !important; 
+                    color: #2c3e50 !important; 
+                    font-size: 15px !important; 
+                    display: flex !important; 
+                    align-items: center !important; 
+                    gap: 8px !important;
+                ">
+                    <i class="bi bi-device" style="color: #e74c3c !important;"></i>
+                    {{user_log.device}}
+                </p>
+            </div>
+            <div>
+                <label style="
+                    font-weight: 500 !important; 
+                    color: #7f8c8d !important; 
+                    font-size: 13px !important; 
+                    text-transform: uppercase !important; 
+                    letter-spacing: 0.5px !important;
+                    display: block !important;
+                    margin-bottom: 5px !important;
+                ">Action</label>
+                <p style="
+                    margin: 5px 0 0 0 !important; 
+                    color: #2c3e50 !important; 
+                    font-size: 15px !important; 
+                    display: flex !important; 
+                    align-items: center !important; 
+                    gap: 8px !important;
+                ">
+                    <i [ngClass]= "selectedUser.statut =='Succès' ? 'bi bi-check-circle text-success ' : 'bi bi-x-circle text-danger'" ></i>
+                  {{selectedUser.action}}
+                </p>
+            </div>
+                </div>
+            </div>
+          </div>
+          </div>
+          <div style="
+            padding: 20px !important; 
+            background: #f8f9fa !important; 
+            border-top: 1px solid #e9ecef !important; 
+            display: flex !important; 
+            justify-content: flex-end !important; 
+            gap: 10px !important; 
+            border-radius: 0 0 12px 12px !important;
+        ">
+            <button (click)="closeModal()" 
+                style="
+                  padding: 10px 20px !important; 
+                  border: none !important; 
+                  border-radius: 6px !important; 
+                  font-weight: 500 !important; 
+                  cursor: pointer !important; 
+                  transition: all 0.3s ease !important;
+                  background-color: #c01704 !important;
+                  color: white !important;
+                  display: inline-flex !important;
+                  align-items: center !important;
+                  gap: 8px !important;
+                  transform: translateY(0) !important;
+                  box-shadow: 0 2px 4px rgba(192, 23, 4, 0.3) !important;
+                "
+                onmouseover="this.style.backgroundColor='#a01503'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(192, 23, 4, 0.4)'"
+                onmouseout="this.style.backgroundColor='#c01704'; this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(192, 23, 4, 0.3)'"
+                onmousedown="this.style.transform='translateY(1px)'; this.style.boxShadow='0 1px 2px rgba(192, 23, 4, 0.5)'"
+                onmouseup="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(192, 23, 4, 0.4)'">
+                <i [ngClass]="{
+                    'bi': true,
+                    'bi-x-circle': modalType === 'view',
+                    'bi-arrow-left-circle': modalType !== 'view'
+                }"></i>
+                {{ modalType === 'view' ? 'Fermer' : 'Annuler' }}
+            </button>
+          </div>
+          
+        </div>
+
+
+
+</div>
   

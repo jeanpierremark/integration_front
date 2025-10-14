@@ -2,7 +2,8 @@ import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRe
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Chart, ChartConfiguration, ChartType, registerables } from 'chart.js';
-import { interval, map, startWith } from 'rxjs';
+import { interval, map, startWith, Subject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 import { ChercheurService } from 'src/app/services/chercheur.service';
 import Swal from 'sweetalert2';
 import { UserService } from 'src/app/services/user.service';
@@ -103,6 +104,12 @@ interface CorrelationPair {
   value: number;
 }
 
+interface CorrelationCell {
+  value: number;
+  class: string;
+  interpretation: string;
+}
+
 interface CompareData {
   averages: {
     [cityName: string]: {
@@ -128,20 +135,28 @@ export class AnalyseavanceComponent implements OnInit, OnDestroy, AfterViewInit 
 
   private averagesChart?: Chart;
   private differencesChart?: Chart;
-  user_id : any =  sessionStorage.getItem('id')
-  action = ''
-  statut : boolean = false
+  user_id: any = sessionStorage.getItem('id');
+  action = '';
+  statut: boolean = false;
+  periode: any = '';
+  private searchSubject = new Subject<string>();
+  private labelCache = new Map<string, string>();
+  private colorCache = new Map<string, string>();
+  private unitCache = new Map<string, string>();
+  private correlationInterpretationCache = new Map<number, string>();
+  private correlationMatrixCache = new Map<string, CorrelationCell[][]>();
+
   constructor(
     private router: Router,
     private chercheur_service: ChercheurService,
-    private user_service : UserService,
+    private user_service: UserService,
     private cdr: ChangeDetectorRef
   ) {
     Chart.register(...registerables);
   }
 
   // Configuration d'analyse
-  selectedMethod: string = ''; 
+  selectedMethod: string = '';
   selectedParameters: string[] = ['temperature'];
   selectedPeriod: string = '7d';
   selectedSource: string = 'climate_data_weather';
@@ -171,7 +186,7 @@ export class AnalyseavanceComponent implements OnInit, OnDestroy, AfterViewInit 
   notifications: Notification[] = [];
 
   // Date et heure
-  dateHeureActuelle$ = interval(1000).pipe(
+  dateHeureActuelle$ = interval(10000).pipe(
     startWith(0),
     map(() =>
       new Date().toLocaleString('fr-FR', {
@@ -202,17 +217,21 @@ export class AnalyseavanceComponent implements OnInit, OnDestroy, AfterViewInit 
     { value: 'precipitation', label: 'Précipitation', icon: 'bi-cloud-drizzle', unit: 'mm', color: '#04206eff', back: '#e7ebf7ff' },
     { value: 'pression', label: 'Pression', icon: 'bi-speedometer2', unit: 'hPa', color: '#0704bdff', back: '#e2daf7ff' },
     { value: 'vitesse_vent', label: 'Vitesse du vent', icon: 'bi-wind', unit: 'km/h', color: '#905af6ff', back: '#e4f1edff' },
-    { value: 'nebulosite', label: 'Nébulosité', icon: 'bi-cloud-fog2', unit: '%', color: '#68b1faff', back: '#e7e5f7ff' }
+    { value: 'nebulosite', label: 'Nébulosité', icon: 'bi-cloud-fog2', unit: '%', color: '#68b1faff', back: '#e7e5f7ff' },
+    { value: 'uv_index', label: 'Indice UV', icon: 'bi-sun', unit: '', color: '#dfb305ff', back: '#e7e5f7ff' },
+    { value: 'ensoleillement', label: 'Ensoleillement', icon: 'bi-sunrise', unit: 's', color: '#983504ff', back: '#e7e5f7ff' }
   ];
 
   // Configuration des périodes
   periods: Period[] = [
     { value: '7d', label: '7 derniers jours', icon: 'bi-calendar-week' },
     { value: '30d', label: '30 derniers jours', icon: 'bi-calendar-month' },
-    { value: '1an', label: 'dernière année', icon: 'bi-calendar3' },
-    { value: '10ans', label: '10 dernières années', icon: 'bi-calendar3' },
-    { value: '15ans', label: '15 dernières années', icon: 'bi-calendar3' },
-    { value: '20ans', label: '20 dernières années', icon: 'bi-calendar3' },
+    { value: '90d', label: '90 derniers mois', icon: 'bi-calendar-month' },
+    { value: '180d', label: '180 derniers mois', icon: 'bi-calendar-month' },
+    { value: '1y', label: 'dernière année', icon: 'bi-calendar3' },
+    { value: '10y', label: '10 dernières années', icon: 'bi-calendar3' },
+    { value: '15y', label: '15 dernières années', icon: 'bi-calendar3' },
+    { value: '20y', label: '20 dernières années', icon: 'bi-calendar3' },
   ];
 
   // Configuration des sources
@@ -225,15 +244,354 @@ export class AnalyseavanceComponent implements OnInit, OnDestroy, AfterViewInit 
 
   // Disponibilité des sources par période
   private sourceAvailability: { [period: string]: { [source: string]: 'available' | 'limited' | 'unavailable' } } = {
-    '1h': { 'climate_data_weather': 'available', 'climate_data_openweather': 'available', 'climate_data_openmeteo': 'available', 'climate_data_integration': 'unavailable' },
-    '6h': { 'climate_data_weather': 'available', 'climate_data_openweather': 'available', 'climate_data_openmeteo': 'available', 'climate_data_integration': 'unavailable' },
-    '24h': { 'climate_data_weather': 'available', 'climate_data_openweather': 'available', 'climate_data_openmeteo': 'available', 'climate_data_integration': 'unavailable' },
     '7d': { 'climate_data_weather': 'available', 'climate_data_openweather': 'available', 'climate_data_openmeteo': 'available', 'climate_data_integration': 'unavailable' },
     '30d': { 'climate_data_weather': 'available', 'climate_data_openweather': 'available', 'climate_data_openmeteo': 'available', 'climate_data_integration': 'unavailable' },
-    '1an': { 'climate_data_weather': 'unavailable', 'climate_data_openweather': 'unavailable', 'climate_data_openmeteo': 'unavailable', 'climate_data_integration': 'available' },
-    '10ans': { 'climate_data_weather': 'unavailable', 'climate_data_openweather': 'unavailable', 'climate_data_openmeteo': 'unavailable', 'climate_data_integration': 'available' },
-    '15ans': { 'climate_data_weather': 'unavailable', 'climate_data_openweather': 'unavailable', 'climate_data_openmeteo': 'unavailable', 'climate_data_integration': 'available' },
-    '20ans': { 'climate_data_weather': 'unavailable', 'climate_data_openweather': 'unavailable', 'climate_data_openmeteo': 'unavailable', 'climate_data_integration': 'available' }
+    '90d': { 'climate_data_weather': 'available', 'climate_data_openweather': 'available', 'climate_data_openmeteo': 'available', 'climate_data_integration': 'unavailable' },
+    '180d': { 'climate_data_weather': 'available', 'climate_data_openweather': 'available', 'climate_data_openmeteo': 'available', 'climate_data_integration': 'unavailable' },
+    '1y': { 'climate_data_weather': 'unavailable', 'climate_data_openweather': 'unavailable', 'climate_data_openmeteo': 'unavailable', 'climate_data_integration': 'available' },
+    '10y': { 'climate_data_weather': 'unavailable', 'climate_data_openweather': 'unavailable', 'climate_data_openmeteo': 'unavailable', 'climate_data_integration': 'available' },
+    '15y': { 'climate_data_weather': 'unavailable', 'climate_data_openweather': 'unavailable', 'climate_data_openmeteo': 'unavailable', 'climate_data_integration': 'available' },
+    '20y': { 'climate_data_weather': 'unavailable', 'climate_data_openweather': 'unavailable', 'climate_data_openmeteo': 'unavailable', 'climate_data_integration': 'available' }
+  };
+
+  // Disponibilité des paramètres par période et source
+  private parameterAvailability: { [period: string]: { [source: string]: { [parameter: string]: 'available' | 'limited' | 'unavailable' } } } = {
+    '7d': {
+      'climate_data_weather': {
+        'temperature': 'available',
+        'humidite': 'available',
+        'precipitation': 'available',
+        'pression': 'available',
+        'vitesse_vent': 'available',
+        'nebulosite': 'available',
+        'uv_index': 'available',
+        'ensoleillement': 'unavailable'
+      },
+      'climate_data_openweather': {
+        'temperature': 'available',
+        'humidite': 'available',
+        'precipitation': 'available',
+        'pression': 'available',
+        'vitesse_vent': 'available',
+        'nebulosite': 'available',
+        'uv_index': 'unavailable',
+        'ensoleillement': 'unavailable'
+      },
+      'climate_data_openmeteo': {
+        'temperature': 'available',
+        'humidite': 'available',
+        'precipitation': 'available',
+        'pression': 'available',
+        'vitesse_vent': 'available',
+        'nebulosite': 'available',
+        'uv_index': 'available',
+        'ensoleillement': 'available'
+      },
+      'climate_data_integration': {
+        'temperature': 'unavailable',
+        'humidite': 'unavailable',
+        'precipitation': 'unavailable',
+        'pression': 'unavailable',
+        'vitesse_vent': 'unavailable',
+        'nebulosite': 'unavailable',
+        'uv_index': 'unavailable',
+        'ensoleillement': 'unavailable'
+      }
+    },
+    '30d': {
+      'climate_data_weather': {
+        'temperature': 'available',
+        'humidite': 'available',
+        'precipitation': 'available',
+        'pression': 'available',
+        'vitesse_vent': 'available',
+        'nebulosite': 'available',
+        'uv_index': 'available',
+        'ensoleillement': 'unavailable'
+      },
+      'climate_data_openweather': {
+        'temperature': 'available',
+        'humidite': 'available',
+        'precipitation': 'available',
+        'pression': 'available',
+        'vitesse_vent': 'available',
+        'nebulosite': 'available',
+        'uv_index': 'unavailable',
+        'ensoleillement': 'unavailable'
+      },
+      'climate_data_openmeteo': {
+        'temperature': 'available',
+        'humidite': 'available',
+        'precipitation': 'available',
+        'pression': 'available',
+        'vitesse_vent': 'available',
+        'nebulosite': 'available',
+        'uv_index': 'available',
+        'ensoleillement': 'available'
+      },
+      'climate_data_integration': {
+        'temperature': 'unavailable',
+        'humidite': 'unavailable',
+        'precipitation': 'unavailable',
+        'pression': 'unavailable',
+        'vitesse_vent': 'unavailable',
+        'nebulosite': 'unavailable',
+        'uv_index': 'unavailable',
+        'ensoleillement': 'unavailable'
+      }
+    },
+    '90d': {
+      'climate_data_weather': {
+        'temperature': 'available',
+        'humidite': 'available',
+        'precipitation': 'available',
+        'pression': 'available',
+        'vitesse_vent': 'available',
+        'nebulosite': 'available',
+        'uv_index': 'available',
+        'ensoleillement': 'unavailable'
+      },
+      'climate_data_openweather': {
+        'temperature': 'available',
+        'humidite': 'available',
+        'precipitation': 'available',
+        'pression': 'available',
+        'vitesse_vent': 'available',
+        'nebulosite': 'available',
+        'uv_index': 'unavailable',
+        'ensoleillement': 'unavailable'
+      },
+      'climate_data_openmeteo': {
+        'temperature': 'available',
+        'humidite': 'available',
+        'precipitation': 'available',
+        'pression': 'available',
+        'vitesse_vent': 'available',
+        'nebulosite': 'available',
+        'uv_index': 'available',
+        'ensoleillement': 'available'
+      },
+      'climate_data_integration': {
+        'temperature': 'unavailable',
+        'humidite': 'unavailable',
+        'precipitation': 'unavailable',
+        'pression': 'unavailable',
+        'vitesse_vent': 'unavailable',
+        'nebulosite': 'unavailable',
+        'uv_index': 'unavailable',
+        'ensoleillement': 'unavailable'
+      }
+    },
+    '180d': {
+      'climate_data_weather': {
+        'temperature': 'available',
+        'humidite': 'available',
+        'precipitation': 'available',
+        'pression': 'available',
+        'vitesse_vent': 'available',
+        'nebulosite': 'available',
+        'uv_index': 'available',
+        'ensoleillement': 'unavailable'
+      },
+      'climate_data_openweather': {
+        'temperature': 'available',
+        'humidite': 'available',
+        'precipitation': 'available',
+        'pression': 'available',
+        'vitesse_vent': 'available',
+        'nebulosite': 'available',
+        'uv_index': 'unavailable',
+        'ensoleillement': 'unavailable'
+      },
+      'climate_data_openmeteo': {
+        'temperature': 'available',
+        'humidite': 'available',
+        'precipitation': 'available',
+        'pression': 'available',
+        'vitesse_vent': 'available',
+        'nebulosite': 'available',
+        'uv_index': 'available',
+        'ensoleillement': 'available'
+      },
+      'climate_data_integration': {
+        'temperature': 'unavailable',
+        'humidite': 'unavailable',
+        'precipitation': 'unavailable',
+        'pression': 'unavailable',
+        'vitesse_vent': 'unavailable',
+        'nebulosite': 'unavailable',
+        'uv_index': 'unavailable',
+        'ensoleillement': 'unavailable'
+      }
+    },
+    '1y': {
+      'climate_data_weather': {
+        'temperature': 'unavailable',
+        'humidite': 'unavailable',
+        'precipitation': 'unavailable',
+        'pression': 'unavailable',
+        'vitesse_vent': 'unavailable',
+        'nebulosite': 'unavailable',
+        'uv_index': 'unavailable',
+        'ensoleillement': 'unavailable'
+      },
+      'climate_data_openweather': {
+        'temperature': 'unavailable',
+        'humidite': 'unavailable',
+        'precipitation': 'unavailable',
+        'pression': 'unavailable',
+        'vitesse_vent': 'unavailable',
+        'nebulosite': 'unavailable',
+        'uv_index': 'unavailable',
+        'ensoleillement': 'unavailable'
+      },
+      'climate_data_openmeteo': {
+        'temperature': 'unavailable',
+        'humidite': 'unavailable',
+        'precipitation': 'unavailable',
+        'pression': 'unavailable',
+        'vitesse_vent': 'unavailable',
+        'nebulosite': 'unavailable',
+        'uv_index': 'unavailable',
+        'ensoleillement': 'unavailable'
+      },
+      'climate_data_integration': {
+        'temperature': 'available',
+        'humidite': 'available',
+        'precipitation': 'available',
+        'pression': 'available',
+        'vitesse_vent': 'available',
+        'nebulosite': 'unavailable',
+        'uv_index': 'unavailable',
+        'ensoleillement': 'unavailable'
+      }
+    },
+    '10y': {
+      'climate_data_weather': {
+        'temperature': 'unavailable',
+        'humidite': 'unavailable',
+        'precipitation': 'unavailable',
+        'pression': 'unavailable',
+        'vitesse_vent': 'unavailable',
+        'nebulosite': 'unavailable',
+        'uv_index': 'unavailable',
+        'ensoleillement': 'unavailable'
+      },
+      'climate_data_openweather': {
+        'temperature': 'unavailable',
+        'humidite': 'unavailable',
+        'precipitation': 'unavailable',
+        'pression': 'unavailable',
+        'vitesse_vent': 'unavailable',
+        'nebulosite': 'unavailable',
+        'uv_index': 'unavailable',
+        'ensoleillement': 'unavailable'
+      },
+      'climate_data_openmeteo': {
+        'temperature': 'unavailable',
+        'humidite': 'unavailable',
+        'precipitation': 'unavailable',
+        'pression': 'unavailable',
+        'vitesse_vent': 'unavailable',
+        'nebulosite': 'unavailable',
+        'uv_index': 'unavailable',
+        'ensoleillement': 'unavailable'
+      },
+      'climate_data_integration': {
+        'temperature': 'available',
+        'humidite': 'available',
+        'precipitation': 'available',
+        'pression': 'available',
+        'vitesse_vent': 'available',
+        'nebulosite': 'unavailable',
+        'uv_index': 'unavailable',
+        'ensoleillement': 'unavailable'
+      }
+    },
+    '15y': {
+      'climate_data_weather': {
+        'temperature': 'unavailable',
+        'humidite': 'unavailable',
+        'precipitation': 'unavailable',
+        'pression': 'unavailable',
+        'vitesse_vent': 'unavailable',
+        'nebulosite': 'unavailable',
+        'uv_index': 'unavailable',
+        'ensoleillement': 'unavailable'
+      },
+      'climate_data_openweather': {
+        'temperature': 'unavailable',
+        'humidite': 'unavailable',
+        'precipitation': 'unavailable',
+        'pression': 'unavailable',
+        'vitesse_vent': 'unavailable',
+        'nebulosite': 'unavailable',
+        'uv_index': 'unavailable',
+        'ensoleillement': 'unavailable'
+      },
+      'climate_data_openmeteo': {
+        'temperature': 'unavailable',
+        'humidite': 'unavailable',
+        'precipitation': 'unavailable',
+        'pression': 'unavailable',
+        'vitesse_vent': 'unavailable',
+        'nebulosite': 'unavailable',
+        'uv_index': 'unavailable',
+        'ensoleillement': 'unavailable'
+      },
+      'climate_data_integration': {
+        'temperature': 'available',
+        'humidite': 'available',
+        'precipitation': 'available',
+        'pression': 'available',
+        'vitesse_vent': 'available',
+        'nebulosite': 'unavailable',
+        'uv_index': 'unavailable',
+        'ensoleillement': 'unavailable'
+      }
+    },
+    '20y': {
+      'climate_data_weather': {
+        'temperature': 'unavailable',
+        'humidite': 'unavailable',
+        'precipitation': 'unavailable',
+        'pression': 'unavailable',
+        'vitesse_vent': 'unavailable',
+        'nebulosite': 'unavailable',
+        'uv_index': 'unavailable',
+        'ensoleillement': 'unavailable'
+      },
+      'climate_data_openweather': {
+        'temperature': 'unavailable',
+        'humidite': 'unavailable',
+        'precipitation': 'unavailable',
+        'pression': 'unavailable',
+        'vitesse_vent': 'unavailable',
+        'nebulosite': 'unavailable',
+        'uv_index': 'unavailable',
+        'ensoleillement': 'unavailable'
+      },
+      'climate_data_openmeteo': {
+        'temperature': 'unavailable',
+        'humidite': 'unavailable',
+        'precipitation': 'unavailable',
+        'pression': 'unavailable',
+        'vitesse_vent': 'unavailable',
+        'nebulosite': 'unavailable',
+        'uv_index': 'unavailable',
+        'ensoleillement': 'unavailable'
+      },
+      'climate_data_integration': {
+        'temperature': 'available',
+        'humidite': 'available',
+        'precipitation': 'available',
+        'pression': 'available',
+        'vitesse_vent': 'available',
+        'nebulosite': 'unavailable',
+        'uv_index': 'unavailable',
+        'ensoleillement': 'unavailable'
+      }
+    }
   };
 
   // Données pour les analyses
@@ -243,12 +601,19 @@ export class AnalyseavanceComponent implements OnInit, OnDestroy, AfterViewInit 
   compare: CompareData = { averages: {}, differences: {} };
 
   ngOnInit() {
-    this.initializeComponent();
+    this.searchSubject.pipe(debounceTime(300)).subscribe(searchText => {
+      this.citySearchText = searchText;
+      this.filterCities();
+    });
     this.loadAnalysisMethod();
+    this.filterCities(); // Initialisation des villes filtrées
   }
 
   ngAfterViewInit() {
-    // Pas d'appel direct ici, car createAveragesChart est appelé après réception des données
+    // Initialize chart only if data is available
+    if (this.selectedMethod === 'compare' && this.compare?.averages) {
+      this.createAveragesChart();
+    }
   }
 
   ngOnDestroy() {
@@ -261,39 +626,24 @@ export class AnalyseavanceComponent implements OnInit, OnDestroy, AfterViewInit 
   }
 
   save_do_something(id: number, action: string, statut: boolean) {
-   console.log('Calling save_do_something with:', { id, action, statut });
-   if (!id) {
+    console.log('Calling save_do_something with:', { id, action, statut });
+    if (!id) {
       console.error('User ID is not available');
       this.showNotification('ID utilisateur non disponible', 'error');
       return;
-   }
-   this.user_service.do_something(id, action, statut).subscribe({
+    }
+    this.user_service.do_something(id, action, statut).subscribe({
       next: (response) => {
-         console.log('Activity saved successfully:', response.body);
+        console.log('Activity saved successfully:', response.body);
       },
       error: (error: HttpErrorResponse) => {
-         if (error.error.message == "Token expiré"){
-          this.user_service.logout()
-          this.router.navigate(["/connexion"])
+        if (error.error.message === "Token expiré") {
+          this.user_service.logout();
+          this.router.navigate(["/connexion"]);
         }
-         console.error('Error saving activity:', error);
+        console.error('Error saving activity:', error);
       }
-   });
-}
-
-  private async initializeComponent(): Promise<void> {
-    try {
-      this.loading = true;
-      this.cdr.detectChanges();
-      await this.loadInitialData();
-      this.filterCities();
-    } catch (error) {
-      console.error('Erreur lors de l\'initialisation:', error);
-      this.showNotification('Erreur lors de l\'initialisation', 'error');
-    } finally {
-      this.loading = false;
-      this.cdr.detectChanges();
-    }
+    });
   }
 
   downloadCardAsImage(className: string, fileName: string = 'resultat_image.png'): void {
@@ -315,18 +665,18 @@ export class AnalyseavanceComponent implements OnInit, OnDestroy, AfterViewInit 
         link.click();
         document.body.removeChild(link);
         this.showNotification("Image téléchargée avec succès", 'success');
-        this.action ='L\'utilisateur à télécharger un résulat d\'analyse'
-        this.statut = true
-        this.save_do_something(this.user_id,this.action,this.statut)
+        this.action = 'L\'utilisateur à télécharger un résulat d\'analyse';
+        this.statut = true;
+        this.save_do_something(this.user_id, this.action, this.statut);
       }).catch((error: Error) => {
         console.error('Erreur lors de la création de l\'image:', error);
       });
     };
     script.onerror = (): void => {
       console.error('Erreur lors du chargement de html2canvas.');
-       this.action ='L\'utilisateur tente télécharger un résulat d\'analyse'
-        this.statut = false
-        this.save_do_something(this.user_id,this.action,this.statut)
+      this.action = 'L\'utilisateur tente télécharger un résulat d\'analyse';
+      this.statut = false;
+      this.save_do_something(this.user_id, this.action, this.statut);
     };
     document.head.appendChild(script);
   }
@@ -337,63 +687,124 @@ export class AnalyseavanceComponent implements OnInit, OnDestroy, AfterViewInit 
 
   getDescriptiveAnalysis() {
     this.loading = true;
-    this.chercheur_service.get_descriptive_analysis(
-      this.selectedCities, this.selectedSource, this.selectedParameters, this.selectedPeriod
-    ).subscribe({
-      next: (response) => {
-        if (response.body.message === 'success') {
-          this.descriptive.statistics = response.body.statistics;
+    this.cdr.detectChanges();
+    if (['7d', '30d', '90d', '180d'].includes(this.selectedPeriod)) {
+      this.chercheur_service.get_descriptive_analysis(
+        this.selectedCities, this.selectedSource, this.selectedParameters, this.selectedPeriod
+      ).subscribe({
+        next: (response) => {
+          if (response.body.message === 'success') {
+            this.descriptive.statistics = response.body.statistics;
+            this.periode = response.body.period;
+            this.loading = false;
+            this.showNotification('Analyse terminée avec succès', 'success');
+            console.log("Descriptive", this.descriptive);
+          }
+          this.action = 'L\'utilisateur à lancer une analyse descriptive';
+          this.statut = true;
+          console.log('User', this.user_id);
+          this.save_do_something(this.user_id, this.action, this.statut);
+          this.cdr.detectChanges();
+        },
+        error: (error: HttpErrorResponse) => {
           this.loading = false;
-          this.showNotification('Analyse terminée avec succès', 'success');
-          console.log("Descriptive", this.descriptive);
-
+          this.showNotification(error.error.error, 'error');
+          this.action = 'L\'utilisateur tente de lancer une analyse descriptive';
+          this.statut = false;
+          console.log('User', this.user_id);
+          this.save_do_something(this.user_id, this.action, this.statut);
+          this.cdr.detectChanges();
         }
-        this.action ='L\'utilisateur à lancer une analyse descriptive '
-        this.statut = true
-        console.log('User',this.user_id)
-        this.save_do_something(this.user_id,this.action,this.statut)
-      },
-      error: (error: HttpErrorResponse) => {
-        this.loading = false;
-        this.showNotification(error.error.error, 'error');
-        this.action ='L\'utilisateur tente de lancer une analyse descriptive '
-        this.statut = false
-        console.log('User',this.user_id)
-        this.save_do_something(this.user_id,this.action,this.statut)
-        this.cdr.detectChanges();
-      }
-    });
+      });
+    } else {
+      this.chercheur_service.get_descriptive_from_etl(
+        this.selectedCities, this.selectedParameters, this.selectedPeriod
+      ).subscribe({
+        next: (response) => {
+          if (response.body.message === 'success') {
+            this.descriptive.statistics = response.body.statistics;
+            this.periode = response.body.period;
+            this.loading = false;
+            this.showNotification('Analyse terminée avec succès', 'success');
+            console.log("Descriptive", this.descriptive);
+          }
+          this.action = 'L\'utilisateur à lancer une analyse descriptive';
+          this.statut = true;
+          console.log('User', this.user_id);
+          this.save_do_something(this.user_id, this.action, this.statut);
+          this.cdr.detectChanges();
+        },
+        error: (error: HttpErrorResponse) => {
+          this.loading = false;
+          this.showNotification(error.error.error, 'error');
+          this.action = 'L\'utilisateur tente de lancer une analyse descriptive';
+          this.statut = false;
+          console.log('User', this.user_id);
+          this.save_do_something(this.user_id, this.action, this.statut);
+          this.cdr.detectChanges();
+        }
+      });
+    }
   }
 
   getTendancesAnalysis() {
     this.loading = true;
-    this.chercheur_service.get_trend_analysis(
-      this.selectedCities, this.selectedSource, this.selectedParameters, this.selectedPeriod
-    ).subscribe({
-      next: (response) => {
-        if (response.body.message === 'success') {
-          this.tendance = response.body.trends;
+    this.cdr.detectChanges();
+    if (['7d', '30d', '90d', '180d'].includes(this.selectedPeriod)) {
+      this.chercheur_service.get_trend_analysis(
+        this.selectedCities, this.selectedSource, this.selectedParameters, this.selectedPeriod
+      ).subscribe({
+        next: (response) => {
+          if (response.body.message === 'success') {
+            this.tendance = response.body.trends;
+            this.periode = response.body.period;
+            this.loading = false;
+            this.showNotification('Analyse terminée avec succès', 'success');
+            console.log("Trends", this.tendance);
+          }
+          this.action = 'L\'utilisateur à lancer une analyse tendance';
+          this.statut = true;
+          console.log('User', this.user_id);
+          this.save_do_something(this.user_id, this.action, this.statut);
+          this.cdr.detectChanges();
+        },
+        error: (error: HttpErrorResponse) => {
           this.loading = false;
-          this.showNotification('Analyse terminée avec succès', 'success');
-          console.log("Trends", this.tendance);
+          this.showNotification(error.error.error, 'error');
+          this.action = 'L\'utilisateur tente de lancer une analyse de tendance';
+          this.statut = false;
+          this.save_do_something(this.user_id, this.action, this.statut);
+          this.cdr.detectChanges();
         }
-        this.action ='L\'utilisateur à lancer une analyse tendance '
-        this.statut = true
-        console.log('User',this.user_id)
-
-        this.save_do_something(this.user_id,this.action,this.statut)
-
-        console.log(this.action)
-      },
-      error: (error: HttpErrorResponse) => {
-        this.loading = false;
-        this.showNotification(error.error.error, 'error');
-        this.action ='L\'utilisateur tente de  lancer une analyse de tendance '
-        this.statut = false
-        this.save_do_something(this.user_id,this.action,this.statut)
-        this.cdr.detectChanges();
-      }
-    });
+      });
+    } else {
+      this.chercheur_service.get_tendance_from_etl(
+        this.selectedCities, this.selectedParameters, this.selectedPeriod
+      ).subscribe({
+        next: (response) => {
+          if (response.body.message === 'success') {
+            this.tendance = response.body.trends;
+            this.periode = response.body.period;
+            this.loading = false;
+            this.showNotification('Analyse terminée avec succès', 'success');
+            console.log("Trends", this.tendance);
+          }
+          this.action = 'L\'utilisateur à lancer une analyse tendance';
+          this.statut = true;
+          console.log('User', this.user_id);
+          this.save_do_something(this.user_id, this.action, this.statut);
+          this.cdr.detectChanges();
+        },
+        error: (error: HttpErrorResponse) => {
+          this.loading = false;
+          this.showNotification(error.error.error, 'error');
+          this.action = 'L\'utilisateur tente de lancer une analyse de tendance';
+          this.statut = false;
+          this.save_do_something(this.user_id, this.action, this.statut);
+          this.cdr.detectChanges();
+        }
+      });
+    }
   }
 
   formatSlope(slope: number): string {
@@ -444,30 +855,64 @@ export class AnalyseavanceComponent implements OnInit, OnDestroy, AfterViewInit 
 
   getCorrelationAnalysis() {
     this.loading = true;
-    this.chercheur_service.get_correlation_analysis(
-      this.selectedCities, this.selectedSource, this.selectedParameters, this.selectedPeriod
-    ).subscribe({
-      next: (response) => {
-        if (response.body.message === 'success') {
-          this.correlation = response.body.correlations;
+    this.cdr.detectChanges();
+    if (['7d', '30d', '90d', '180d'].includes(this.selectedPeriod)) {
+      this.chercheur_service.get_correlation_analysis(
+        this.selectedCities, this.selectedSource, this.selectedParameters, this.selectedPeriod
+      ).subscribe({
+        next: (response) => {
+          if (response.body.message === 'success') {
+            this.correlation = response.body.correlations;
+            this.periode = response.body.period;
+            this.loading = false;
+            this.correlationMatrixCache.clear(); // Clear cache on new data
+            this.showNotification('Analyse terminée avec succès', 'success');
+            console.log("Correlation", this.correlation);
+          }
+          this.action = 'L\'utilisateur à lancer une analyse de corrélation';
+          this.statut = true;
+          console.log('User', this.user_id);
+          this.save_do_something(this.user_id, this.action, this.statut);
+          this.cdr.detectChanges();
+        },
+        error: (error: HttpErrorResponse) => {
           this.loading = false;
-          this.showNotification('Analyse terminée avec succès', 'success');
-          console.log("Correlation", this.correlation);
+          this.showNotification(error.error.error, 'error');
+          this.action = 'L\'utilisateur tente de lancer une analyse de corrélation';
+          this.statut = false;
+          this.save_do_something(this.user_id, this.action, this.statut);
+          this.cdr.detectChanges();
         }
-        this.action ='L\'utilisateur à lancer une analyse de corrélation '
-        this.statut = true
-        console.log('User',this.user_id)
-        this.save_do_something(this.user_id,this.action,this.statut)
-      },
-      error: (error: HttpErrorResponse) => {
-        this.loading = false;
-        this.showNotification(error.error.error, 'error');
-        this.action ='L\'utilisateur tente de  lancer une analyse de corrélation '
-        this.statut = false
-        this.save_do_something(this.user_id,this.action,this.statut)
-        this.cdr.detectChanges();
-      }
-    });
+      });
+    } else {
+      this.chercheur_service.get_correlation_from_etl(
+        this.selectedCities, this.selectedParameters, this.selectedPeriod
+      ).subscribe({
+        next: (response) => {
+          if (response.body.message === 'success') {
+            this.correlation = response.body.correlations;
+            this.periode = response.body.period;
+            this.loading = false;
+            this.correlationMatrixCache.clear(); // Clear cache on new data
+            this.showNotification('Analyse terminée avec succès', 'success');
+            console.log("Correlation", this.correlation);
+          }
+          this.action = 'L\'utilisateur à lancer une analyse de corrélation';
+          this.statut = true;
+          console.log('User', this.user_id);
+          this.save_do_something(this.user_id, this.action, this.statut);
+          this.cdr.detectChanges();
+        },
+        error: (error: HttpErrorResponse) => {
+          this.loading = false;
+          this.showNotification(error.error.error, 'error');
+          this.action = 'L\'utilisateur tente de lancer une analyse de corrélation';
+          this.statut = false;
+          this.save_do_something(this.user_id, this.action, this.statut);
+          this.cdr.detectChanges();
+        }
+      });
+    }
   }
 
   hasCorrelationData(): boolean {
@@ -490,15 +935,47 @@ export class AnalyseavanceComponent implements OnInit, OnDestroy, AfterViewInit 
   }
 
   getCorrelationInterpretation(value: number): string {
+    if (this.correlationInterpretationCache.has(value)) {
+      return this.correlationInterpretationCache.get(value)!;
+    }
     const absValue = Math.abs(value);
     const direction = value > 0 ? 'positive' : 'négative';
-    if (absValue === 1) return `Corrélation parfaite ${direction}`;
-    else if (absValue >= 0.8) return `Corrélation très forte ${direction}`;
-    else if (absValue >= 0.6) return `Corrélation forte ${direction}`;
-    else if (absValue >= 0.4) return `Corrélation modérée ${direction}`;
-    else if (absValue >= 0.2) return `Corrélation faible ${direction}`;
-    else if (absValue > 0) return `Corrélation très faible ${direction}`;
-    else return 'Aucune corrélation';
+    let interpretation: string;
+    if (absValue === 1) interpretation = `Corrélation parfaite ${direction}`;
+    else if (absValue >= 0.8) interpretation = `Corrélation très forte ${direction}`;
+    else if (absValue >= 0.6) interpretation = `Corrélation forte ${direction}`;
+    else if (absValue >= 0.4) interpretation = `Corrélation modérée ${direction}`;
+    else if (absValue >= 0.2) interpretation = `Corrélation faible ${direction}`;
+    else if (absValue > 0) interpretation = `Corrélation très faible ${direction}`;
+    else interpretation = 'Aucune corrélation';
+    this.correlationInterpretationCache.set(value, interpretation);
+    return interpretation;
+  }
+
+  getCorrelationMatrix(city: string): CorrelationCell[][] {
+    if (this.correlationMatrixCache.has(city)) {
+      return this.correlationMatrixCache.get(city)!;
+    }
+    const params = this.getParametersFromMatrix(city);
+    const matrix: CorrelationCell[][] = params.map(param1 =>
+      params.map(param2 => ({
+        value: this.getCorrelationValue(city, param1, param2),
+        class: this.computeCorrelationClass(param1, param2, city),
+        interpretation: this.getCorrelationInterpretation(this.getCorrelationValue(city, param1, param2))
+      }))
+    );
+    this.correlationMatrixCache.set(city, matrix);
+    return matrix;
+  }
+
+  private computeCorrelationClass(param1: string, param2: string, city: string): string {
+    if (param1 === param2) return 'diagonal';
+    const value = this.getCorrelationValue(city, param1, param2);
+    const absValue = Math.abs(value);
+    if (absValue === 1) return 'perfect-correlation';
+    if (absValue > 0.7) return 'strong-' + (value > 0 ? 'positive' : 'negative');
+    if (absValue > 0.3) return 'moderate-' + (value > 0 ? 'positive' : 'negative');
+    return 'weak-' + (value > 0 ? 'positive' : 'negative');
   }
 
   getSignificantCorrelations(city: string): CorrelationPair[] {
@@ -539,106 +1016,115 @@ export class AnalyseavanceComponent implements OnInit, OnDestroy, AfterViewInit 
   getComparativeAnalysis() {
     this.loading = true;
     this.cdr.detectChanges();
-    this.chercheur_service.get_direct_comparaison(
-      this.selectedCities, this.selectedSource, this.selectedParameters, this.selectedPeriod
-    ).subscribe({
-      next: (response) => {
-        if (response.body.message === 'success') {
-          this.compare = {
-            averages: response.body.averages,
-            differences: response.body.differences
-          };
+    if (['7d', '30d', '90d', '180d'].includes(this.selectedPeriod)) {
+      this.chercheur_service.get_direct_comparaison(
+        this.selectedCities, this.selectedSource, this.selectedParameters, this.selectedPeriod
+      ).subscribe({
+        next: (response) => {
+          if (response.body.message === 'success') {
+            this.compare = {
+              averages: response.body.averages,
+              differences: response.body.differences
+            };
+            this.periode = response.body.period;
+            this.loading = false;
+            this.showNotification('Analyse terminée avec succès', 'success');
+            console.log('Comparative', this.compare);
+            this.createAveragesChart();
+            this.cdr.detectChanges();
+          }
+          this.action = 'L\'utilisateur à lancer une analyse comparative';
+          this.statut = true;
+          console.log('User', this.user_id);
+          this.save_do_something(this.user_id, this.action, this.statut);
+        },
+        error: (error: HttpErrorResponse) => {
           this.loading = false;
-          this.showNotification('Analyse terminée avec succès', 'success');
-          console.log('Comparative', this.compare);
-          this.createAveragesChart();
+          this.showNotification(error.error.error, 'error');
+          console.error('Erreur API:', error);
+          this.action = 'L\'utilisateur tente une analyse comparative';
+          this.statut = false;
+          this.save_do_something(this.user_id, this.action, this.statut);
           this.cdr.detectChanges();
-        this.action ='L\'utilisateur à lancer une analyse comparative '
-        this.statut = true
-        console.log('User',this.user_id)
-
-        this.save_do_something(this.user_id,this.action,this.statut)
         }
-      },
-      error: (error: HttpErrorResponse) => {
-        this.loading = false;
-        this.showNotification(error.error.error, 'error');
-        console.error('Erreur API:', error);
-        this.action ='L\'utilisateur tente  une analyse comparative '
-        this.statut = false
-        this.save_do_something(this.user_id,this.action,this.statut)
-        this.cdr.detectChanges();
-      }
-    });
+      });
+    } else {
+      this.chercheur_service.get_comparaison_from_etl(
+        this.selectedCities, this.selectedParameters, this.selectedPeriod
+      ).subscribe({
+        next: (response) => {
+          if (response.body.message === 'success') {
+            this.compare = {
+              averages: response.body.averages,
+              differences: response.body.differences
+            };
+            this.periode = response.body.period;
+            this.loading = false;
+            this.showNotification('Analyse terminée avec succès', 'success');
+            console.log('Comparative', this.compare);
+            this.createAveragesChart();
+            this.cdr.detectChanges();
+          }
+          this.action = 'L\'utilisateur à lancer une analyse comparative';
+          this.statut = true;
+          console.log('User', this.user_id);
+          this.save_do_something(this.user_id, this.action, this.statut);
+        },
+        error: (error: HttpErrorResponse) => {
+          this.loading = false;
+          this.showNotification(error.error.error, 'error');
+          console.error('Erreur API:', error);
+          this.action = 'L\'utilisateur tente une analyse comparative';
+          this.statut = false;
+          this.save_do_something(this.user_id, this.action, this.statut);
+          this.cdr.detectChanges();
+        }
+      });
+    }
   }
 
   createAveragesChart() {
-    if (!this.averagesChartRef || !this.compare || !this.compare.averages || !this.selectedCities.length || !this.selectedParameters.length) {
+    if (!this.averagesChartRef || !this.compare?.averages || !this.selectedCities.length || !this.selectedParameters.length) {
       console.warn('Données manquantes pour créer le graphique des moyennes');
       return;
     }
-
     const ctx = this.averagesChartRef.nativeElement.getContext('2d');
     if (!ctx) {
       console.error('Contexte 2D non disponible pour averagesChart');
       return;
     }
-
+    const datasets = this.selectedCities.map((city, index) => ({
+      label: city,
+      data: this.selectedParameters.map(param => this.compare.averages[city]?.[param] ?? 0),
+      backgroundColor: this.getCityColor(city, 0.6),
+      borderColor: this.getCityColor(city, 1),
+      borderWidth: 2
+    }));
     if (this.averagesChart) {
-      this.averagesChart.destroy();
-    }
-
-    const datasets = this.selectedCities.map((city, index) => {
-      const data = this.selectedParameters.map(param => 
-        this.compare.averages[city]?.[param] ?? 0
-      );
-      return {
-        label: city,
-        data: data,
-        backgroundColor: this.getCityColor(city, 0.6),
-        borderColor: this.getCityColor(city, 1),
-        borderWidth: 2
-      };
-    });
-
-    const config: ChartConfiguration = {
-      type: 'bar' as ChartType,
-      data: {
-        labels: this.selectedParameters.map(param => this.getParameterLabel(param)),
-        datasets: datasets
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          title: {
-            display: true,
-            text: 'Comparaison des moyennes par ville'
-          },
-          legend: {
-            display: true,
-            position: 'top'
-          }
+      this.averagesChart.data.labels = this.selectedParameters.map(param => this.getParameterLabel(param));
+      this.averagesChart.data.datasets = datasets;
+      this.averagesChart.update();
+    } else {
+      this.averagesChart = new Chart(ctx, {
+        type: 'bar' as ChartType,
+        data: {
+          labels: this.selectedParameters.map(param => this.getParameterLabel(param)),
+          datasets
         },
-        scales: {
-          y: {
-            beginAtZero: true,
-            title: {
-              display: true,
-              text: 'Valeurs'
-            }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            title: { display: true, text: 'Comparaison des moyennes par ville' },
+            legend: { display: true, position: 'top' }
           },
-          x: {
-            title: {
-              display: true,
-              text: 'Paramètres'
-            }
+          scales: {
+            y: { beginAtZero: true, title: { display: true, text: 'Valeurs' } },
+            x: { title: { display: true, text: 'Paramètres' } }
           }
         }
-      }
-    };
-
-    this.averagesChart = new Chart(ctx, config);
+      });
+    }
     this.cdr.detectChanges();
   }
 
@@ -656,15 +1142,34 @@ export class AnalyseavanceComponent implements OnInit, OnDestroy, AfterViewInit 
   }
 
   getParameterColor(param: string, alpha: number = 1): string {
-    const colors = {
-      'temperature': `#ff481fff`,
-      'humidite': `#0c64f2ff`,
-      'precipitation': `#04206eff`,
-      'pression': `#0704bdff`,
-      'vitesse_vent': `#905af6ff`,
-      'nebulosite': `#68b1faff`
-    };
-    return colors[param as keyof typeof colors] || `rgba(128, 128, 128, ${alpha})`;
+    if (!this.colorCache.has(param)) {
+      const colors = {
+        'temperature': `#ff481fff`,
+        'humidite': `#0c64f2ff`,
+        'precipitation': `#04206eff`,
+        'pression': `#0704bdff`,
+        'vitesse_vent': `#905af6ff`,
+        'nebulosite': `#68b1faff`,
+        'uv_index': `#dfb305ff`,
+        'ensoleillement': `#983504ff`
+      };
+      this.colorCache.set(param, colors[param as keyof typeof colors] || `rgba(128, 128, 128, ${alpha})`);
+    }
+    return this.colorCache.get(param)!;
+  }
+
+  getParameterLabel(param: string): string {
+    if (!this.labelCache.has(param)) {
+      this.labelCache.set(param, this.parameters.find(p => p.value === param)?.label || param);
+    }
+    return this.labelCache.get(param)!;
+  }
+
+  getParameterUnit(param: string): string {
+    if (!this.unitCache.has(param)) {
+      this.unitCache.set(param, this.parameters.find(p => p.value === param)?.unit || '');
+    }
+    return this.unitCache.get(param)!;
   }
 
   public updateComparisonCharts() {
@@ -674,21 +1179,22 @@ export class AnalyseavanceComponent implements OnInit, OnDestroy, AfterViewInit 
   }
 
   loadAnalysisMethod() {
-    if(this.selectedMethod != ''){
-    if (this.selectedMethod === 'trend') {
-      this.getTendancesAnalysis();
-    } else if (this.selectedMethod === 'descriptive') {
-      this.getDescriptiveAnalysis();
-    } else if (this.selectedMethod === 'correlation') {
-      this.getCorrelationAnalysis();
-    } else {
-      this.getComparativeAnalysis();
-    }
+    if (this.selectedMethod) {
+      if (this.selectedMethod === 'trend') {
+        this.getTendancesAnalysis();
+      } else if (this.selectedMethod === 'descriptive') {
+        this.getDescriptiveAnalysis();
+      } else if (this.selectedMethod === 'correlation') {
+        this.getCorrelationAnalysis();
+      } else {
+        this.getComparativeAnalysis();
+      }
     }
   }
 
-  private async loadInitialData(): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, 1000));
+  onCitySearchInput(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.searchSubject.next(value);
   }
 
   filterCities(): void {
@@ -696,11 +1202,10 @@ export class AnalyseavanceComponent implements OnInit, OnDestroy, AfterViewInit 
       this.filteredCities = [...this.allCities];
     } else {
       const searchTerm = this.citySearchText.toLowerCase().trim();
-      this.filteredCities = this.allCities.filter(city => 
+      this.filteredCities = this.allCities.filter(city =>
         city.toLowerCase().includes(searchTerm)
       );
     }
-    this.cdr.detectChanges();
   }
 
   toggleCity(city: string): void {
@@ -715,22 +1220,16 @@ export class AnalyseavanceComponent implements OnInit, OnDestroy, AfterViewInit 
       this.selectedCities.push(city);
     }
     console.log('Villes sélectionnées:', this.selectedCities);
-   
-    this.cdr.detectChanges();
   }
 
   selectMajorCities(): void {
     this.selectedCities = [...this.majorCities];
     this.showNotification(`${this.majorCities.length} villes principales sélectionnées`, 'info');
-    
-    this.cdr.detectChanges();
   }
 
   selectAllCities(): void {
     this.selectedCities = [...this.allCities];
     this.showNotification(`Toutes les villes sélectionnées (${this.allCities.length})`, 'info');
-    
-    this.cdr.detectChanges();
   }
 
   clearAllCities(): void {
@@ -743,7 +1242,6 @@ export class AnalyseavanceComponent implements OnInit, OnDestroy, AfterViewInit 
     if (this.selectedMethod === 'compare') {
       this.getComparativeAnalysis();
     }
-    this.cdr.detectChanges();
   }
 
   trackByCity(index: number, city: string): string {
@@ -753,22 +1251,25 @@ export class AnalyseavanceComponent implements OnInit, OnDestroy, AfterViewInit 
   selectMethod(method: string): void {
     this.selectedMethod = method;
     console.log('Méthode sélectionnée:', method);
-    //this.loadAnalysisMethod();
-    this.cdr.detectChanges();
   }
 
   toggleParameter(parameter: string): void {
+    const availability = this.getParameterAvailability(parameter);
+    if (availability === 'unavailable') {
+      this.showNotification(`Le paramètre ${this.getParameterLabel(parameter)} n'est pas disponible pour la source et période sélectionnées`, 'warning');
+      return;
+    }
     const index = this.selectedParameters.indexOf(parameter);
     if (index > -1) {
       if (this.selectedParameters.length > 1) {
         this.selectedParameters.splice(index, 1);
+      } else {
+        this.showNotification('Au moins un paramètre doit être sélectionné', 'warning');
       }
     } else {
       this.selectedParameters.push(parameter);
     }
     console.log('Paramètres sélectionnés:', this.selectedParameters);
-    
-    this.cdr.detectChanges();
   }
 
   selectPeriod(period: string): void {
@@ -777,9 +1278,21 @@ export class AnalyseavanceComponent implements OnInit, OnDestroy, AfterViewInit 
     if (currentSourceAvailability === 'unavailable') {
       this.selectFirstAvailableSource();
     }
+    this.selectedParameters = this.selectedParameters.filter(param =>
+      this.getParameterAvailability(param) !== 'unavailable'
+    );
+    if (this.selectedParameters.length === 0) {
+      const availableParam = this.parameters.find(param =>
+        this.getParameterAvailability(param.value) !== 'unavailable'
+      );
+      if (availableParam) {
+        this.selectedParameters = [availableParam.value];
+        this.showNotification('Paramètres ajustés en fonction de la disponibilité', 'info');
+      } else {
+        this.showNotification('Aucun paramètre disponible pour cette période et source', 'warning');
+      }
+    }
     console.log('Période sélectionnée:', period);
-    
-    this.cdr.detectChanges();
   }
 
   selectSource(source: string): void {
@@ -789,9 +1302,21 @@ export class AnalyseavanceComponent implements OnInit, OnDestroy, AfterViewInit 
       return;
     }
     this.selectedSource = source;
+    this.selectedParameters = this.selectedParameters.filter(param =>
+      this.getParameterAvailability(param) !== 'unavailable'
+    );
+    if (this.selectedParameters.length === 0) {
+      const availableParam = this.parameters.find(param =>
+        this.getParameterAvailability(param.value) !== 'unavailable'
+      );
+      if (availableParam) {
+        this.selectedParameters = [availableParam.value];
+        this.showNotification('Paramètres ajustés en fonction de la disponibilité', 'info');
+      } else {
+        this.showNotification('Aucun paramètre disponible pour cette source et période', 'warning');
+      }
+    }
     console.log('Source sélectionnée:', source);
-    
-    this.cdr.detectChanges();
   }
 
   private selectFirstAvailableSource(): void {
@@ -801,52 +1326,6 @@ export class AnalyseavanceComponent implements OnInit, OnDestroy, AfterViewInit 
         break;
       }
     }
-  }
-
-  async updateAnalysis(): Promise<void> {
-    if (!this.searchText.trim()) {
-      this.showNotification('Veuillez entrer une localisation', 'warning');
-      return;
-    }
-    try {
-      this.loading = true;
-      this.cdr.detectChanges();
-      await this.loadDataForLocation(this.searchText);
-      this.showNotification(`Données mises à jour pour ${this.searchText}`, 'success');
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour:', error);
-      this.showNotification('Erreur lors de la mise à jour des données', 'error');
-    } finally {
-      this.loading = false;
-      this.cdr.detectChanges();
-    }
-  }
-
-  async launchAnalysis(): Promise<void> {
-    if (!this.canLaunchAnalysis()) {
-      return;
-    }
-    try {
-      this.loading = true;
-      this.cdr.detectChanges();
-      const citiesCount = this.selectedCities.length;
-      const parametersCount = this.selectedParameters.length;
-      this.showNotification(
-        `Analyse en cours pour ${citiesCount} ville(s) et ${parametersCount} paramètre(s)`,
-        'info'
-      );
-      this.showNotification('Analyse terminée avec succès', 'success');
-    } catch (error) {
-      console.error('Erreur lors de l\'analyse:', error);
-      this.showNotification('Erreur lors de l\'analyse', 'error');
-    } finally {
-      this.loading = false;
-      this.cdr.detectChanges();
-    }
-  }
-
-  private async loadDataForLocation(location: string): Promise<void> {
-    await new Promise(resolve => setTimeout(resolve, 1500));
   }
 
   getSourceAvailability(sourceValue: string): 'available' | 'limited' | 'unavailable' {
@@ -867,8 +1346,27 @@ export class AnalyseavanceComponent implements OnInit, OnDestroy, AfterViewInit 
     }
   }
 
+  getParameterAvailability(parameter: string): 'available' | 'limited' | 'unavailable' {
+    const value = this.parameterAvailability[this.selectedPeriod]?.[this.selectedSource]?.[parameter];
+    if (value === 'available' || value === 'limited' || value === 'unavailable') {
+      return value;
+    }
+    return 'unavailable';
+  }
+
+  getParameterAvailabilityText(parameter: string): string {
+    const status = this.getParameterAvailability(parameter);
+    switch (status) {
+      case 'available': return 'Disponible';
+      case 'limited': return 'Limité';
+      case 'unavailable': return 'Indisponible';
+      default: return 'Inconnu';
+    }
+  }
+
   canLaunchAnalysis(): boolean {
     return this.selectedParameters.length > 0 &&
+           this.selectedParameters.every(param => this.getParameterAvailability(param) !== 'unavailable') &&
            this.selectedCities.length > 0 &&
            !!this.selectedMethod &&
            !!this.selectedPeriod &&
@@ -917,14 +1415,6 @@ export class AnalyseavanceComponent implements OnInit, OnDestroy, AfterViewInit 
 
   getDifferenceCityPairs(param: string): string[] {
     return Object.keys(this.compare?.differences?.[param] || {});
-  }
-
-  getParameterLabel(param: string): string {
-    return this.parameters?.find(p => p.value === param)?.label || param;
-  }
-
-  getParameterUnit(param: string): string {
-    return this.parameters?.find(p => p.value === param)?.unit || '';
   }
 
   getCorrelationStatusClass(city: string, param1: string, param2: string): string {

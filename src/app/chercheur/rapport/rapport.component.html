@@ -1,289 +1,260 @@
-
-    <div class="container">
-        <div class="main-card">
-            <!-- Header -->
-            <div class="header">
-                <div class="header-content">
-                    <div>
-                        <h2 class="header-title text-light">Éditeur de Rapport Climatique</h2>
-                        <p class="header-subtitle">Créez des rapports d'analyses climatiques détaillées et professionnelles</p>
-                    </div>
-                    <div class="header-buttons">
-                        <button id="togglePreview" class="btn btn-header">
-                            <i data-lucide="eye" class="icon"></i>
-                            <span id="previewText">Aperçu</span>
-                        </button>
-                        <button id="exportReport" class="btn btn-header">
-                            <i data-lucide="download" class="icon"></i>
-                            Exporter
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Main Content -->
-            <div id="mainContent" class="main-content">
-                <!-- Sidebar -->
-                <div class="sidebar">
-                    <h2 class="sidebar-title">Sections du Rapport</h2>
-                    <nav id="sectionNav">
-                        <button class="nav-item active" data-section="overview">
-                            <i data-lucide="file-text" class="icon-sm"></i>
-                            Vue d'ensemble
-                        </button>
-                        <button class="nav-item" data-section="methodology">
-                            <i data-lucide="sun" class="icon-sm"></i>
-                            Méthodologie
-                        </button>
-                        <button class="nav-item" data-section="analysis">
-                            <i data-lucide="thermometer" class="icon-sm"></i>
-                            Analyse des Données
-                        </button>
-                        <button class="nav-item" data-section="findings">
-                            <i data-lucide="cloud-rain" class="icon-sm"></i>
-                            Résultats Clés
-                        </button>
-                        <button class="nav-item" data-section="recommendations">
-                            <i data-lucide="wind" class="icon-sm"></i>
-                            Recommandations
-                        </button>
-                        <button class="nav-item" data-section="conclusion">
-                            <i data-lucide="eye" class="icon-sm"></i>
-                            Conclusion
-                        </button>
-                    </nav>
-                </div>
-
-                <!-- Content Area -->
-                <div class="content-area">
-                    <!-- Overview Section -->
-                    <div id="overview-section" class="section-content">
-                        <div class="grid grid-2">
-                            <div class="form-group">
-                                <label class="form-label">Titre du Rapport</label>
-                                <input type="text" id="title" class="form-input" placeholder="Titre de l'analyse climatique" value="Analyse Climatique Régionale">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">
-                                    <i data-lucide="map-pin" class="icon-sm" style="display: inline; margin-right: 0.25rem;"></i>
-                                    Région d'Étude
-                                </label>
-                                <input type="text" id="region" class="form-input" placeholder="ex: Sahel Ouest-Africain">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">
-                                    <i data-lucide="calendar" class="icon-sm" style="display: inline; margin-right: 0.25rem;"></i>
-                                    Période d'Analyse
-                                </label>
-                                <input type="text" id="period" class="form-input" placeholder="ex: 2020-2024">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Auteur</label>
-                                <input type="text" id="author" class="form-input" placeholder="Nom de l'analyste">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Résumé Exécutif</label>
-                            <textarea id="executiveSummary" class="form-input form-textarea" placeholder="Résumé des principales conclusions et implications de l'analyse climatique..." rows="6"></textarea>
-                        </div>
-                    </div>
-
-                    <!-- Methodology Section -->
-                    <div id="methodology-section" class="section-content hidden">
-                        <div class="form-group">
-                            <label class="form-label">Méthodologie d'Analyse</label>
-                            <textarea id="methodology" class="form-input form-textarea" placeholder="Décrivez les méthodes, sources de données, outils d'analyse utilisés..." rows="8"></textarea>
-                        </div>
-                    </div>
-
-                    <!-- Analysis Section -->
-                    <div id="analysis-section" class="section-content hidden">
-                        <div class="grid" style="gap: 1.5rem;">
-                            <!-- Temperature Analysis -->
-                            <div class="analysis-card temperature">
-                                <h3 class="analysis-title temperature">
-                                    <i data-lucide="thermometer" class="icon"></i>
-                                    Analyse des Températures
-                                </h3>
-                                <div class="grid grid-3">
-                                    <div class="form-group">
-                                        <label class="form-label">Température Moyenne</label>
-                                        <input type="text" id="tempAverage" class="form-input" placeholder="ex: 28.5°C">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Tendance</label>
-                                        <input type="text" id="tempTrend" class="form-input" placeholder="ex: +1.2°C/décennie">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Anomalies</label>
-                                        <input type="text" id="tempAnomalies" class="form-input" placeholder="ex: Vagues de chaleur récurrentes">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Precipitation Analysis -->
-                            <div class="analysis-card precipitation">
-                                <h3 class="analysis-title precipitation">
-                                    <i data-lucide="cloud-rain" class="icon"></i>
-                                    Analyse des Précipitations
-                                </h3>
-                                <div class="grid grid-3">
-                                    <div class="form-group">
-                                        <label class="form-label">Total Annuel</label>
-                                        <input type="text" id="precipTotal" class="form-input" placeholder="ex: 850mm">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Modèle Saisonnier</label>
-                                        <input type="text" id="precipPattern" class="form-input" placeholder="ex: Bimodal juin-sept">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Événements Extrêmes</label>
-                                        <input type="text" id="precipExtremes" class="form-input" placeholder="ex: Sécheresses prolongées">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Wind Analysis -->
-                            <div class="analysis-card wind">
-                                <h3 class="analysis-title wind">
-                                    <i data-lucide="wind" class="icon"></i>
-                                    Analyse des Vents
-                                </h3>
-                                <div class="grid grid-3">
-                                    <div class="form-group">
-                                        <label class="form-label">Vitesse Moyenne</label>
-                                        <input type="text" id="windSpeed" class="form-input" placeholder="ex: 3.2 m/s">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Direction Dominante</label>
-                                        <input type="text" id="windDirection" class="form-input" placeholder="ex: Nord-Est">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Modèles Saisonniers</label>
-                                        <input type="text" id="windPatterns" class="form-input" placeholder="ex: Harmattan déc-fév">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Findings Section -->
-                    <div id="findings-section" class="section-content hidden">
-                        <div class="array-section">
-                            <div class="array-header">
-                                <h3 class="array-title">Résultats Clés</h3>
-                                <button id="addFinding" class="btn btn-primary">
-                                    <i data-lucide="plus" class="icon-sm"></i>
-                                    Ajouter
-                                </button>
-                            </div>
-                            <div id="findingsContainer">
-                                <div class="array-item">
-                                    <textarea class="form-input form-textarea finding-input" placeholder="Résultat 1" rows="2"></textarea>
-                                    <button class="btn btn-danger remove-finding hidden">
-                                        <i data-lucide="trash-2" class="icon-sm"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Recommendations Section -->
-                    <div id="recommendations-section" class="section-content hidden">
-                        <div class="array-section">
-                            <div class="array-header">
-                                <h3 class="array-title">Recommandations</h3>
-                                <button id="addRecommendation" class="btn btn-primary">
-                                    <i data-lucide="plus" class="icon-sm"></i>
-                                    Ajouter
-                                </button>
-                            </div>
-                            <div id="recommendationsContainer">
-                                <div class="array-item">
-                                    <textarea class="form-input form-textarea recommendation-input" placeholder="Recommandation 1" rows="2"></textarea>
-                                    <button class="btn btn-danger remove-recommendation hidden">
-                                        <i data-lucide="trash-2" class="icon-sm"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Conclusion Section -->
-                    <div id="conclusion-section" class="section-content hidden">
-                        <div class="form-group">
-                            <label class="form-label">Conclusion Générale</label>
-                            <textarea id="conclusion" class="form-input form-textarea" placeholder="Synthèse des résultats, implications pour les politiques climatiques, perspectives futures..." rows="6"></textarea>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Preview Content -->
-            <div id="previewContent" class="hidden" style="padding: 1.5rem;">
-                <div class="preview-container">
-                    <div class="preview-header">
-                        <h1 id="previewTitle" class="preview-title">Analyse Climatique Régionale</h1>
-                        <div class="preview-meta">
-                            <p><strong>Région:</strong> <span id="previewRegion">-</span></p>
-                            <p><strong>Période:</strong> <span id="previewPeriod">-</span></p>
-                            <p><strong>Auteur:</strong> <span id="previewAuthor">-</span></p>
-                            <p><strong>Date:</strong> <span id="previewDate">-</span></p>
-                        </div>
-                    </div>
-
-                    <div id="previewExecutiveSummary" class="preview-section hidden">
-                        <h2 class="preview-section-title">Résumé Exécutif</h2>
-                        <p class="preview-text"></p>
-                    </div>
-
-                    <div id="previewMethodology" class="preview-section hidden">
-                        <h2 class="preview-section-title">Méthodologie</h2>
-                        <p class="preview-text"></p>
-                    </div>
-
-                    <div class="preview-section">
-                        <h2 class="preview-section-title">Analyse des Données Climatiques</h2>
-                        <div class="preview-grid">
-                            <div class="preview-card temperature">
-                                <h3 class="preview-card-title temperature">Température</h3>
-                                <p class="preview-text"><strong>Moyenne:</strong> <span id="previewTempAvg">-</span></p>
-                                <p class="preview-text"><strong>Tendance:</strong> <span id="previewTempTrend">-</span></p>
-                            </div>
-                            <div class="preview-card precipitation">
-                                <h3 class="preview-card-title precipitation">Précipitations</h3>
-                                <p class="preview-text"><strong>Total:</strong> <span id="previewPrecipTotal">-</span></p>
-                                <p class="preview-text"><strong>Modèle:</strong> <span id="previewPrecipPattern">-</span></p>
-                            </div>
-                            <div class="preview-card wind">
-                                <h3 class="preview-card-title wind">Vent</h3>
-                                <p class="preview-text"><strong>Vitesse:</strong> <span id="previewWindSpeed">-</span></p>
-                                <p class="preview-text"><strong>Direction:</strong> <span id="previewWindDirection">-</span></p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="previewFindings" class="preview-section hidden">
-                        <h2 class="preview-section-title">Résultats Clés</h2>
-                        <ol id="previewFindingsList" class="preview-list"></ol>
-                    </div>
-
-                    <div id="previewRecommendations" class="preview-section hidden">
-                        <h2 class="preview-section-title">Recommandations</h2>
-                        <ol id="previewRecommendationsList" class="preview-list"></ol>
-                    </div>
-
-                    <div id="previewConclusion" class="preview-section hidden">
-                        <h2 class="preview-section-title">Conclusion</h2>
-                        <p class="preview-text"></p>
-                    </div>
-                </div>
-            </div>
+<div class="report-editor">
+  <!-- Mode Aperçu -->
+  <div *ngIf="previewMode" class="preview-mode">
+    <div class="preview-header">
+      <h1 class="preview-title">Aperçu du Rapport</h1>
+      <div class="preview-actions">
+        <button class="btn btn-primary " (click)="togglePreview()">
+        <i class="bi bi-pencil-square"></i>
+          Modifier
+        </button>
+        <button class="btn btn-success" (click)="exportToPDF()">
+          <i class="bi bi-download"></i>
+          Exporter PDF
+        </button>
+      </div>
+    </div>
+    
+    <div class="preview-content">
+      <div class="report-header">
+        <h1 class="report-main-title">{{ report.title || 'Titre du Rapport' }}</h1>
+        <h2 *ngIf="report.subtitle" class="report-subtitle">{{ report.subtitle }}</h2>
+        <div class="report-meta">
+          <span>Auteur: {{ report.author || 'Non spécifié' }}</span>
+          <span>Date: {{ report.date }}</span>
+          <span>Localisation: {{ report.location || 'Non spécifiée' }}</span>
         </div>
+      </div>
+
+      <div *ngIf="report.executive_summary" class="executive-summary">
+        <h3 class="summary-title">Résumé Exécutif</h3>
+        <div class="summary-content" [innerHTML]="formatTextWithMarkdown(report.executive_summary)"></div>
+      </div>
+
+      <div *ngFor="let section of report.sections; let i = index" class="report-section">
+        <h3 class="section-title">{{ i + 1 }}. {{ section.title }}</h3>
+        <div *ngIf="section.type === 'chart'; else textContent" class="chart-placeholder">
+          <i class="bi bi-bar-chart chart-preview-icon"></i>
+          <p>Graphique: {{ section.chartData?.title }}</p>
+        </div>
+        <ng-template #textContent>
+          <div class="section-content" [innerHTML]="formatTextWithMarkdown(section.content || 'Contenu à rédiger...')"></div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mode Édition -->
+  <div *ngIf="!previewMode" class="editor-mode">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header bg-primary ">
+        <h1 class="sidebar-title text-light">
+          <i class="bi bi-file-earmark-text "></i>
+          Éditeur de Rapport
+        </h1>
+        <p class="sidebar-subtitle">Données Climatiques</p>
+      </div>
+
+      <div class="sidebar-content">
+        <!-- Informations générales -->
+        <div class="form-group">
+          <label class="form-label">Titre du Rapport</label>
+          <input 
+            type="text" 
+            class="form-input"
+            [(ngModel)]="report.title"
+            placeholder="Analyse Climatique 2024"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Informations Générales</label>
+          <div class="input-group">
+            <input 
+              type="text" 
+              class="form-input-sm"
+              [(ngModel)]="report.author"
+              placeholder="Auteur"
+            />
+            <div class="input-with-icon">
+              <i class="bi bi-geo-alt"></i>
+              <input 
+                type="text" 
+                class="form-input-sm"
+                [(ngModel)]="report.location"
+                placeholder="Localisation"
+              />
+            </div>
+            <div class="input-with-icon">
+              <i class="bi bi-calendar-date"></i>
+              <input 
+                type="date" 
+                class="form-input-sm"
+                [(ngModel)]="report.date"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Sections du rapport -->
+        <div class="sections-group">
+          <h3 class="sections-title">Sections du Rapport</h3>
+          <div class="sections-list">
+            <div 
+              *ngFor="let section of report.sections; let i = index" 
+              class="section-item"
+              [class.active]="activeSection === section.id"
+              (click)="setActiveSection(section.id)"
+            >
+              <div class="section-item-content">
+                <i [ngClass]="'bi bi-' + getSectionIcon(section.type)"></i>
+                <span class="section-item-title">{{ i + 1 }}. {{ section.title }}</span>
+              </div>
+              <button 
+                class="section-delete-btn"
+                (click)="deleteSection(section.id); $event.stopPropagation()"
+                *ngIf="report.sections.length > 1"
+              >
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="add-section-buttons">
+            <button class="btn btn-sm btn-primary" (click)="addSection('text')">
+              <i class="bi bi-plus-circle"></i>
+              Texte
+            </button>
+            <button class="btn btn-sm btn-success" (click)="addSection('chart')">
+              <i class="bi bi-bar-chart"></i>
+              Résultat
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <script src="climate-report.js"></script>
-    <script>
-        // Initialize Lucide icons
-        lucide.createIcons();
-    </script>
+    <!-- Contenu principal -->
+    <div class="main-content">
+      <div class="main-header">
+        <h2 class="main-title">
+          {{ getActiveSection()?.title || 'Sélectionner une section' }}
+        </h2>
+        <div class="main-actions">
+          <button class="btn btn-warning" (click)="togglePreview()">
+            <i class="bi bi-eye"></i>
+            Aperçu
+          </button>
+          <button class="btn btn-primary" (click)="saveReport()">
+            <i class="bi bi-floppy"></i>
+            Sauvegarder
+          </button>
+        </div>
+      </div>
+
+      <div class="main-body">
+        <div *ngIf="getActiveSection(); else noSelection">
+          <!-- Titre de la section -->
+          <div class="form-group">
+            <label class="form-label">Titre de la Section</label>
+            <input 
+              type="text" 
+              class="form-input"
+              [value]="getActiveSection()?.title"
+              (input)="onSectionTitleChange(activeSection, $any($event.target).value)"
+            />
+          </div>
+
+          <!-- Contenu graphique -->
+          <div *ngIf="getActiveSection()?.type === 'chart'; else textEditor">
+            <div class="form-group">
+              <label class="form-label">Type de Graphique</label>
+              <select 
+                class="form-select"
+                [value]="getActiveSection()?.chartData?.type"
+                (change)="onChartTypeChange(activeSection, $any($event.target).value)"
+              >
+                <option *ngFor="let chartType of chartTypes" [value]="chartType.value">
+                  {{ chartType.label }}
+                </option>
+              </select>
+            </div>
+            
+            <div class="chart-config">
+              <div class="chart-placeholder-large">
+                <button class="btn btn-primary" (click)="configureChartData()">
+                  <i class="bi bi-plus"></i>
+                  Ajouter un résultat 
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Éditeur de texte -->
+          <ng-template #textEditor>
+            <div class="form-group">
+              <label class="form-label">Contenu</label>
+              
+              <!-- Barre d'outils de formatage -->
+              <div class="formatting-toolbar">
+                <!-- Groupe de formatage de base -->
+                <div class="toolbar-group">
+                  <button 
+                    type="button"
+                    class="toolbar-btn" 
+                    (click)="insertFormatting('bold')"
+                    title="Gras (Ctrl+B)"
+                  >
+                    <i class="bi bi-type-bold"></i>
+                  </button>
+                  <button 
+                    type="button"
+                    class="toolbar-btn" 
+                    (click)="insertFormatting('italic')"
+                    title="Italique (Ctrl+I)"
+                  >
+                    <i class="bi bi-type-italic"></i>
+                  </button>
+                  <button 
+                    type="button"
+                    class="toolbar-btn" 
+                    (click)="insertFormatting('underline')"
+                    title="Souligné (Ctrl+U)"
+                  >
+                    <i class="bi bi-type-underline"></i>
+                  </button>
+                  <button 
+                    type="button"
+                    class="toolbar-btn" 
+                    (click)="insertFormatting('strikethrough')"
+                    title="Barré"
+                  >
+                    <i class="bi bi-type-strikethrough"></i>
+                  </button>
+                </div>
+
+               
+              </div>
+
+              <textarea 
+                class="form-textarea"
+                [value]="getActiveSection()?.content"
+                (input)="onSectionContentChange(activeSection, $any($event.target).value)"
+                placeholder="Rédigez le contenu de cette section... Vous pouvez utiliser la barre d'outils pour le formatage."
+              ></textarea>
+              
+            </div>
+          </ng-template>
+        </div>
+
+        <ng-template #noSelection>
+          <div class="no-selection">
+            <i class="bi bi-file-earmark-text no-selection-icon"></i>
+            <p>Sélectionnez une section pour commencer à rédiger</p>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</div>

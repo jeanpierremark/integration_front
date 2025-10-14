@@ -84,6 +84,10 @@ export class EtudiantvisualisationComponent implements OnInit, OnDestroy {
   selectedSource: string = 'climate_data_weather';
   source = "Weather API";
 
+  user_id : any =  sessionStorage.getItem('id')
+  action = ''
+  statut : boolean = false
+  
   //Graph type
   graph:any  ='line'
 
@@ -96,11 +100,6 @@ export class EtudiantvisualisationComponent implements OnInit, OnDestroy {
   // Date et heure actuelle 
   dateHeureActuelle$: any;
   intervalId: any;
-  
-  //Saving someone action
-  user_id : any =  sessionStorage.getItem('id')
-  action = ''
-  statut : boolean = false
 
   // Date et heure
   moisEtAnnee: string = '';
@@ -112,7 +111,10 @@ export class EtudiantvisualisationComponent implements OnInit, OnDestroy {
   
   // Charts pour chaque paramètre
   parameterCharts: { [key: string]: Chart | null } = {};
-  
+
+  //Ville
+  ville : string = ''
+
   // Charts d'analyse
   accuracyChart: Chart<'doughnut', number[], unknown> | null = null;
   deviationChart: Chart | null = null;
@@ -205,19 +207,21 @@ export class EtudiantvisualisationComponent implements OnInit, OnDestroy {
     this.setupDateTimeObservable();
     this.setupIntervals();
   }
+  
+ngOnDestroy() {
+  this.clearAllIntervals();
+  this.destroyAllCharts();
+  if (this.refreshInterval) {
+    clearInterval(this.refreshInterval);
+  }
+}
 
- /* ngOnDestroy() {
-    this.clearAllIntervals();
-    if (this.refreshInterval) {
-      clearInterval(this.refreshInterval);
-    }
-  }*/
 
   private async initializeComponent(): Promise<void> {
     try {
-      this.loading = true;
-      this.cdr.detectChanges(); // Force update for OnPush
-
+        this.cdr.detectChanges(); 
+        this.loading = true;
+        this.ville = this.searchText
       // Charger les données initiales en parallèle
       await Promise.all([
         this.getlasthourdata(this.selectedSource, this.searchText),
@@ -226,7 +230,7 @@ export class EtudiantvisualisationComponent implements OnInit, OnDestroy {
 
       // Charger les données pour les graphiques
       await this.getdataforgraph(this.selectedSource, this.searchText, this.selectedPeriod);
-
+   
     } catch (error) {
       console.error('Erreur lors de l\'initialisation:', error);
     } finally {
@@ -413,8 +417,7 @@ export class EtudiantvisualisationComponent implements OnInit, OnDestroy {
 
           }
           resolve();
-        },
-        error: (error) => {
+        }, error: (error) => {
            if (error.error.message == "Token expiré"){
             this.user_service.logout()
             this.router.navigate(["/connexion"])
@@ -664,85 +667,7 @@ async getdataforgraph(source: string, ville: string, periode: string): Promise<v
   }
 }
 
-//Download Image
-  downloadCardAsImage(className: string, fileName: string = 'resultat_image.png'): void {
-    const card: HTMLElement | null = document.querySelector(`.${className}`);
-    if (!card) {
-      console.error("Aucun élément avec la classe spécifiée n'a été trouvé.");
-      return;
-    }
 
-    const script: HTMLScriptElement = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-    script.onload = (): void => {
-      (window as any).html2canvas(card).then((canvas: HTMLCanvasElement) => {
-        const image: string = canvas.toDataURL('image/png');
-        const link: HTMLAnchorElement = document.createElement('a');
-        link.href = image;
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        this.showNotification("Image téléchargée avec succès", 'success');
-        this.action ='L\'utilisateur à télécharger une visualisation'
-        this.statut = true
-        this.save_do_something(this.user_id,this.action,this.statut)
-      }).catch((error: Error) => {
-        console.error('Erreur lors de la création de l\'image:', error);
-      });
-    };
-    script.onerror = (): void => {
-      console.error('Erreur lors du chargement de html2canvas.');
-       this.action ='L\'utilisateur tente télécharger une visualisation'
-        this.statut = false
-        this.save_do_something(this.user_id,this.action,this.statut)
-    };
-    document.head.appendChild(script);
-  }
-
-  save_do_something(id: number, action: string, statut: boolean) {
-   console.log('Calling save_do_something with:', { id, action, statut });
-   if (!id) {
-      console.error('User ID is not available');
-      this.showNotification('ID utilisateur non disponible', 'error');
-      return;
-   }
-   this.user_service.do_something(id, action, statut).subscribe({
-      next: (response) => {
-         console.log('Activity saved successfully:', response.body);
-      },
-      error: (error: HttpErrorResponse) => {
-         if (error.error.message == "Token expiré"){
-          this.user_service.logout()
-          this.router.navigate(["/connexion"])
-        }
-         console.error('Error saving activity:', error);
-      }
-   });
-}
-
-showNotification(message: string, type: 'success' | 'error' | 'warning' | 'info'): void {
-    Swal.fire({
-      toast: true,
-      icon: type,
-      title: message,
-      position: 'top-end',
-      showConfirmButton: false,
-      timer: 6000,
-      timerProgressBar: true
-    });
-    this.cdr.detectChanges();
-  }
-
-
-// Modifiez aussi votre ngOnDestroy pour inclure la destruction des graphiques
-ngOnDestroy() {
-  this.clearAllIntervals();
-  this.destroyAllCharts();
-  if (this.refreshInterval) {
-    clearInterval(this.refreshInterval);
-  }
-}
 
 
 
@@ -809,14 +734,77 @@ ngOnDestroy() {
     this.getdataforgraph(this.selectedSource, this.searchText, this.selectedPeriod);
     }
 
+//Download Image
+  downloadCardAsImage(className: string, fileName: string = 'resultat_image.png'): void {
+    const card: HTMLElement | null = document.querySelector(`.${className}`);
+    if (!card) {
+      console.error("Aucun élément avec la classe spécifiée n'a été trouvé.");
+      return;
+    }
 
-    
+    const script: HTMLScriptElement = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    script.onload = (): void => {
+      (window as any).html2canvas(card).then((canvas: HTMLCanvasElement) => {
+        const image: string = canvas.toDataURL('image/png');
+        const link: HTMLAnchorElement = document.createElement('a');
+        link.href = image;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        this.showNotification("Image téléchargée avec succès", 'success');
+        this.action ='L\'utilisateur à télécharger une visualistation'
+        this.statut = true
+        this.save_do_something(this.user_id,this.action,this.statut)
+      }).catch((error: Error) => {
+        console.error('Erreur lors de la création de l\'image:', error);
+      });
+    };
+    script.onerror = (): void => {
+      console.error('Erreur lors du chargement de html2canvas.');
+       this.action ='L\'utilisateur tente télécharger une visualisation'
+        this.statut = false
+        this.save_do_something(this.user_id,this.action,this.statut)
+    };
+    document.head.appendChild(script);
+  }
 
-
-//Pour aller dans avancé
-analyseavance(){
-  this.router.navigate(["/chercheur/analyse/avance"])
+  save_do_something(id: number, action: string, statut: boolean) {
+   console.log('Calling save_do_something with:', { id, action, statut });
+   if (!id) {
+      console.error('User ID is not available');
+      this.showNotification('ID utilisateur non disponible', 'error');
+      return;
+   }
+   this.user_service.do_something(id, action, statut).subscribe({
+      next: (response) => {
+         console.log('Activity saved successfully:', response.body);
+      },
+      error: (error: HttpErrorResponse) => {
+         if (error.error.message == "Token expiré"){
+          this.user_service.logout()
+          this.router.navigate(["/connexion"])
+        }
+         console.error('Error saving activity:', error);
+      }
+   });
 }
+
+showNotification(message: string, type: 'success' | 'error' | 'warning' | 'info'): void {
+    Swal.fire({
+      toast: true,
+      icon: type,
+      title: message,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 6000,
+      timerProgressBar: true
+    });
+    this.cdr.detectChanges();
+  }
+
+
 
 
   // Fonction de tracking pour ngFor (optimisation des performances)

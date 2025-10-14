@@ -15,6 +15,7 @@ interface User {
   statut: string;
   age : number;
   genre: string;
+  connected:string;
   dateCreation: string;
   derniereConnexion: string;
   avatar: string;
@@ -139,6 +140,7 @@ export class UserComponent implements OnInit {
             age : user.age,
             genre:user.genre=='M'?'Homme':'Femme',
             statut: user.isActive ? 'Actif' : 'Suspendu',
+            connected: user.connected ? 'Connecté' : 'Déconnecté',
             dateCreation: user.inscription,
             derniereConnexion: user.last_connexion == null ? 'Jamais connecté' : new Date(user.last_connexion).toISOString().slice(0, 16).replace('T', ' '),
             avatar: user.avatar || (user.prenom.charAt(0) + user.nom.charAt(0))
@@ -276,6 +278,7 @@ debugModalData(): void {
         id: this.users.length > 0 ? Math.max(...this.users.map(u => u.id)) + 1 : 1,
         dateCreation: new Date().toISOString().split('T')[0],
         derniereConnexion: 'Jamais connecté',
+        connected:'Déconnecté',
         avatar: this.formData.prenom.charAt(0) + this.formData.nom.charAt(0)
       };
      this.admin_service.add_user(user).subscribe({

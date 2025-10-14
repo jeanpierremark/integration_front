@@ -8,18 +8,14 @@
             (mouseenter)="hovered = true"
             (mouseleave)="hovered = false"
             >
-            <div class="btn-group bg-light rounded-lg p-1" role="group">
-                <button
+                <div
                 (click)="logOut()"
                 class="btn btn-sm d-flex align-items-center gap-2 px-3 py-1 rounded border-0 shadow-sm"
-                [ngClass]="hovered ? 'text-danger bg-bg-light' : 'text-primary bg-light'"
+                [ngClass]="hovered ? 'text-danger bg-light' : 'text-primary bg-light'"
                 style="transition: all 0.2s ease;"
                 >
                 <i class="bi bi-box-arrow-right" [ngClass]="hovered ? 'text-danger' : 'text-primary'"></i>
-                <span class="small fw-medium" [ngClass]="hovered ? 'text-danger' : 'text-primary'">
-                    Déconnexion
-                </span>
-                </button>
+                
             </div>
             </div>
 
@@ -52,7 +48,7 @@
                 <a routerLink="/chercheur/rapport" class="nav-item">Rédiger un rapport</a>
             </div>
             <div class="nav-item-wrapper" [class.active]="activeLink === 'prevision'" (click)="setActive('prevision')">
-                <a routerLink="/chercheur/#" class="nav-item">Prévision</a>
+                <a routerLink="/chercheur/prevision" class="nav-item">Prévision</a>
             </div>
         </div>
     </div>

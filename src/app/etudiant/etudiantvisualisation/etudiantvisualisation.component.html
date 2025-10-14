@@ -15,7 +15,7 @@
             </div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
             <div class="search-bar" style="margin-left: 50px;">
-                  <input type="text" class="form-control" placeholder="Recherche..."[(ngModel)]="searchText"/>
+                  <input type="text" class="form-control" placeholder="Recherche..." [(ngModel)]="searchText"/>
                   <i  style="color: #3b82f6; font-size:30px;" class="bi bi-search search-icon" (click)="getdataforgraph(selectedSource,searchText,selectedPeriod)"></i>
             </div>
             
@@ -64,9 +64,7 @@
                 <option *ngFor="let source of sources" [value]="source.value">
                   {{ source.label }}
                 </option>
-              </select>
-              
-            
+              </select>            
             </div>
             
           </div>
@@ -143,9 +141,9 @@
             
             <!-- Chart Container -->
              <div>
-              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '24h'">{{parameters[0].label}} 24 dernières heures</div>
-              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '7d'">{{parameters[0].label}} 7 derniers jours</div>
-              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '30d'">{{parameters[0].label}} 30 derniers jours</div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '24h'">{{parameters[0].label}} 24 dernières heures {{ville}}</div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '7days'">{{parameters[0].label}} 7 derniers jours {{ville}}</div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '30days'">{{parameters[0].label}} 30 derniers jours {{ville}}</div>
             </div><br>
 
             <div style="height: 250px; position: relative;">
@@ -180,9 +178,9 @@
             
             <!-- Chart Container -->
              <div>
-              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '24h'">{{parameters[1].label}} 24 dernières heures</div>
-              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '7d'">{{parameters[1].label}} 7 derniers jours</div>
-              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '30d'">{{parameters[1].label}} 30 derniers jours</div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '24h'">{{parameters[1].label}} 24 dernières heures {{ville}}</div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '7days'">{{parameters[1].label}} 7 derniers jours {{ville}}</div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '30days'">{{parameters[1].label}} 30 derniers jours {{ville}}</div>
             </div><br>
             <div style="height: 250px; position: relative;">
               <canvas [id]="parameters[1].value"></canvas>
@@ -217,9 +215,9 @@
           </div>
           <div class="card-body-prec">
             <div>
-              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '24h'">{{parameters[2].label}} 24 dernières heures</div>
-              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '7d'">{{parameters[2].label}} 7 derniers jours</div>
-              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '30d'">{{parameters[2].label}} 30 derniers jours</div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '24h'">{{parameters[2].label}} 24 dernières heures {{ville}}</div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '7days'">{{parameters[2].label}} 7 derniers jours {{ville}}</div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '30days'">{{parameters[2].label}} 30 derniers jours {{ville}}</div>
             </div><br>
 
             <!-- Chart Container -->
@@ -254,9 +252,9 @@
           </div>
           <div class="card-body-pres">
               <div>
-              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '24h'">{{parameters[3].label}} 24 dernières heures</div>
-              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '7d'">{{parameters[3].label}} 7 derniers jours</div>
-              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '30d'">{{parameters[3].label}} 30 derniers jours</div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '24h'">{{parameters[3].label}} 24 dernières heures {{ville}}</div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '7days'">{{parameters[3].label}} 7 derniers jours {{ville}}</div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '30days'">{{parameters[3].label}} 30 derniers jours {{ville}}</div>
             </div><br>
           
             <!-- Chart Container -->
@@ -292,9 +290,9 @@
           </div>
           <div class="card-body-vent">
               <div>
-              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '24h'">{{parameters[4].label}} 24 dernières heures</div>
-              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '7d'">{{parameters[4].label}} 7 derniers jours</div>
-              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '30d'">{{parameters[4].label}} 30 derniers jours</div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '24h'">{{parameters[4].label}} 24 dernières heures {{ville}}</div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '7days'">{{parameters[4].label}} 7 derniers jours {{ville}}</div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '30days'">{{parameters[4].label}} 30 derniers jours {{ville}}</div>
             </div><br>
             
             <!-- Chart Container -->
@@ -329,9 +327,9 @@
           </div>
           <div class="card-body-neb">
               <div>
-              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '24h'">{{parameters[5].label}} 24 dernières heures</div>
-              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '7d'">{{parameters[5].label}} 7 derniers jours</div>
-              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '30d'">{{parameters[5].label}} 30 derniers jours</div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '24h'">{{parameters[5].label}} 24 dernières heures {{ville}}</div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '7days'">{{parameters[5].label}} 7 derniers jours {{ville}}</div>
+              <div style="text-align: center;" class="fs-6 fw-small text-secondary" *ngIf="selectedPeriod == '30days'">{{parameters[5].label}} 30 derniers jours {{ville}}</div>
             </div><br>
         
             <!-- Chart Container -->

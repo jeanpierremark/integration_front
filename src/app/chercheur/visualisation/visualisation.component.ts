@@ -81,8 +81,8 @@ export class VisualisationComponent implements OnInit, OnDestroy {
   private intervalId1: any;
   private intervalId2: any;
   loading = true;  // Initial loading state
-  selectedSource: string = 'climate_data_weather';
-  source = "Weather API";
+  selectedSource: string = 'climate_data_openweather';
+  source = "Open Weather";
 
   user_id : any =  sessionStorage.getItem('id')
   action = ''
@@ -111,7 +111,10 @@ export class VisualisationComponent implements OnInit, OnDestroy {
   
   // Charts pour chaque paramètre
   parameterCharts: { [key: string]: Chart | null } = {};
-  
+
+  //Ville
+  ville : string = ''
+
   // Charts d'analyse
   accuracyChart: Chart<'doughnut', number[], unknown> | null = null;
   deviationChart: Chart | null = null;
@@ -205,18 +208,20 @@ export class VisualisationComponent implements OnInit, OnDestroy {
     this.setupIntervals();
   }
 
- /* ngOnDestroy() {
-    this.clearAllIntervals();
-    if (this.refreshInterval) {
-      clearInterval(this.refreshInterval);
-    }
-  }*/
+ 
+ngOnDestroy() {
+  this.clearAllIntervals();
+  this.destroyAllCharts();
+  if (this.refreshInterval) {
+    clearInterval(this.refreshInterval);
+  }
+}
 
   private async initializeComponent(): Promise<void> {
     try {
-      this.loading = true;
-      this.cdr.detectChanges(); // Force update for OnPush
-
+        this.cdr.detectChanges(); 
+        this.loading = true;
+        this.ville = this.searchText
       // Charger les données initiales en parallèle
       await Promise.all([
         this.getlasthourdata(this.selectedSource, this.searchText),
@@ -225,7 +230,7 @@ export class VisualisationComponent implements OnInit, OnDestroy {
 
       // Charger les données pour les graphiques
       await this.getdataforgraph(this.selectedSource, this.searchText, this.selectedPeriod);
-
+   
     } catch (error) {
       console.error('Erreur lors de l\'initialisation:', error);
     } finally {
@@ -436,7 +441,7 @@ export class VisualisationComponent implements OnInit, OnDestroy {
       this.quickStats[2].trend = this.current_data['pression'] - this.latest_data['pression'] || 0
       this.quickStats[3].trend = this.current_data['vitesse_vent'] - this.latest_data['vitesse_vent'] || 0
       
-      this.cdr.detectChanges(); // Force update for OnPush
+      this.cdr.detectChanges(); 
     }
   }
 
@@ -662,14 +667,6 @@ async getdataforgraph(source: string, ville: string, periode: string): Promise<v
   }
 }
 
-// Modifiez aussi votre ngOnDestroy pour inclure la destruction des graphiques
-ngOnDestroy() {
-  this.clearAllIntervals();
-  this.destroyAllCharts();
-  if (this.refreshInterval) {
-    clearInterval(this.refreshInterval);
-  }
-}
 
 
 

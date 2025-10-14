@@ -65,4 +65,8 @@ export class AdminService {
    return this.http.delete<any>('http://localhost:3001/users/api/user/delete/'+id,{ observe: 'response',headers:this.httpOptions.headers});
   }
 
+  user_log(id:number){
+   return this.http.get<any>('http://localhost:3001/users/api/user/log/'+id,{ observe: 'response',headers:this.httpOptions.headers});
+  }
+
 }

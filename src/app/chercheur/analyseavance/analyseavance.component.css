@@ -1013,9 +1013,9 @@
 }
 
 .reliability-indicator.medium-reliability {
-  background-color: #FFF3E0;
-  color: #F57C00;
-  border: 1px solid #FF9800;
+  background-color: #E8F5E8;
+  color: #2E7D32;
+  border: 1px solid #4CAF50;
 }
 
 .reliability-indicator.low-reliability {

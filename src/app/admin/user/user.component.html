@@ -118,6 +118,7 @@
             <th class="fw-bold text-dark">Contact</th>
             <th class="fw-bold text-dark">Rôle</th>
             <th class="fw-bold text-dark">Statut</th>
+            <th class="fw-bold text-dark">Connexion</th>
             <th class="fw-bold text-dark">Dernière connexion</th>
             <th class="text-center fw-bold text-dark">Actions</th>
           </tr>
@@ -149,6 +150,9 @@
             </td>
             <td>
               <span [class]="'badge  rounded-pill me-2 text-small ' + (user.statut === 'Actif' ? 'bg-success' : 'bg-danger')">{{user.statut}}</span>
+            </td>
+             <td>
+              <span [class]="'badge  rounded-pill me-2 text-small ' + (user.connected === 'Connecté' ? 'bg-success' : 'bg-danger')">{{user.connected}}</span>
             </td>
             <td>
               <div class="last-connection">

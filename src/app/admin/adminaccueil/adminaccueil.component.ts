@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Chart, ChartConfiguration, ChartType, registerables } from 'chart.js';
 import { interval, map, startWith } from 'rxjs';
 import { AdminService } from 'src/app/services/admin.service';
+import { UserService } from 'src/app/services/user.service';
 
 Chart.register(...registerables);
 
@@ -43,16 +44,8 @@ interface User {
   email: string;
   isActive: boolean;
   avatarColor: string;
-  role?: string; // Ajout du rôle
-  age?: number;  // Ajout de l'âge
-}
-
-interface QuickAction {
-  id: string;
-  icon: string;
-  title: string;
-  description: string;
-  iconColor: string;
+  role?: string;
+  age?: number;
 }
 
 @Component({
@@ -61,7 +54,6 @@ interface QuickAction {
   styleUrls: ['./adminaccueil.component.css']
 })
 export class AdminaccueilComponent implements OnInit, AfterViewInit, OnDestroy {
-  
   // ViewChild pour les canvas des graphiques
   @ViewChild('usersChart', { static: false }) usersChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('datasetsChart', { static: false }) datasetsChartRef!: ElementRef<HTMLCanvasElement>;
@@ -69,30 +61,37 @@ export class AdminaccueilComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('alertsChart', { static: false }) alertsChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('registrationsChart', { static: false }) registrationsChartRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('connectionsChart', { static: false }) connectionsChartRef!: ElementRef<HTMLCanvasElement>;
-  // Nouveau ViewChild pour le graphique log_history
   @ViewChild('logHistoryChart', { static: false }) logHistoryChartRef!: ElementRef<HTMLCanvasElement>;
+  // ViewChild pour les diagrammes circulaires
+  @ViewChild('genderChart', { static: false }) genderChartRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('roleChart', { static: false }) roleChartRef!: ElementRef<HTMLCanvasElement>;
 
-  constructor(private admin_service: AdminService, private router: Router){}
-  
+  constructor(private admin_service: AdminService, private router: Router, private user_service:UserService) {}
+
   // Propriétés du composant
   searchTerm: string = '';
   notificationCount: number = 3;
   registrationsPeriod: string = '30';
   connectionsPeriod: string = '30';
 
-  //Stats
-  activedusers : any = 0
-  connectedusers : any = 0
-  blockedusers : any = 0
-  analyses : any = 0
+  // Stats
+  activedusers: any = 0;
+  connectedusers: any = 0;
+  blockedusers: any = 0;
+  analyses: any = 0;
+  chercheurs: any = 0;
+  etudiants: any = 0;
+  hommes: any = 0;
+  femmes: any = 0;
 
-  //interval 
-  intervalId : any
+  // Interval
+  intervalId: any;
 
-  //loading
-  loading:boolean = false
-  //Periode
-  selectedPeriod: any = 30
+  // Loading
+  loading: boolean = false;
+
+  // Periode
+  selectedPeriod: any = 30;
 
   // Charts instances
   private charts: { [key: string]: Chart } = {};
@@ -123,13 +122,11 @@ export class AdminaccueilComponent implements OnInit, AfterViewInit, OnDestroy {
   };
 
   recentActivities: Activity[] = [];
-
-  // MODIFIÉ - recentUsers maintenant sera rempli dynamiquement
   recentUsers: User[] = [];
 
-  dateHeureActuelle$:any
-  
-  //Periods
+  dateHeureActuelle$: any;
+
+  // Periods
   periods = [
     { value: 7, label: '7 jours' },
     { value: 30, label: '30 jours' },
@@ -137,105 +134,125 @@ export class AdminaccueilComponent implements OnInit, AfterViewInit, OnDestroy {
   ];
 
   ngOnInit(): void {
-    this.setupDateTimeObservable()
-    this.setupIntervals()
-    this.getInfo() 
-    this.get_log_history(this.selectedPeriod)
-    this.get_latest_users()
-    this.get_latest_activities()
+    this.setupDateTimeObservable();
+    this.setupIntervals();
+    this.getInfo();
+    this.get_log_history(this.selectedPeriod);
+    this.get_latest_users();
+    this.get_latest_activities();
   }
 
-  getInfo(){
-    this.admin_service.get_info().subscribe({next:(response)=>{
-      if (response.body.message == 'success'){
-        console.log(response.body)
-        this.activedusers = response.body.active_users
-        this.connectedusers = response.body.connected_users
-        this.blockedusers = response.body.blocked_users
-        this.analyses = response.body.analyses
+  getInfo() {
+    this.admin_service.get_info().subscribe({
+      next: (response) => {
+        if (response.body.message == 'success') {
+          console.log(response.body);
+          this.activedusers = response.body.active_users;
+          this.connectedusers = response.body.connected_users;
+          this.blockedusers = response.body.blocked_users;
+          this.analyses = response.body.analyses;
+          this.chercheurs = response.body.chercheurs;
+          this.etudiants = response.body.etudiants;
+          this.hommes = response.body.hommes;
+          this.femmes = response.body.femmes;
+          // Mettre à jour les graphiques après réception des données
+          setTimeout(() => {
+            this.updatePieCharts();
+          }, 100);
+        }
+      },error : (error) => {
+         if (error.error.message == "Token expiré"){
+          this.user_service.logout()
+          this.router.navigate(["/connexion"])
+        }
       }
-    }})
+    });
   }
 
-  // Get all currents parameters every 10 mins
   private setupIntervals(): void {
     this.intervalId = setInterval(() => {
-      this.getInfo()
-    }, 10000);
+      this.getInfo();
+    }, 10 * 60 * 1000); // 10 minutes
   }
 
-  log_history:any = {}
-  
-  //Get log history - MODIFIÉE pour créer/mettre à jour le graphique
-  get_log_history(periode:number){
-    this.loading=true
-    this.admin_service.get_log_history(periode).subscribe({next:(response)=>{
-      if(response.body.message == "success"){
-        this.log_history = response.body.log_history
-        console.log("log_history",this.log_history)
-        
-        // Créer ou mettre à jour le graphique après avoir reçu les données
-        setTimeout(() => {
-          if (this.charts['logHistory']) {
-            this.updateLogHistoryChart();
-          } else {
-            this.createLogHistoryChart();
-          }
-        }, 100);
-      this.loading=false
+  log_history: any = {};
+
+  get_log_history(periode: number) {
+    this.loading = true;
+    this.admin_service.get_log_history(periode).subscribe({
+      next: (response) => {
+        if (response.body.message == 'success') {
+          this.log_history = response.body.log_history;
+          console.log('log_history', this.log_history);
+          setTimeout(() => {
+            if (this.charts['logHistory']) {
+              this.updateLogHistoryChart();
+            } else {
+              this.createLogHistoryChart();
+            }
+          }, 100);
+          this.loading = false;
+        }
+      },error : (error) => {
+         if (error.error.message == "Token expiré"){
+          this.user_service.logout()
+          this.router.navigate(["/connexion"])
+        }
       }
-    }})
+    });
   }
 
-  //Change period
   onPeriodChange(period: number): void {
     this.selectedPeriod = period;
-    this.get_log_history(this.selectedPeriod)
-  } 
-
-  latest_users:any = {}
-  
-  // MODIFIÉE - Get latest users et transformer en recentUsers
-  get_latest_users(){
-    this.admin_service.get_latest_users().subscribe({next:(response)=>{
-      if(response.body.message == 'success'){
-        this.latest_users = response.body.users
-        console.log('latest_users : ',this.latest_users)
-        
-        // Transformer latest_users en recentUsers
-        this.transformLatestUsersToRecentUsers();
-      }
-    }})
+    this.get_log_history(this.selectedPeriod);
   }
 
-  latest_activities:any = {}
-  // MODIFIÉE - Get latest users et transformer en recentUsers
-  get_latest_activities(){
-    this.admin_service.get_latest_activity().subscribe({next:(response)=>{
-      if(response.body.message == 'success'){
-        this.latest_activities = response.body.latest_activities
-        console.log('latest_activities : ',this.latest_activities)
-        
-        // Transformer latest_activities en recentActivities
-        this.transformLatestActivitiesToRecentActivities();
+  latest_users: any = {};
+
+  get_latest_users() {
+    this.admin_service.get_latest_users().subscribe({
+      next: (response) => {
+        if (response.body.message == 'success') {
+          this.latest_users = response.body.users;
+          console.log('latest_users : ', this.latest_users);
+          this.transformLatestUsersToRecentUsers();
+        }
+      },error : (error) => {
+         if (error.error.message == "Token expiré"){
+          this.user_service.logout()
+          this.router.navigate(["/connexion"])
+        }
       }
-    }})
+    });
   }
 
+  latest_activities: any = {};
 
-  // NOUVELLE FONCTION - Transformer les données latest_users vers recentUsers
+  get_latest_activities() {
+    this.admin_service.get_latest_activity().subscribe({
+      next: (response) => {
+        if (response.body.message == 'success') {
+          this.latest_activities = response.body.latest_activities;
+          console.log('latest_activities : ', this.latest_activities);
+          this.transformLatestActivitiesToRecentActivities();
+        }
+      },error : (error) => {
+         if (error.error.message == "Token expiré"){
+          this.user_service.logout()
+          this.router.navigate(["/connexion"])
+        }
+      }
+    });
+  }
+
   private transformLatestUsersToRecentUsers(): void {
     if (!this.latest_users || !Array.isArray(this.latest_users)) {
       return;
     }
 
     this.recentUsers = this.latest_users.map((user: any) => {
-      // Générer les initiales à partir du prénom et nom
       const initials = this.generateInitials(user.prenom, user.nom);
-      
-      // Générer une couleur basée sur l'ID de l'utilisateur
       const avatarColor = this.generateAvatarColor(user.id);
-      
       return {
         initials: initials,
         name: `${user.prenom} ${user.nom}`.trim(),
@@ -246,11 +263,8 @@ export class AdminaccueilComponent implements OnInit, AfterViewInit, OnDestroy {
         age: user.age
       };
     });
-
     console.log('recentUsers transformé:', this.recentUsers);
   }
-
-  
 
   private transformLatestActivitiesToRecentActivities(): void {
     if (!this.latest_activities || !Array.isArray(this.latest_activities)) {
@@ -258,34 +272,25 @@ export class AdminaccueilComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.recentActivities = this.latest_activities.map((user: any) => {
-      // Générer les initiales à partir du prénom et nom
       const initials = this.generateInitials(user.prenom, user.nom);
-      
-      // Générer une couleur basée sur l'ID de l'utilisateur
       const avatarColor = this.generateAvatarColor(user.id);
-      
       return {
         initials: initials,
         name: `${user.prenom} ${user.nom}`.trim(),
-        email: user.email,
         action: user.action,
-        timeAgo :new Date(user.date_action).toISOString().slice(0, 16).replace('T', ' '),
-        avatarColor: avatarColor,
-        
+        timeAgo: new Date(user.date_action).toISOString().slice(0, 16).replace('T', ' '),
+        avatarColor: avatarColor
       };
     });
-
     console.log('recentActivities transformé:', this.recentActivities);
   }
 
-  //Générer les initiales
   private generateInitials(prenom: string, nom: string): string {
     const prenomInitial = prenom ? prenom.trim().charAt(0).toUpperCase() : '';
     const nomInitial = nom ? nom.trim().charAt(0).toUpperCase() : '';
     return `${prenomInitial}${nomInitial}`;
   }
 
-  //Générer une couleur d'avatar basée sur l'ID
   private generateAvatarColor(id: number): string {
     const colors = [
       'linear-gradient(45deg, #4f5af5, #526aff)',
@@ -299,7 +304,6 @@ export class AdminaccueilComponent implements OnInit, AfterViewInit, OnDestroy {
       'linear-gradient(45deg, #3b82f6, #2563eb)',
       'linear-gradient(45deg, #ec4899, #db2777)'
     ];
-    
     return colors[id % colors.length];
   }
 
@@ -322,7 +326,6 @@ export class AdminaccueilComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.initializeCharts();
-      // Créer le graphique log_history si les données sont déjà disponibles
       if (this.log_history && this.log_history.length > 0) {
         this.createLogHistoryChart();
       }
@@ -333,15 +336,15 @@ export class AdminaccueilComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.refreshInterval) {
       clearInterval(this.refreshInterval);
     }
-    if(this.intervalId){
-      clearInterval(this.intervalId)
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
     }
-    // Détruire tous les graphiques
     Object.values(this.charts).forEach(chart => chart.destroy());
   }
 
   private initializeCharts(): void {
     this.createSmallCharts();
+    this.createPieCharts();
   }
 
   private createSmallCharts(): void {
@@ -350,7 +353,15 @@ export class AdminaccueilComponent implements OnInit, AfterViewInit, OnDestroy {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { display: false }
+          legend: { display: false },
+          tooltip: {
+            enabled: true,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            titleColor: '#ffffff',
+            bodyColor: '#ffffff',
+            borderWidth: 1,
+            cornerRadius: 8
+          }
         },
         scales: {
           x: { display: false },
@@ -434,18 +445,115 @@ export class AdminaccueilComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  // NOUVELLE FONCTION - Créer le graphique log_history
+  private createPieCharts(): void {
+    // Graphique répartition hommes/femmes
+    if (this.genderChartRef) {
+      this.charts['gender'] = new Chart(this.genderChartRef.nativeElement, {
+        type: 'pie' as ChartType,
+        data: {
+          labels: ['Hommes', 'Femmes'],
+          datasets: [{
+            data: [this.hommes, this.femmes],
+            backgroundColor: ['#4f5af5', '#ec4899'],
+            borderColor: ['#ffffff', '#ffffff'],
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                font: { size: 14 },
+                color: '#1f2937'
+              }
+            },
+            tooltip: {
+              titleFont: { size: 16 },
+              bodyFont: { size: 14 },
+              callbacks: {
+                label: (context) => {
+                  const total = this.hommes + this.femmes;
+                  const value = context.raw as number;
+                  const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                  return `${context.label}: ${value} (${percentage}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Graphique répartition chercheurs/étudiants
+    if (this.roleChartRef) {
+      this.charts['role'] = new Chart(this.roleChartRef.nativeElement, {
+        type: 'pie' as ChartType,
+        data: {
+          labels: ['Chercheurs', 'Étudiants'],
+          datasets: [{
+            data: [this.chercheurs, this.etudiants],
+            backgroundColor: ['#06c270', '#f59e0b'],
+            borderColor: ['#ffffff', '#ffffff'],
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                font: { size: 14 },
+                color: '#1f2937'
+              }
+            },
+            tooltip: {
+              titleFont: { size: 16 },
+              bodyFont: { size: 14 },
+              callbacks: {
+                label: (context) => {
+                  const total = this.chercheurs + this.etudiants;
+                  const value = context.raw as number;
+                  const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                  return `${context.label}: ${value} (${percentage}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+  }
+
+  private updatePieCharts(): void {
+    // Mettre à jour le graphique hommes/femmes
+    if (this.charts['gender']) {
+      this.charts['gender'].data.datasets[0].data = [this.hommes, this.femmes];
+      this.charts['gender'].update();
+    }
+
+    // Mettre à jour le graphique chercheurs/étudiants
+    if (this.charts['role']) {
+      this.charts['role'].data.datasets[0].data = [this.chercheurs, this.etudiants];
+      this.charts['role'].update();
+    }
+  }
+
   private createLogHistoryChart(): void {
     if (!this.logHistoryChartRef || !this.log_history || this.log_history.length === 0) {
       return;
     }
 
-    // Détruire le graphique existant s'il y en a un
     if (this.charts['logHistory']) {
       this.charts['logHistory'].destroy();
     }
 
-    // Préparer les données
     const labels = this.log_history.map((item: any) => {
       const date = new Date(item.date);
       return date.toLocaleDateString('fr-FR', {
@@ -456,7 +564,6 @@ export class AdminaccueilComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const data = this.log_history.map((item: any) => item.nombre);
 
-    // Configuration du graphique
     const config: ChartConfiguration = {
       type: 'line',
       data: {
@@ -486,10 +593,7 @@ export class AdminaccueilComponent implements OnInit, AfterViewInit, OnDestroy {
             labels: {
               usePointStyle: true,
               padding: 20,
-              font: {
-                size: 12,
-                weight: '500'
-              }
+              font: { size: 14, weight: '500' }
             }
           },
           tooltip: {
@@ -502,6 +606,8 @@ export class AdminaccueilComponent implements OnInit, AfterViewInit, OnDestroy {
             borderWidth: 1,
             cornerRadius: 8,
             displayColors: false,
+            titleFont: { size: 16 },
+            bodyFont: { size: 14 },
             callbacks: {
               title: (context) => {
                 const index = context[0].dataIndex;
@@ -522,85 +628,53 @@ export class AdminaccueilComponent implements OnInit, AfterViewInit, OnDestroy {
         scales: {
           x: {
             display: true,
-            grid: {
-              display: true,
-              color: 'rgba(0, 0, 0, 0.05)'
-            },
-            ticks: {
-              font: {
-                size: 11
-              },
-              color: '#64748b'
-            }
+            grid: { display: true, color: 'rgba(0, 0, 0, 0.05)' },
+            ticks: { font: { size: 12 }, color: '#64748b' }
           },
           y: {
             display: true,
             beginAtZero: true,
-            grid: {
-              display: true,
-              color: 'rgba(0, 0, 0, 0.05)'
-            },
+            grid: { display: true, color: 'rgba(0, 0, 0, 0.05)' },
             ticks: {
-              font: {
-                size: 11
-              },
+              font: { size: 12 },
               color: '#64748b',
               stepSize: Math.max(1, Math.ceil(Math.max(...data) / 5))
             }
           }
         },
-        interaction: {
-          intersect: false,
-          mode: 'index'
-        },
-        elements: {
-          point: {
-            hoverBorderWidth: 3
-          }
-        },
-        animation: {
-          duration: 750,
-          easing: 'easeInOutQuart'
-        }
+        interaction: { intersect: false, mode: 'index' },
+        elements: { point: { hoverBorderWidth: 3 } },
+        animation: { duration: 750, easing: 'easeInOutQuart' }
       }
     };
 
-    // Créer le graphique
     this.charts['logHistory'] = new Chart(this.logHistoryChartRef.nativeElement, config);
   }
 
-  // NOUVELLE FONCTION - Mettre à jour le graphique log_history
   private updateLogHistoryChart(): void {
     if (this.charts['logHistory'] && this.log_history && this.log_history.length > 0) {
       const labels = this.log_history.map((item: any) => {
         const date = new Date(item.date);
-        return date.toLocaleDateString('fr-FR', {
-          day: '2-digit',
-          month: '2-digit'
-        });
+        return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
       });
 
       const data = this.log_history.map((item: any) => item.nombre);
 
       this.charts['logHistory'].data.labels = labels;
       this.charts['logHistory'].data.datasets[0].data = data;
-      
-      // Simplement mettre à jour sans recalculer le stepSize
       this.charts['logHistory'].update('active');
     }
   }
 
-  // Méthodes d'interaction
   showNotifications(): void {
     console.log('Afficher les notifications');
-    // Implémentation de l'affichage des notifications
   }
 
-  viewAllActivities(){
-   this.router.navigate(["/admin/activite"])
+  viewAllActivities() {
+    this.router.navigate(['/admin/activite']);
   }
 
-  viewAllUsers(){
-    this.router.navigate(["/admin/user"])
+  viewAllUsers() {
+    this.router.navigate(['/admin/user']);
   }
 }

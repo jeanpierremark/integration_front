@@ -51,7 +51,7 @@ getFirstName(): string {
           next : (response) =>{
           if(response.body.message=='success'){
             this.user_service.logout();
-            this.showToastMessage('success', 'Déconnexion réussie');
+            this.showToastMessage('success', 'À bientôt ');
             this.router.navigate(["/connexion"]);
             console.log('vers connexion')
           }

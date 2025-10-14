@@ -60,16 +60,16 @@ user: any = []
             if(response.body.message == "Success"){
                 if(response.body.user.isActive == true ){
                   if(response.body.user.role == "Admin"){
-                  this.showToastMessage('success', 'Connexion réussie');
+                  this.showToastMessage('success', 'Bienvenu(e)'+' '+sessionStorage.getItem('prenom')+' '+sessionStorage.getItem('nom') );
                   this.router.navigate(["/admin/accueil"])
                   
                 }
                 else if(response.body.user.role == "Chercheur"){
-                  this.showToastMessage('success', 'Connexion réussie');
+                  this.showToastMessage('success', 'Bienvenu(e)'+' '+sessionStorage.getItem('prenom')+' '+sessionStorage.getItem('nom') );
                   this.router.navigate(["/chercheur/accueil"])
                 } 
                 else{
-                  this.showToastMessage('success', 'Connexion réussie');
+                  this.showToastMessage('success', 'Bienvenu(e)'+' '+sessionStorage.getItem('prenom')+' '+sessionStorage.getItem('nom') );
                   this.router.navigate(["/etudiant/visualisation"])
                 }
               }

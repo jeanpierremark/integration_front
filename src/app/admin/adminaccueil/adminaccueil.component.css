@@ -26,12 +26,102 @@
 }
   
 
+/* Styles pour les cartes dans stats-grid et charts-grid */
 
+.charts-grid .stat-card {
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.stat-chart {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 1.5rem;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-chart::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: #337cf2;
+}
+
+
+/* Conteneur des graphiques dans stats-grid */
+.chart-container {
+  width: 100%;
+  height: 200px; /* Hauteur pour les graphiques en barres */
+  position: relative;
+}
+
+/* Conteneur des graphiques dans charts-grid */
+.content-grid .chart-container {
+  width: 100%;
+  height: 250px; /* Hauteur augmentée pour les diagrammes circulaires */
+  position: relative;
+}
+
+/* Conteneur du graphique des connexions quotidiennes */
+.large-chart-container {
+  width: 100%;
+  height: 400px; /* Hauteur pour le graphique en ligne */
+  position: relative;
+  margin-top: 20px;
+}
+
+/* Assurer que le canvas remplit le conteneur */
+.chart-container canvas,
+.large-chart-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Styles pour la grille des diagrammes circulaires */
+.charts-grid {
+  width: 100%;
+  margin: 20px auto;
+  max-width: 1200px;
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Deux colonnes de largeur égale (50% chacune) */
+  gap: 20px;
+}
+
+
+/* Responsive : empiler les cartes sur mobile */
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr; /* Empiler les cartes */
+  }
+
+  .charts-grid {
+    grid-template-columns: 1fr; /* Empiler les diagrammes circulaires */
+  }
+
+  .stats-grid .chart-container {
+    height: 180px; /* Réduction pour mobile */
+  }
+
+  .charts-grid .chart-container {
+    height: 220px; /* Réduction pour mobile */
+  }
+
+  .large-chart-container {
+    height: 350px; /* Réduction pour mobile */
+  }
+}
 
 
 .main-content {
     padding: 2rem;
-    max-width: 2000px;
+    width: 100%;
     margin: 0 auto;
 }
 

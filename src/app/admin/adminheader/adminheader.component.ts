@@ -48,14 +48,19 @@ getFirstName(): string {
     }).then((result) => {
       if (result.isConfirmed) {
         this.user_service.logout_sec().subscribe({
-         next : (response=>{
+         next : (response)=>{
           if(response.body.message=='success'){
             this.user_service.logout();
-            this.showToastMessage('success', 'Déconnexion réussie');
+            this.showToastMessage('success', 'À bientôt ');
             this.router.navigate(["/connexion"]);
             console.log('vers connexion')
           }
-         })
+         },error : (error) => {
+            if (error.error.message == "Token expiré"){
+              this.user_service.logout()
+              this.router.navigate(["/connexion"])
+            }
+      }
         });
       }
     })

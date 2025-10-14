@@ -1,7 +1,7 @@
 <!-- weather-analysis.component.html -->
 <div class="min-h-screen bg-gradient-to-br">
   <!-- Header Dashboard -->
-  <div class="bg-gradient-to-r text-white p-4 shadow-lg">
+  <div class="bg-gradient-to-r text-white  shadow-lg">
     <div class="container-fluid">
       <div class="row align-items-center">
         <div class="col-md-8">
@@ -161,7 +161,7 @@
       </section>
 
      
-      <!-- Parameters -->
+   <!-- Parameters -->
       <section class="config-section">
         <h2 class="bi bi-activity text-primary section-title">
           Paramètres à Analyser
@@ -171,6 +171,7 @@
             *ngFor="let param of parameters; trackBy: trackByParameter"
             class="param-item" 
             [class.selected]="selectedParameters.includes(param.value)"
+            [class.disabled]="getParameterAvailability(param.value) === 'unavailable'"
             (click)="toggleParameter(param.value)"
           >
             <div class="param-checkbox">
@@ -183,6 +184,12 @@
               <h4>{{ param.label }}</h4>
               <div class="param-unit">{{ param.unit }}</div>
             </div>
+            <span 
+              class="availability-badge" 
+              [class]="getParameterAvailability(param.value)"
+            >
+              {{ getParameterAvailabilityText(param.value) }}
+            </span>
           </div>
         </div>
       </section>
@@ -269,8 +276,8 @@
             <ng-container *ngIf="tendance[city][param]">
               <div class="trend-analysis-card">
                 <!-- Label du paramètre -->
-                <div class="preview-label">
-                  Tendance {{ getParameterLabel(param) }} à <span class="btn btn-primary ">{{ city }}</span>
+                <div class="preview-label fw-bold fs-5">
+                  Tendance {{ getParameterLabel(param) }} à <span class="text-primary ">{{ city }} de {{periode}}</span>
                 </div>
                 <!-- Valeur principale de la pente -->
                 <div class="preview-value fw-bold" [style.color]="getParameterColor(param)">
@@ -362,7 +369,7 @@
         <!-- En-tête de la ville -->
         <div class="city-header">
           <div class="preview-label">
-            Analyse de corrélation - <span class="btn btn-primary">{{ city }}</span>
+            Analyse de corrélation - <span class="text-primary">{{ city }} pour la période de {{periode}}</span>
           </div>
           <div class="data-points-info">
             <span class="stat-label">Points de données:</span>
@@ -511,7 +518,7 @@
   
   <!-- Section des moyennes avec graphique -->
   <div class="compare-section">
-    <h3 class="compare-title">Moyennes par ville</h3>
+    <h3 class="compare-title">Moyennes par ville pour la période de <span> {{periode}} </span></h3>
     
     <!-- Graphique des moyennes -->
     <div class="compare-chart-wrapper">
@@ -594,7 +601,7 @@
                 {{ getParameterLabel(param) }}
               </h3>
               
-              <span class="city-na btn btn-primary  text-white ">{{ city }}</span>
+              <span class="city-na text-primary ">{{ city }}</span>
             </div>
 
             <!-- Contenu des statistiques -->

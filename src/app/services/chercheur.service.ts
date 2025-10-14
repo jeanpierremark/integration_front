@@ -75,4 +75,25 @@ export class ChercheurService {
   get_direct_comparaison(ville:any,source:string,params:any,period:string){
     return this.http.get<any>('http://localhost:3001/data_chercheur/api/chercheur/comparative/'+ville+'/'+source+'/'+params+'/'+period,{observe:'response',headers: this.httpOptions.headers})
    }
+  //Descriptive  analysis
+  get_descriptive_from_etl (ville:any,params:any,period:string){
+    return this.http.get<any>('http://localhost:3001/data_chercheur/api/chercheur/descriptive_sqlserver/'+ville+'/'+'/'+params+'/'+period,{observe:'response',headers: this.httpOptions.headers})
+   }
+  //Tendance  analysis
+  get_tendance_from_etl (ville:any,params:any,period:string){
+    return this.http.get<any>('http://localhost:3001/data_chercheur/api/chercheur/tendances_sqlserver/'+ville+'/'+'/'+params+'/'+period,{observe:'response',headers: this.httpOptions.headers})
+   }
+  //Correlation  analysis
+  get_correlation_from_etl (ville:any,params:any,period:string){
+    return this.http.get<any>('http://localhost:3001/data_chercheur/api/chercheur/correlation_sqlserver/'+ville+'/'+'/'+params+'/'+period,{observe:'response',headers: this.httpOptions.headers})
+   }
+  //Correlation  analysis
+  get_comparaison_from_etl (ville:any,params:any,period:string){
+    return this.http.get<any>('http://localhost:3001/data_chercheur/api/chercheur/comparative_sqlserver/'+ville+'/'+'/'+params+'/'+period,{observe:'response',headers: this.httpOptions.headers})
+   }
+
+  //Correlation  analysis
+  get_prevision(ville:any,period:any){
+    return this.http.get<any>('http://localhost:3001/data_chercheur/api/chercheur/prevision/'+ville+'/'+period,{observe:'response',headers: this.httpOptions.headers})
+   }
 }

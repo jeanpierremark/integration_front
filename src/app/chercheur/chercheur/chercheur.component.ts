@@ -376,9 +376,9 @@ capitalize(text: string): string {
     { 
       key: 'nebulosite', 
       label: 'Nébulosité', 
-      unit: '', 
-      icon: 'bi-sun', 
-      color: '#f59e0b' 
+      unit: '%', 
+      icon: 'bi-cloud', 
+      color: '#7aabf5ff' 
     }
   ];
 
