@@ -1,1 +1,158 @@
-<p>etudiantprevision works!</p>
+<div class="weather-dashboard">
+  <div class="dashboard-container">
+    
+    <!-- En-tête -->
+    <div class="dashboard-header">
+      <div class="header-info">
+        <div class="header-icon bg-light">
+          <span class="bi bi-cloud text-primary fs-3"></span>
+        </div>
+        <div class="header-text">
+          <h1>Prédictions Météorologiques</h1>
+          <p>Modèle de prédiction - 7, 10 ou 15   prochains jours</p>
+        </div>
+      </div>
+      
+      <div class="view-controls">
+        
+        <select id="ville"
+            class="form-select border-primary shadow-sm"
+            [(ngModel)]="selected_ville"
+            (change)="onVilleChange(selected_ville)">
+          <option *ngFor="let v of villes" [value]="v">{{ v }}</option>
+        </select>
+        <select id="periode"
+            class="form-select border-primary shadow-sm"
+            [(ngModel)]="selected_period"
+            (change)="onPeriodeChange(selected_period)">
+          <option *ngFor="let p of periodes" [value]=p>{{ p }}</option>
+        </select>
+        <!--<button 
+          class="control-btn"
+          [class.active]="viewMode === 'combined'"
+          (click)="setViewMode('combined')">
+          combinée
+        </button>
+        <button 
+          class="control-btn"
+          [class.active]="viewMode === 'separate'"
+          (click)="setViewMode('separate')">
+          séparée
+        </button> -->
+      </div>
+    </div>
+    
+<!-- Loading Overlay -->
+  <div *ngIf="loading" class="loading-overlay">
+    <div class="loading-spinner">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+      <p class="mt-3">Chargement...</p>
+    </div>
+  </div>
+    <!-- Statistiques -->
+    <div class="stats-grid">
+      <div class="stat-card temp-card bg-light">
+        <div class="stat-content">
+          <div class="stat-info">
+            <p class="stat-label text-success">Temp. Moyenne</p>
+            <p class="stat-value text-success">{{ stats.avgTemp }}°C</p>
+          </div>
+          <span class="bi bi-thermometer text-success"></span>
+        </div>
+      </div>
+      
+      <div class="stat-card precip-card bg-light">
+        <div class="stat-content">
+          <div class="stat-info">
+            <p class="stat-label text-primary">Temp. Minimale </p>
+            <p class="stat-value text-primary">{{ stats.minTemp }}°</p>
+          </div>
+          <span class="bi bi-graph-down text-primary"></span>
+        </div>
+      </div>
+      
+      <div class="stat-card minmax-card bg-light">
+        <div class="stat-content">
+          <div class="stat-info">
+            <p class="stat-label text-danger">Temp. Maximale</p>
+            <p class="stat-value text-danger">{{ stats.maxTemp }}°</p>
+          </div>
+          <span class="bi bi-graph-up text-danger"></span>
+        </div>
+      </div>
+      
+      <div class="stat-card period-card bg-light">
+        <div class="stat-content">
+          <div class="stat-info ">
+            <p class="stat-label text-warning">Période</p>
+            <p class="stat-value text-warning">{{selected_period}} jours</p>
+          </div>
+          <span class="bi bi-calendar-range text-warning"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Graphiques -->
+    <div class="charts-section">
+      
+      <div class="chart-container">
+        <h2 class="chart-title">Température (°C)  {{selected_ville}}</h2>
+        <div class="temperature-chart">
+          <canvas baseChart
+            [data]="temperatureChartData"
+            [options]="temperatureChartOptions"
+            [type]="'line'">
+          </canvas>
+        </div>
+      </div>
+
+        
+      </div>
+  
+
+    <!-- Tableau détaillé 
+    <div class="details-section">
+      <h2 class="section-title">Détails des Prédictions</h2>
+      <div class="table-container">
+        <table class="predictions-table">
+          <thead>
+            <tr>
+              <th>Jour</th>
+              <th>Température</th>
+              <th>Humidité</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let pred of predictions; let i = index" 
+                class="table-row"
+                [class]="getWeatherClass(pred.temperature, pred.precipitation)">
+              <td class="day-cell">
+                <div class="day-info">
+                  <div class="day-name">{{ pred.jour }}</div>
+                  <div class="day-date">{{ pred.date }}</div>
+                </div>
+              </td>
+              
+              <td class="temp-cell">
+                <span class="temp-value" [style.color]="getTempColor(pred.temperature)">
+                  {{ pred.temperature }}°C
+                </span>
+              </td>
+              <td class="humidity-cell">
+                <span class="humidity-value">{{ pred.humidite }}%</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>-->
+
+    <!-- Footer -->
+    <div class="dashboard-footer">
+      <p>Prédictions générées par modèle LSTM •  {{ currentDate }}</p>
+    </div>
+
+  </div>
+</div>

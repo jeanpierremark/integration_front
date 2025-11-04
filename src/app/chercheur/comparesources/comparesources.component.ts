@@ -90,7 +90,6 @@ export class ComparesourcesComponent implements OnInit {
       open: this.chercheur_service.getlast7open(this.searchText, parameter)
     }).subscribe({
       next: (responses) => {
-        // Traitement des réponses
         if (responses.weather.body.message === "success") {
           this.last7weather = responses.weather.body.last7_weather;
           console.log('7 days Weather API',this.last7weather)

@@ -226,8 +226,8 @@ export class AnalyseavanceComponent implements OnInit, OnDestroy, AfterViewInit 
   periods: Period[] = [
     { value: '7d', label: '7 derniers jours', icon: 'bi-calendar-week' },
     { value: '30d', label: '30 derniers jours', icon: 'bi-calendar-month' },
-    { value: '90d', label: '90 derniers mois', icon: 'bi-calendar-month' },
-    { value: '180d', label: '180 derniers mois', icon: 'bi-calendar-month' },
+    { value: '90d', label: '90 derniers jours', icon: 'bi-calendar-month' },
+    { value: '180d', label: '180 derniers jours', icon: 'bi-calendar-month' },
     { value: '1y', label: 'dernière année', icon: 'bi-calendar3' },
     { value: '10y', label: '10 dernières années', icon: 'bi-calendar3' },
     { value: '15y', label: '15 dernières années', icon: 'bi-calendar3' },
