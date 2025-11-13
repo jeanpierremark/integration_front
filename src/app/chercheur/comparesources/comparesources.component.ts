@@ -5,6 +5,7 @@ import { Chart, ChartConfiguration, ChartType } from 'chart.js';
 import { interval, map, startWith, forkJoin } from 'rxjs';
 import { ChercheurService } from 'src/app/services/chercheur.service';
 import { UserService } from 'src/app/services/user.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-comparesources',
@@ -75,7 +76,6 @@ export class ComparesourcesComponent implements OnInit {
   }
 
   loadInitialData() {
-    this.isLoading = true;
     this.loadDataForParameter(this.selectedParameter);
   }
 
@@ -90,21 +90,21 @@ export class ComparesourcesComponent implements OnInit {
       open: this.chercheur_service.getlast7open(this.searchText, parameter)
     }).subscribe({
       next: (responses) => {
-        if (responses.weather.body.message === "success") {
+        if (responses.weather.body.message === "success" 
+          && responses.meteo.body.message === "success"
+          && responses.open.body.message === "success") {
           this.last7weather = responses.weather.body.last7_weather;
           console.log('7 days Weather API',this.last7weather)
-
-        }
-        
-        if (responses.meteo.body.message === "success") {
-          this.last7meteo = responses.meteo.body.last7_meteo;
+          this.last7meteo = responses.meteo.body.last7_meteo
           console.log('7 days Open Meteo',this.last7meteo)
-
-        }
-        
-        if (responses.open.body.message === "success") {
-          this.last7open = responses.open.body.last7_open;
+           this.last7open = responses.open.body.last7_open;
           console.log('7 days Open Weather',this.last7open)
+        }
+        else{
+          this.showNotification('Cette ville n\'existe pas','error')
+          this.last7weather = []
+          this.last7open = []
+          this.last7meteo = []
         }
         
         // Génération des données une fois toutes les réponses reçues
@@ -405,5 +405,17 @@ calculateStats() {
 
   getCurrentParameter() {
     return this.parameters.find(p => p.value === this.selectedParameter) || this.parameters[0];
+  }
+
+ showNotification(message: string, type: 'success' | 'error' | 'warning' | 'info'): void {
+    Swal.fire({
+      toast: true,
+      icon: type,
+      title: message,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 6000,
+      timerProgressBar: true
+    });
   }
 }

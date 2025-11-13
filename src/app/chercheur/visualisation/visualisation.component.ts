@@ -125,7 +125,7 @@ export class VisualisationComponent implements OnInit, OnDestroy {
   quickStats: QuickStat[] = [
     {
       label: 'Température Actuelle',
-      value: '--',
+      value: '0',
       unit: '°C',
       color: '#ef4444',
       icon: 'bi-thermometer',
@@ -133,7 +133,7 @@ export class VisualisationComponent implements OnInit, OnDestroy {
     },
     {
       label: 'Humidité Actuelle ',
-      value: '--',
+      value: '0',
       unit: '%',
       color: '#3b82f6',
       icon: 'bi-droplet',
@@ -141,7 +141,7 @@ export class VisualisationComponent implements OnInit, OnDestroy {
     },
     {
       label: 'Pression Atmos. Actuelle',
-      value: '--',
+      value: '0',
       unit: ' hPa',
       color: '#8b5cf6',
       icon: 'bi-speedometer2',
@@ -149,7 +149,7 @@ export class VisualisationComponent implements OnInit, OnDestroy {
     },
     {
       label: 'Vitesse du Vent Actuelle',
-      value: '--',
+      value: '0',
       unit: ' km/h',
       color: '#10b981',
       icon: 'bi-wind',
@@ -274,6 +274,13 @@ ngOnDestroy() {
           next: (response) => {
             if (response.body.message === "success") {
               this.climatDict24h[param] = response.body.last24_avg;
+            }else{
+              this.climatDict24h = {}
+              this.quickStats[0].value = '0'
+              this.quickStats[1].value = '0'
+              this.quickStats[2].value = '0'
+              this.quickStats[3].value = '0'
+              this.showNotification('Cette ville n\'existe pas','error')
             }
             completedRequests++;
             if (completedRequests === totalRequests) {
@@ -313,6 +320,9 @@ ngOnDestroy() {
           next: (response) => {
             if (response.body.message === "success") {
               this.climatDict7d[param] = response.body.last7d_avg;
+            }else{
+              this.climatDict7d = {}
+              this.showNotification('Cette ville n\'existe pas','error')
             }
             completedRequests++;
             if (completedRequests === totalRequests) {
@@ -352,6 +362,9 @@ ngOnDestroy() {
           next: (response) => {
             if (response.body.message === "success") {
               this.climatDict30d[param] = response.body.monthly_avg;
+            }else{
+              this.climatDict30d = {}
+              this.showNotification('Cette ville n\'existe pas','error')
             }
             completedRequests++;
             if (completedRequests === totalRequests) {
@@ -385,6 +398,10 @@ ngOnDestroy() {
             this.latest_data = response.body.latest_data[0];
             console.log('last hour ', this.latest_data);
           }
+          else{
+            this.showNotification('Cette ville n\'existe pas','error')
+            this.latest_data = []
+          }
           resolve();
           this.loading = false
 
@@ -415,6 +432,9 @@ ngOnDestroy() {
             this.updateQuickStats();
             this.loading = false
 
+          } else{
+            this.showNotification('Cette ville n\'existe pas','error')
+            this.current_data = []
           }
           resolve();
         }, error: (error) => {
@@ -431,10 +451,10 @@ ngOnDestroy() {
 
   private updateQuickStats(): void {
     if (this.current_data && this.latest_data) {
-      this.quickStats[0].value = this.current_data['temperature'] 
-      this.quickStats[1].value = this.current_data['humidite'] 
-      this.quickStats[2].value = this.current_data['pression'] 
-      this.quickStats[3].value = this.current_data['vitesse_vent'] 
+      this.quickStats[0].value = this.current_data['temperature'] || 0
+      this.quickStats[1].value = this.current_data['humidite'] || 0
+      this.quickStats[2].value = this.current_data['pression'] || 0
+      this.quickStats[3].value = this.current_data['vitesse_vent'] || 0
 
       this.quickStats[0].trend = this.current_data['temperature'] - this.latest_data['temperature'] || 0 
       this.quickStats[1].trend = this.current_data['humidite'] - this.latest_data['humidite'] || 0
