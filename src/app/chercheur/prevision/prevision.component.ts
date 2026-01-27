@@ -51,7 +51,7 @@ export class PrevisionComponent implements OnInit {
         borderColor: 'rgba(54, 162, 235, 1)',
         backgroundColor: 'rgba(54, 162, 235, 0.3)',
         fill: true,
-        tension: 0.3,
+        tension: 0.0,
         pointRadius: 5,
         pointHoverRadius: 7,
       },

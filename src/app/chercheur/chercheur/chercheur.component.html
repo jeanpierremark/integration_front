@@ -16,7 +16,7 @@
                         <i class="bi bi-speedometer2 me-3" style="font-size: 2.5rem;"></i>
                         <div>
                             <h1 class="h2 fw-bold mb-1" style="margin-top:10px">Dashboard Météo</h1>
-                            <p class="text-blue-100 mb-0" style="font-size: 17px;">Vue d'ensemble sur une localité en quasi temps réel</p>
+                            <p class="text-blue-100 mb-0" style="font-size: 17px;">Vue d'ensemble sur une localité en temps réel</p>
                         </div>
                         <div class="search-bar">
                             <input type="text" class="form-control" placeholder="Recherche..."[(ngModel)]="searchText"/>
@@ -151,7 +151,6 @@
                   <th>Statut</th>
                   <th class="text-center">{{ getCurrentParameter().label }}</th>
                   <th class="text-center">Dernière MAJ</th>
-                  <th class="text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -187,14 +186,14 @@
                       {{getLastUpdateString()}}
                     </small>
                   </td>
-                  <td class="text-center">
+                 <!-- <td class="text-center">
                     <button class="btn btn-sm btn-outline-primary me-1" title="Actualiser">
                       <i class="bi-arrow-clockwise"></i>
                     </button>
                     <button class="btn btn-sm btn-outline-secondary" title="Détails">
                       <i class="bi-info-circle"></i>
                     </button>
-                  </td>
+                  </td>-->
                 </tr>
               </tbody>
             </table>

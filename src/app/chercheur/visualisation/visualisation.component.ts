@@ -296,7 +296,7 @@ ngOnDestroy() {
             console.error(`Erreur pour ${param}:`, error);
             completedRequests++;
             if (completedRequests === totalRequests) {
-              resolve(); // Continue même avec des erreurs
+              resolve(); 
             }
           }
         });

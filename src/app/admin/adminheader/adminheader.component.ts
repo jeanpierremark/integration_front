@@ -18,6 +18,8 @@ getFirstName(): string {
  // Informations utilisateur
   user: string = `${this.getFirstName()} ${sessionStorage.getItem('nom') || ''}`.trim();
   stat: any = sessionStorage.getItem('role');
+  id: any = sessionStorage.getItem('id');
+
 
   constructor(private router: Router, private user_service : UserService) {}
 
@@ -47,7 +49,7 @@ getFirstName(): string {
       cancelButtonColor: '#d33',
     }).then((result) => {
       if (result.isConfirmed) {
-        this.user_service.logout_sec().subscribe({
+        this.user_service.logout_sec(this.id).subscribe({
          next : (response)=>{
           if(response.body.message=='success'){
             this.user_service.logout();
@@ -56,7 +58,8 @@ getFirstName(): string {
             console.log('vers connexion')
           }
          },error : (error) => {
-            if (error.error.message == "Token expiré"){
+            if (error.error){
+              this.showToastMessage('success', 'À bientôt ');
               this.user_service.logout()
               this.router.navigate(["/connexion"])
             }

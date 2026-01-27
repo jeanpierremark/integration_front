@@ -16,19 +16,12 @@ private intervalId1:any
 
 
 
-//Données Weather
-data_weather:any=[]
-condition:any
-
-
-  moisEtAnnee!: string;
-  heureActuelle!: string;
-  today: Date=new Date();
-
-  //search
-  searchText: string = 'Dakar';
-
-
+ngOnInit() {
+  const img = new Image();
+  img.src = '/assets/img/nuage_ciel.jpg';
+  
+  this.loading = false; 
+}
 
   
   loading:boolean = true

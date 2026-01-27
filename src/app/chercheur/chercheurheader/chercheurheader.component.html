@@ -44,11 +44,12 @@
             <div class="nav-item-wrapper" [class.active]="activeLink === 'analyse'" (click)="setActive('analyse')">
                 <a routerLink="/chercheur/analyse" class="nav-item">Analyse Approfondie</a>
             </div>
+             <div class="nav-item-wrapper" [class.active]="activeLink === 'prevision'" (click)="setActive('prevision')">
+                <a routerLink="/chercheur/prevision" class="nav-item">Prévision</a>
+            </div>
             <div class="nav-item-wrapper" [class.active]="activeLink === 'rapport'" (click)="setActive('rapport')">
                 <a routerLink="/chercheur/rapport" class="nav-item">Rédiger un rapport</a>
             </div>
-            <div class="nav-item-wrapper" [class.active]="activeLink === 'prevision'" (click)="setActive('prevision')">
-                <a routerLink="/chercheur/prevision" class="nav-item">Prévision</a>
-            </div>
+           
         </div>
     </div>

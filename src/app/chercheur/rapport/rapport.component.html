@@ -1,6 +1,6 @@
 <div class="report-editor">
   <!-- Mode Aperçu -->
-  <div *ngIf="previewMode" class="preview-mode">
+  <div *ngIf="previewMode" id="report-preview" class="preview-mode">
     <div class="preview-header">
       <h1 class="preview-title">Aperçu du Rapport</h1>
       <div class="preview-actions">
@@ -33,13 +33,24 @@
 
       <div *ngFor="let section of report.sections; let i = index" class="report-section">
         <h3 class="section-title">{{ i + 1 }}. {{ section.title }}</h3>
-        <div *ngIf="section.type === 'chart'; else textContent" class="chart-placeholder">
+
+        <!-- Aperçu graphique -->
+        <div *ngIf="section.type === 'chart'" class="chart-placeholder">
           <i class="bi bi-bar-chart chart-preview-icon"></i>
           <p>Graphique: {{ section.chartData?.title }}</p>
         </div>
-        <ng-template #textContent>
-          <div class="section-content" [innerHTML]="formatTextWithMarkdown(section.content || 'Contenu à rédiger...')"></div>
-        </ng-template>
+
+        <!-- Aperçu image -->
+        <div *ngIf="section.type === 'image'" class="report-image-wrapper">
+          <img [src]="section.content" class="report-image" alt="Image de section" />
+        </div>
+
+        <!-- Aperçu texte -->
+        <div *ngIf="section.type === 'text'" 
+             class="section-content" 
+             [innerHTML]="formatTextWithMarkdown(section.content || 'Contenu à rédiger...')">
+        </div>
+
       </div>
     </div>
   </div>
@@ -126,10 +137,12 @@
               <i class="bi bi-plus-circle"></i>
               Texte
             </button>
-            <button class="btn btn-sm btn-success" (click)="addSection('chart')">
+            <!-- AJOUT DU BOUTON IMAGE -->
+            <button class="btn btn-sm btn-success" (click)="addSection('image')">
               <i class="bi bi-bar-chart"></i>
-              Résultat
+              Graphique
             </button>
+            
           </div>
         </div>
       </div>
@@ -154,7 +167,9 @@
       </div>
 
       <div class="main-body">
+
         <div *ngIf="getActiveSection(); else noSelection">
+
           <!-- Titre de la section -->
           <div class="form-group">
             <label class="form-label">Titre de la Section</label>
@@ -166,8 +181,20 @@
             />
           </div>
 
-          <!-- Contenu graphique -->
-          <div *ngIf="getActiveSection()?.type === 'chart'; else textEditor">
+          <!-- Section IMAGE -->
+          <div *ngIf="getActiveSection()?.type === 'image'">
+            <div class="form-group">
+              <label class="form-label">Importer une Image</label>
+              <input type="file" accept="image/*" (change)="onImageUpload($event)" class="form-input" />
+            </div>
+
+            <div *ngIf="getActiveSection()?.content" class="image-preview">
+              <img [src]="getActiveSection()?.content" class="preview-img" alt="Image importée" />
+            </div>
+          </div>
+
+          <!-- Section CHART -->
+          <div *ngIf="getActiveSection()?.type === 'chart'">
             <div class="form-group">
               <label class="form-label">Type de Graphique</label>
               <select 
@@ -191,61 +218,21 @@
             </div>
           </div>
 
-          <!-- Éditeur de texte -->
-          <ng-template #textEditor>
+          <!-- Section TEXTE -->
+          <div *ngIf="getActiveSection()?.type === 'text'">
             <div class="form-group">
               <label class="form-label">Contenu</label>
-              
-              <!-- Barre d'outils de formatage -->
-              <div class="formatting-toolbar">
-                <!-- Groupe de formatage de base -->
-                <div class="toolbar-group">
-                  <button 
-                    type="button"
-                    class="toolbar-btn" 
-                    (click)="insertFormatting('bold')"
-                    title="Gras (Ctrl+B)"
-                  >
-                    <i class="bi bi-type-bold"></i>
-                  </button>
-                  <button 
-                    type="button"
-                    class="toolbar-btn" 
-                    (click)="insertFormatting('italic')"
-                    title="Italique (Ctrl+I)"
-                  >
-                    <i class="bi bi-type-italic"></i>
-                  </button>
-                  <button 
-                    type="button"
-                    class="toolbar-btn" 
-                    (click)="insertFormatting('underline')"
-                    title="Souligné (Ctrl+U)"
-                  >
-                    <i class="bi bi-type-underline"></i>
-                  </button>
-                  <button 
-                    type="button"
-                    class="toolbar-btn" 
-                    (click)="insertFormatting('strikethrough')"
-                    title="Barré"
-                  >
-                    <i class="bi bi-type-strikethrough"></i>
-                  </button>
-                </div>
-
-               
-              </div>
 
               <textarea 
                 class="form-textarea"
                 [value]="getActiveSection()?.content"
                 (input)="onSectionContentChange(activeSection, $any($event.target).value)"
-                placeholder="Rédigez le contenu de cette section... Vous pouvez utiliser la barre d'outils pour le formatage."
+                placeholder="Rédigez le contenu de cette section..."
               ></textarea>
               
             </div>
-          </ng-template>
+          </div>
+
         </div>
 
         <ng-template #noSelection>
@@ -254,6 +241,7 @@
             <p>Sélectionnez une section pour commencer à rédiger</p>
           </div>
         </ng-template>
+
       </div>
     </div>
   </div>

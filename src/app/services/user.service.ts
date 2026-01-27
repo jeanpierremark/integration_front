@@ -7,6 +7,7 @@ import { map } from 'rxjs';
   providedIn: 'root'
 })
 export class UserService {
+  token:string = ""
 
  constructor(private http : HttpClient) { }
   getDecodedAccessToken(token : string):any{
@@ -51,8 +52,8 @@ export class UserService {
     )
   }
   
-  logout_sec(){
-    return this.http.post<any>('http://localhost:3001/users/api/user/logout',null,{ observe: 'response',headers: this.httpOptions.headers});
+  logout_sec(id:any){
+    return this.http.post<any>('http://localhost:3001/users/api/user/logout',{id},{ observe: 'response',headers: this.httpOptions.headers});
   }
 
   logout(){

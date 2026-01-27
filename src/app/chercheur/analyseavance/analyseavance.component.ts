@@ -861,6 +861,7 @@ export class AnalyseavanceComponent implements OnInit, OnDestroy, AfterViewInit 
         this.selectedCities, this.selectedSource, this.selectedParameters, this.selectedPeriod
       ).subscribe({
         next: (response) => {
+          console.log("Response", response) 
           if (response.body.message === 'success') {
             this.correlation = response.body.correlations;
             this.periode = response.body.period;
@@ -877,6 +878,7 @@ export class AnalyseavanceComponent implements OnInit, OnDestroy, AfterViewInit 
         },
         error: (error: HttpErrorResponse) => {
           this.loading = false;
+          console.log("Error", error.error.error)
           this.showNotification(error.error.error, 'error');
           this.action = 'L\'utilisateur tente de lancer une analyse de corrélation';
           this.statut = false;
